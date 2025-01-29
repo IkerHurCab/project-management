@@ -1,2 +1,5 @@
 @import "tailwindcss";
 @source "../views";
+@theme {
+    --font-apple: -apple-system, BlinkMacSystemFont, sans-serif;
+}

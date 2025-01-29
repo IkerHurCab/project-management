@@ -2,5 +2,5 @@
 </script>
  
 <template>
-<p class="text-5xl text-red-600 underline">Test Home</p>
+<p class="text-5xl font-apple">Dashboard</p>
 </template>
