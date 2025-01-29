@@ -1,6 +1,7 @@
 version: '3'
 services:
     laravel:
+        container_name: "iker-pm-platform"
         build:
             context: ./vendor/laravel/sail/runtimes/8.2
             dockerfile: Dockerfile
@@ -25,9 +26,10 @@ services:
             - pgsql
         restart: unless-stopped
     pgsql:
+        container_name: "iker-pm-database"
         image: 'postgres:15'
         ports:
-            - '${FORWARD_DB_PORT:-5438}:5432' 
+            - '${FORWARD_DB_PORT:-5438}:5432'
         environment:
             POSTGRES_DB: '${DB_DATABASE}'
             POSTGRES_USER: '${DB_USERNAME}'
