@@ -14,20 +14,33 @@ class LoginController extends Controller
         return Inertia::render('Auth/Login');
     }
 
-    public function store(Request $request){
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required|string',
+    public function store(Request $request) {
+
+        $credentials = $request->validate([
+            'email' => ['required', 'email'],
+            'password' => ['required', 'string'],
         ]);
 
-        if (!Auth::attempt($request->only('email', 'password'))) {
-            dd('here');
-            return back()->withErrors([
-                'email' => 'The provided credentials do not match our records.',
-            ])->onlyInput('email');
+        if (!Auth::attempt($credentials, $request->boolean('remember'))) {
+            return Inertia::render('Auth/Login', [
+                'errors' => [
+                    'email' => 'Correo electrónico o contraseña incorrectos.'
+                ]
+            ]);
         }
-   
-        Auth::login(Auth::user());
+    
+        $request->session()->regenerate();
+    
         return redirect()->route('home');
     }
+
+    public function destroy(Request $request) {
+        Auth::logout();
+    
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+    
+        return redirect('/login');
+    }
+    
 }
