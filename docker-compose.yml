@@ -1,7 +1,7 @@
 version: '3'
 services:
-    laravel:
-        container_name: "pm-platform"
+    iker_laravel:
+        container_name: "iker-pm-platform"
         build:
             context: ./vendor/laravel/sail/runtimes/8.2
             dockerfile: Dockerfile
@@ -12,7 +12,7 @@ services:
             - 'host.docker.internal:host-gateway'
         ports:
             - '${APP_PORT:-1090}:80'
-            - '${VITE_PORT:-5184}:${VITE_PORT:-5173}'
+            - '${VITE_PORT:-5184}:${VITE_PORT:-5184}'
         environment:
             WWWUSER: '${WWWUSER}'
             LARAVEL_SAIL: 1

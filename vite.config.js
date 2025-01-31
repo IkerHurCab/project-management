@@ -27,7 +27,12 @@ export default defineConfig({
     },
 
     server: {
-        host: '10.40.1.54', 
+        host: "0.0.0.0",
+        port: 5184,
+        hmr:{
+            host: "10.40.1.54",
+            protocol: "ws",
+        },
         cors: {
             origin: '*',
           },
