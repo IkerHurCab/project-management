@@ -1,9 +1,12 @@
 <template>
     <div class="w-1/2 flex items-center p-1 px-3 border border-gray-300 rounded-lg relative">
-     
-      <span v-if="icon" class="material-symbols-outlined mr-2">
-        {{ icon }}
-      </span>
+
+      <box-icon
+        :type="fill"
+        :name="icon"
+        class="w-7 h-7 relative z-10 transition-transform duration-300 group-hover:scale-110"
+        :color="'#707070'"
+      ></box-icon>
   
       <input
         v-bind="$attrs"
@@ -13,7 +16,7 @@
         :type="inputType"
         class="p-2 w-full outline-none"
       />
-  
+
       <span
         v-if="toggleVisibility"
         @click="toggleVisibilityfn"
@@ -25,6 +28,10 @@
   </template>
   
   <script>
+    import 'boxicons'
+  import { ref } from 'vue'
+  const isHovered = ref(false)
+
   export default {
     props: {
       modelValue: {
@@ -32,6 +39,7 @@
         required: true,
       },
       icon: String,
+      name: String,
       placeholder: String,
       type: {
         type: String,
