@@ -1,6 +1,6 @@
 version: '3'
 services:
-    laravel:
+    iker_laravel:
         container_name: "iker-pm-platform"
         build:
             context: ./vendor/laravel/sail/runtimes/8.2
@@ -12,7 +12,7 @@ services:
             - 'host.docker.internal:host-gateway'
         ports:
             - '${APP_PORT:-1090}:80'
-            - '${VITE_PORT:-5184}:${VITE_PORT:-5173}'
+            - '${VITE_PORT:-5184}:${VITE_PORT:-5184}'
         environment:
             WWWUSER: '${WWWUSER}'
             LARAVEL_SAIL: 1
@@ -26,7 +26,7 @@ services:
             - pgsql
         restart: unless-stopped
     pgsql:
-        container_name: "iker-pm-database"
+        container_name: "pm-database"
         image: 'postgres:15'
         ports:
             - '${FORWARD_DB_PORT:-5438}:5432'
