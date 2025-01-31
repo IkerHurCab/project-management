@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue';
+import Header from '@/Components/Header.vue';
 
 const text = ref('');
 const fullText = 'Gestiona tus proyectos de forma eficiente';
@@ -50,8 +51,10 @@ function replaceLastWord() {
 </script>
 
 <template>
+    <Header page="Dashboard"></Header>
     <div class="flex items-center justify-center h-screen">
-        <h1 class="text-7xl font-apple flex items-center">{{ text }}<span class="blinking-cursor font-thin">|</span></h1>
+        <h1 class="text-7xl font-apple flex items-center">{{ text }}<span class="blinking-cursor font-thin">|</span>
+        </h1>
     </div>
 </template>
 
@@ -62,9 +65,12 @@ function replaceLastWord() {
 }
 
 @keyframes blink {
-    from, to {
+
+    from,
+    to {
         display: inline-block;
     }
+
     50% {
         display: none;
     }
