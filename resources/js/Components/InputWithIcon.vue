@@ -1,5 +1,5 @@
 <template>
-    <div class="w-1/2 flex items-center p-1 px-3 border border-gray-300 rounded-lg relative">
+    <div class="w-1/2 flex items-center p-1 px-3 border border-gray-600 rounded-lg relative">
 
       <box-icon
         :type="fill"
@@ -14,7 +14,8 @@
         @input="handleInput"
         :placeholder="placeholder"
         :type="inputType"
-        class="p-2 w-full outline-none"
+        class="p-2 ml-2 w-full outline-none"
+    
       />
 
       <span

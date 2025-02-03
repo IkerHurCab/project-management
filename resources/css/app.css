@@ -1,6 +1,10 @@
 @import "tailwindcss";
 @import 'boxicons/css/boxicons.min.css';
 @source "../views";
+
 @theme {
-    --font-apple: -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-apple: 'Archivo', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+*{
+    font-family: 'Archivo', sans-serif;
 }

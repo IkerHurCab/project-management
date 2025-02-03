@@ -6,22 +6,31 @@
         </div>
         <div class="w-full md:w-1/3 bg-gray-950 border-l border-gray-600 min-h-screen flex items-center justify-center">
             <form @submit.prevent="login"
-                class="space-y-4 w-full flex flex-col items-center p-6 min-h-screen justify-center">
-
-                <div class="w-1/2 h-24 bg-gray-300 flex items-center justify-center hidden md:flex">
-                    <span class="text-gray-500">LOGO AQUÍ</span>
-                </div>
-                <h1 class="text-2xl font-bold self-start">INICIAR SESIÓN EN PROJECT MANAGEMENT</h1>
-                <p v-if="form.errors.email" class="text-red-500 self-start mt-2">
-                    {{ form.errors.email }}
-                </p>
-                <InputWithIcon v-model="form.email" name="email" icon="envelope" placeholder="Correo electrónico"
-                    class="w-full" type="email" required autocomplete="off" />
-                <InputWithIcon v-model="form.password" name="password" icon="lock-alt" placeholder="Contraseña"
-                    type="password" class="w-full" :toggleVisibility="true" required />
-                <SubmitButton variant="primary" type="submit">Iniciar sesión</SubmitButton>
-                <a href="#" class="text-blue-500 self-end">¿Has olvidado la contraseña?</a>
-            </form>
+      class="space-y-6 w-full max-w-md flex flex-col items-center p-8">
+      <div class="w-24 h-24 border-2 border-gray-700 rounded-full flex items-center justify-center mb-4">
+        <span class="text-gray-400 text-xl font-bold">LOGO</span>
+      </div>
+      <h1 class="text-2xl font-bold text-white self-start mb-6">Iniciar sesión</h1>
+      <InputWithIcon 
+        v-model="form.email" 
+        icon="envelope" 
+        placeholder="Correo electrónico" 
+        class="w-full"
+        type="email" 
+        required
+      />
+      <InputWithIcon 
+        v-model="form.password" 
+        icon="lock" 
+        placeholder="Contraseña" 
+        type="password" 
+        class="w-full"
+        :toggleVisibility="true" 
+        required
+      />
+      <SubmitButton variant="primary" type="submit" class="w-full">Iniciar sesión</SubmitButton>
+      <a href="#" class="text-gray-400 hover:text-gray-200 text-sm self-end transition duration-150 ease-in-out">¿Has olvidado la contraseña?</a>
+    </form>
         </div>
     </div>
 </template>
