@@ -1,6 +1,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import Header from '@/Components/Header.vue';
+import NavBar from '@/Components/Sidebar.vue'
 
 const text = ref('');
 const fullText = 'Gestiona tus proyectos de forma eficiente';
@@ -52,11 +53,16 @@ function replaceLastWord() {
 </script>
 
 <template>
-    <Header page="Dashboard"></Header>
-    <div class="flex items-center justify-center h-screen">
+
+    <div class="flex">
+        <NavBar></NavBar>
+        <Header page="Dashboard"></Header>
+    </div>
+
+    <!-- <div class="flex items-center justify-center h-screen">
         <h1 class="text-7xl font-apple flex items-center">{{ text }}<span class="blinking-cursor font-thin">|</span>
         </h1>
-    </div>
+    </div> -->
 </template>
 
 <style>

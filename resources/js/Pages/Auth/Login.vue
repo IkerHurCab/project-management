@@ -39,7 +39,6 @@
 import { useForm } from '@inertiajs/vue3';
 import SubmitButton from "@/Components/SubmitButton.vue";
 import InputWithIcon from "@/Components/InputWithIcon.vue";
-
 export default {
     components: {
         SubmitButton,
