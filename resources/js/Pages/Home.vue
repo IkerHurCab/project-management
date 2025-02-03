@@ -2,5 +2,11 @@
 </script>
  
 <template>
-<p class="text-5xl font-apple">Dashboard</p>
+    <Sidebar />
+<p class="text-5xl font-apple">Home</p>
 </template>
+
+<script setup> 
+import Sidebar from '@/Components/Sidebar.vue'
+
+</script>
