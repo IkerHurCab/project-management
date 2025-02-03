@@ -27,14 +27,16 @@ export default defineConfig({
     },
 
     server: {
-        host: "0.0.0.0",
-        port: 5184,
-        hmr:{
-            host: "10.40.1.54",
-            protocol: "ws",
+        host: '0.0.0.0', // Permitir conexiones externas
+        port: 5189, // Puerto que deseas usar
+        hmr: {
+            host: '10.40.1.54', // IP de tu servidor
+            protocol: 'ws',
         },
         cors: {
             origin: '*',
-          },
+        },
     },
+    
+    
 });
