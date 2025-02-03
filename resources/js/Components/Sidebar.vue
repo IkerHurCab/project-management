@@ -37,7 +37,7 @@
     </div>
         <NavButton 
   :name="'exit'"
-  @mouseenter="activeBottomIndex = index"
+   @mouseenter="activeBottomIndex = null"
   :isActive="activeBottomIndex === index"
   :noLine="true"
   class="mt-2" 
@@ -59,7 +59,6 @@
   ]
   
   const lowButtons = [
-    { name: 'user' },
     { name: 'cog' },
    
   ]
