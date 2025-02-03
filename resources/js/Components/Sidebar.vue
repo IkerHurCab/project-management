@@ -1,5 +1,5 @@
 <template>
-    <div class="relative flex flex-col h-screen w-fit justify-between py-4">
+    <div class="relative flex flex-col h-screen w-fit fixed justify-between py-4">
       <!-- Sección superior -->
       <div class="relative flex flex-col space-y-2" @mouseleave="activeTopIndex = null">
         <div 

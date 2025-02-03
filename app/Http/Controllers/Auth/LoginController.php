@@ -15,22 +15,22 @@ class LoginController extends Controller
     }
 
     public function store(Request $request) {
-
         $credentials = $request->validate([
             'email' => ['required', 'email'],
             'password' => ['required', 'string'],
         ]);
-
+    
+      
         if (!Auth::attempt($credentials, $request->boolean('remember'))) {
             return Inertia::render('Auth/Login', [
                 'errors' => [
-                    'email' => 'Correo electrónico o contraseña incorrectos.'
+                    'email' => 'Email or password incorrect.'
                 ]
             ]);
         }
     
         $request->session()->regenerate();
-    
+        
         return redirect()->route('home');
     }
 
