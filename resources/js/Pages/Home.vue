@@ -48,6 +48,7 @@ function replaceLastWord() {
         }
     }, 100);
 }
+
 </script>
 
 <template>
