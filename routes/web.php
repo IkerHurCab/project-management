@@ -13,8 +13,6 @@ Route::middleware(['auth'])->group(function () {
             'user' => request()->user(),
         ]);
     })->name('home');
-
-
     Route::post('/update-status', [HeaderController::class, 'changeStatus']);
 
 });

@@ -1,6 +1,7 @@
 <script setup>
 import { defineProps } from 'vue';
 import Sidebar from '@/Components/Sidebar.vue';
+import Layout from '../../Layouts/Layout.vue';
 import 'boxicons';
 const props = defineProps({
   project: Object
@@ -8,12 +9,9 @@ const props = defineProps({
 </script>
 
 <template>
-  <div class="flex flex-row w-full">
-    <Sidebar/>
-  
+<Layout :pageTitle="props.project.name">
   <div class="bg-black text-gray-200 w-full min-h-screen p-8">
-    <h1 class="text-3xl font-bold mb-8 text-white">{{ props.project.name }}</h1>
-    
+
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
       <div class="bg-gray-800 p-6 rounded-lg">
         <h2 class="text-xl font-semibold mb-4 text-white">Project Details</h2>
@@ -75,7 +73,8 @@ const props = defineProps({
       </ul>
     </div>
   </div>
-</div>
+</Layout>
+
 </template>
 
 <style scoped>

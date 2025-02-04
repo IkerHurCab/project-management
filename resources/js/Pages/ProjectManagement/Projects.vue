@@ -5,6 +5,7 @@ import StandardButton from '@/Components/StandardButton.vue';
 import InputWithIcon from '@/Components/InputWithIcon.vue';
 import StatusBadge from '@/Components/StatusBadge.vue';
 import FilterTag from '@/Components/FilterTag.vue';
+import Layout from '@/Layouts/Layout.vue';
 
 import 'boxicons';
 
@@ -12,9 +13,9 @@ defineProps({ projects: Array });
 </script>
 
 <template>
+<Layout pageTitle="Projects">  
   <div class="flex flex-row bg-black text-gray-300 min-h-screen">
     <div class="flex-1 p-8">
-      <h1 class="text-3xl font-bold mb-8 text-white">Projects</h1>
   
       <div class="mb-6 flex justify-between items-center">
         <div class="flex flex-row space-x-2">
@@ -29,7 +30,7 @@ defineProps({ projects: Array });
       </div>
 <div class="flex-row flex items-center justify-end gap-x-2">
         <button class="flex items-center bg-gray-900 hover:bg-gray-800 text-white px-4 py-2 rounded-lg transition duration-200">
-          <box-icon name='filter' class="mr-2" color='#ffffff' ></box-icon> Filter
+          <box-icon name='filter' class="mr-2 hover:rotate-180 transition-transform duration-200" color='#ffffff' ></box-icon> Filter
         </button>
         <StandardButton >
           New Project
@@ -75,6 +76,7 @@ defineProps({ projects: Array });
       </div>
     </div>
   </div>
+</Layout> 
 </template>
 
 

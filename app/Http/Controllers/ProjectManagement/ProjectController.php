@@ -16,7 +16,8 @@ class ProjectController extends Controller
         $projects = Project::all();
 
         return Inertia::render('ProjectManagement/Projects', [
-            'projects' => $projects
+            'projects' => $projects,
+            'user' => request()->user(),
         ]);
     }   
 
@@ -32,7 +33,8 @@ class ProjectController extends Controller
     }
 
         return Inertia::render('ProjectManagement/SingleProject', [
-            'project' => $project
+            'project' => $project,
+            'user' => request()->user(),
         ]);
     }
 }
