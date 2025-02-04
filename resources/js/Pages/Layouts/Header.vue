@@ -1,5 +1,5 @@
 <template>
-    <header class="flex items-center justify-between py-2 px-8 border-b-2 border-gray-800 bg-black w-full">
+    <header class="flex items-center justify-between py-2 px-4 bg-black w-full">
         <h1 class="text-4xl">{{ page }}</h1>
         <div class="flex gap-4 items-center">
             <div class="flex items-center min-h-12">
