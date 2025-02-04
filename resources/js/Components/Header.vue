@@ -1,5 +1,5 @@
 <template>
-    <header class="flex items-center justify-between pt-8 px-8 border-b-2 border-gray-800 pb-4 bg-black w-full">
+    <header class="flex items-center justify-between py-2 px-8 border-b-2 border-gray-800 bg-black w-full">
         <h1 class="text-4xl">{{ page }}</h1>
         <div class="flex gap-4 items-center">
             <div class="flex items-center min-h-12">
@@ -28,7 +28,7 @@
             </div>
 
             <div v-if="isPopupVisible"
-                class="border-2 border-gray-800 absolute right-0 top-25 mt-2 bg-black text-white rounded-b-lg shadow-lg p-4 w-96">
+                class="border-2 border-gray-800 absolute right-0 top-17 mt-2 bg-black text-white rounded-b-lg shadow-lg p-4 w-96">
                 <h3 class="font-bold p-2">Estado</h3>
                 <ul>
                     <li @click="changeStatus('online')"
@@ -95,11 +95,13 @@ export default {
             this.isPopupVisible = false;
 
             const form = useForm({
-                api: true,
                 status: status
             });
 
-            form.post('/update-status', { status });
+            form.post('/update-status', {
+                status,
+                preserveScroll: true,
+            });
         },
     }
 

@@ -3,7 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\Auth\LoginController;
-use Illuminate\Http\Request;
+use App\Http\Controllers\HeaderController;
+
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/', function () {
@@ -12,14 +13,8 @@ Route::middleware(['auth'])->group(function () {
         ]);
     })->name('home');
 
-    //Cambio de estado del usuario (online, away, offline...)
-    Route::post('/update-status', function (Request $request) {
-        $user = auth()->user(); 
-        $user->status = $request->status; 
-        $user->save(); 
 
-        return Inertia::render('');
-    });
+    Route::post('/update-status', [HeaderController::class, 'changeStatus']);
 
 });
 
