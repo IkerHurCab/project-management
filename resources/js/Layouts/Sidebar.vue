@@ -43,7 +43,7 @@
 
 <script setup>
 import { ref, computed } from 'vue';
-import NavButton from '../../Components/NavButton.vue'
+import NavButton from '../Components/NavButton.vue'
 
 const buttons = [
   { name: 'dashboard', type: 'solid' },
