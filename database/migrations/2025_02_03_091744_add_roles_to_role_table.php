@@ -24,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        DB::table('roles')->whereIn('name', ['Admin', 'Company Boss', 'Department Head', 'Employee'])->delete();
+        DB::table('role')->whereIn('name', ['Admin', 'Company Boss', 'Department Head', 'Employee'])->delete();
     }
 };

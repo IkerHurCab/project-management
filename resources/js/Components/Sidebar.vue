@@ -41,6 +41,7 @@
   :isActive="activeBottomIndex === index"
   :noLine="true"
   class="mt-2" 
+  @click="logout"
 />
       </div>
       
@@ -48,38 +49,42 @@
   </template>
   
   <script setup>
-  import { ref, computed } from 'vue'
-  import NavButton from './NavButton.vue'
+  import { ref, computed } from 'vue';
+  import NavButton from './NavButton.vue';
+ 
   
   const buttons = [
     { name: 'dashboard', type: 'solid' },
     { name: 'file' },
     { name: 'calendar' },
     { name: 'time-five' }
-  ]
+  ];
   
   const lowButtons = [
     { name: 'cog' },
-   
-  ]
+  ];
   
-  const activeTopIndex = ref(null)
-  const activeBottomIndex = ref(null)
+  const logout = () => {
+    window.location.href = '/logout'; 
+  };
+  
+  const activeTopIndex = ref(null);
+  const activeBottomIndex = ref(null);
   
   const createLineStyle = (activeIndex) => computed(() => {
     if (activeIndex.value === null) {
       return { 
         opacity: 0,
         transform: 'translateY(0)'
-      }
+      };
     }
     return {
       opacity: 1,
       transform: `translateY(${activeIndex.value * 56}px)`, // Ajusta 56 al alto de tus botones
       height: '48px' // Ajusta esto según el tamaño de tus botones
-    }
-  })
+    };
+  });
   
-  const topLineStyle = createLineStyle(activeTopIndex)
-  const bottomLineStyle = createLineStyle(activeBottomIndex)
+  const topLineStyle = createLineStyle(activeTopIndex);
+  const bottomLineStyle = createLineStyle(activeBottomIndex);
   </script>

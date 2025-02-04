@@ -15,7 +15,7 @@ return new class extends Migration
            $table->id();
            $table->string('name');
            $table->text('description')->nullable();
-           $table->float('assigned_hours');
+           $table->float('assigned_hours')->nullable();
            $table->date('start_date');
            $table->date('end_date')->nullable();
            $table->string('status');
@@ -28,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('tareas');
+        Schema::dropIfExists('project');
     }
 };
