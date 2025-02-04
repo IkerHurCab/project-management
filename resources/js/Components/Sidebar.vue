@@ -41,7 +41,7 @@
   :isActive="activeBottomIndex === index"
   :noLine="true"
   class="mt-2" 
-  @click="logout"
+  @click="$inertia.get('/logout')"  
 />
       </div>
       
@@ -64,9 +64,7 @@
     { name: 'cog' },
   ];
   
-  const logout = () => {
-    window.location.href = '/logout'; 
-  };
+  
   
   const activeTopIndex = ref(null);
   const activeBottomIndex = ref(null);

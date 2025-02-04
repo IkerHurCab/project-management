@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Inertia\Inertia;
 use App\Models\ProjectManagement\Project;
+use App\Models\ProjectManagement\Task;
+use App\Models\User;
 
 class ProjectController extends Controller
 {
@@ -18,9 +20,18 @@ class ProjectController extends Controller
         ]);
     }   
 
-    public function show(Project $project)
+    public function show($id)
     {
-        return Inertia::render('ProjectManagement/Project', [
+    
+        $project = Project::with(['tasks', 'users'])->findOrFail($id);
+        $project->load(['tasks.user']);
+        
+    if (!$project) {
+       
+        abort(404, 'Project not found');
+    }
+
+        return Inertia::render('ProjectManagement/SingleProject', [
             'project' => $project
         ]);
     }
