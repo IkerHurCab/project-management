@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\HeaderController;
+use App\Http\Controllers\DepartmentController;
 
 
 Route::middleware(['auth'])->group(function () {
@@ -13,9 +14,7 @@ Route::middleware(['auth'])->group(function () {
         ]);
     })->name('home');
 
-
     Route::post('/update-status', [HeaderController::class, 'changeStatus']);
-
 });
 
 
@@ -27,6 +26,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/projects', function () {
         return Inertia::render('ProjectManagement/Projects');
     })->name('projects');
+    Route::get('/departments', [DepartmentController::class, 'show'])->name('departments');
 });
 Route::middleware(['guest'])->group(function () {
     Route::get('/login', [LoginController::class, 'create'])->name('login');
