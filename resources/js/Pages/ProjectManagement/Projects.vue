@@ -1,21 +1,21 @@
 <script setup>
 import { defineProps } from 'vue';
-import { Link } from '@inertiajs/vue3';
-import Sidebar from '@/Components/Sidebar.vue';
+
+import StandardButton from '@/Components/StandardButton.vue';
 import InputWithIcon from '@/Components/InputWithIcon.vue';
 import StatusBadge from '@/Components/StatusBadge.vue';
-import 'boxicons';
 import FilterTag from '@/Components/FilterTag.vue';
+
+import 'boxicons';
 
 defineProps({ projects: Array });
 </script>
 
 <template>
   <div class="flex flex-row bg-black text-gray-300 min-h-screen">
-    <Sidebar />
     <div class="flex-1 p-8">
       <h1 class="text-3xl font-bold mb-8 text-white">Projects</h1>
-      
+  
       <div class="mb-6 flex justify-between items-center">
         <div class="flex flex-row space-x-2">
         <div class="relative">
@@ -27,10 +27,14 @@ defineProps({ projects: Array });
         <FilterTag />
       </div>
       </div>
-
+<div class="flex-row flex items-center justify-end gap-x-2">
         <button class="flex items-center bg-gray-900 hover:bg-gray-800 text-white px-4 py-2 rounded-lg transition duration-200">
           <box-icon name='filter' class="mr-2" color='#ffffff' ></box-icon> Filter
         </button>
+        <StandardButton >
+          New Project
+        </StandardButton>
+      </div>
       </div>
 
       <div class="bg-gray-900 rounded-lg overflow-hidden">
@@ -72,3 +76,5 @@ defineProps({ projects: Array });
     </div>
   </div>
 </template>
+
+

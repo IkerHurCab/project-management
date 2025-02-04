@@ -50,7 +50,7 @@
   
   <script setup>
   import { ref, computed } from 'vue';
-  import NavButton from './NavButton.vue';
+  import NavButton from '@/Components/NavButton.vue';
  
   
   const buttons = [
