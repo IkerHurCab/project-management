@@ -21,7 +21,7 @@ return new class extends Migration
     {
         $schema = Schema::connection($this->getConnection());
 
-        $schema->create('telescope_entries', function (Blueprint $table) {
+        $schema->create('telescope_entry', function (Blueprint $table) {
             $table->bigIncrements('sequence');
             $table->uuid('uuid');
             $table->uuid('batch_id');
@@ -38,7 +38,7 @@ return new class extends Migration
             $table->index(['type', 'should_display_on_index']);
         });
 
-        $schema->create('telescope_entries_tags', function (Blueprint $table) {
+        $schema->create('telescope_entry_tag', function (Blueprint $table) {
             $table->uuid('entry_uuid');
             $table->string('tag');
 
@@ -47,7 +47,7 @@ return new class extends Migration
 
             $table->foreign('entry_uuid')
                 ->references('uuid')
-                ->on('telescope_entries')
+                ->on('telescope_entry')
                 ->onDelete('cascade');
         });
 
@@ -63,8 +63,8 @@ return new class extends Migration
     {
         $schema = Schema::connection($this->getConnection());
 
-        $schema->dropIfExists('telescope_entries_tags');
-        $schema->dropIfExists('telescope_entries');
+        $schema->dropIfExists('telescope_entry_tag');
+        $schema->dropIfExists('telescope_entry');
         $schema->dropIfExists('telescope_monitoring');
     }
 };

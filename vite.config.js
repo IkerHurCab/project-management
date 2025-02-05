@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite';
 import laravel from 'laravel-vite-plugin';
 import tailwindcss from '@tailwindcss/vite';
-import vue from '@vitejs/plugin-vue'; 
+import vue from '@vitejs/plugin-vue';
 
 export default defineConfig({
     plugins: [
@@ -16,6 +16,9 @@ export default defineConfig({
                     base: null,
                     includeAbsolute: false,
                 },
+                compilerOptions: {
+                    isCustomElement: (tag) => ['box-icon'].includes(tag),
+                }
             },
         }),
     ],
@@ -27,16 +30,14 @@ export default defineConfig({
     },
 
     server: {
-        host: '0.0.0.0', // Permitir conexiones externas
-        port: 5189, // Puerto que deseas usar
+        host: process.env.VITE_HOST || "0.0.0.0",
+        port: parseInt(process.env.VITE_PORT),
         hmr: {
-            host: '10.40.1.54', // IP de tu servidor
-            protocol: 'ws',
+            host: process.env.VITE_HMR_HOST || "localhost",
+            protocol: process.env.VITE_HMR_PROTOCOL || "ws",
         },
         cors: {
-            origin: '*',
+            origin: process.env.VITE_CORS_ORIGIN || '*',
         },
     },
-    
-    
 });
