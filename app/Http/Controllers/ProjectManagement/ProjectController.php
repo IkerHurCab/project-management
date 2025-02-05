@@ -8,6 +8,7 @@ use Inertia\Inertia;
 use App\Models\ProjectManagement\Project;
 use App\Models\ProjectManagement\Task;
 use App\Models\User;
+use Spatie\Permission\Models\Role;
 
 class ProjectController extends Controller
 {
@@ -41,13 +42,10 @@ class ProjectController extends Controller
     public function create()
     {
         $users = User::all();
-
-        $departmentHead = User::whereHas('roles', function ($query) {
-            $query->where('name', 'department_head');
-        })
-        ->select('id', 'name')
+        $departmentHead = User::role('department_head')
+        ->select ('id', 'name')
         ->get();
-        
+    
         return Inertia::render('ProjectManagement/CreateProject', [
             'users' => $users,
             'departmentHead' => $departmentHead,

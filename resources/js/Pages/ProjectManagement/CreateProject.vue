@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import Layout from '@/Layouts/Layout.vue';
 import StandardButton from '@/Components/StandardButton.vue';
 import InputWithIcon from '@/Components/InputWithIcon.vue';
+import SelectWithIcon from '@/Components/SelectWithIcon.vue';
 
 const projectName = ref('');
 const company = ref('');
@@ -19,6 +20,10 @@ const createProject = () => {
 const assignTask = () => {
  
 };
+    
+defineProps({
+  departmentHead: Array,
+});
 </script>
 
 <template>
@@ -53,15 +58,12 @@ const assignTask = () => {
               </div>
               <div>
                 <label for="projectLeader" class="block text-sm font-medium text-gray-400 mb-2">Project Leader</label>
-                <InputWithIcon
+                <SelectWithIcon
                   v-model="projectLeader"
                   icon="user"
-                  placeholder="Enter project leader"
+                  placeholder="Select project leader"
                   class="w-full"
-                  type="text"
-                  :isSelect = "true"
-                  :options="departmentHead"
-                />
+                  :options="departmentHead" />
               </div>
               <div>
                 <label for="startDate" class="block text-sm font-medium text-gray-400 mb-2">Start Date</label>
