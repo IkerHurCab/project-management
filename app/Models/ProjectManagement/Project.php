@@ -11,12 +11,7 @@ class Project extends Model
     protected $table = 'project';
 
     protected $fillable = [
-        'name',
-        'description',
-        'assigned_hours',
-        'start_date',
-        'end_date',
-        'status',
+        'name',  'project_leader_id', 'start_date', 'end_date', 'assigned_hours', 'status', 'description', 'priority', 'is_public', 'attachments',
     ];
 
     public function tasks()

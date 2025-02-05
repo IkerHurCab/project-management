@@ -48,7 +48,7 @@ const closeFilterModal = () => {
             </div>
           </div>
           <div class="flex-row flex items-center justify-end gap-x-2">
-            <!-- Botón único para abrir el modal de filtros -->
+          
             <button
               class="group flex items-center bg-gray-900 hover:bg-gray-800 text-white px-4 py-2 rounded-lg transition duration-200"
               @click="showFilterModal"
@@ -61,8 +61,8 @@ const closeFilterModal = () => {
               Filter
             </button>
 
-            <!-- Botón para crear un nuevo proyecto -->
-            <StandardButton @click="isNewProjectModalOpen = true">New Project</StandardButton>
+         
+            <StandardButton  @click="$inertia.get(`/projects/create`)">New Project</StandardButton>
           </div>
         </div>
 
@@ -81,22 +81,27 @@ const closeFilterModal = () => {
               </tr>
             </thead>
             <tbody>
-              <tr
-                v-for="project in projects"
-                :key="project.id"
-                class="border-b border-gray-900 bg-gray-950 hover:bg-gray-900 transition duration-200 cursor-pointer"
-                @click="$inertia.get(`/projects/${project.id}`)"
-              >
-                <td class="p-4">{{ project.name }}</td>
-                <td class="p-4 text-gray-400">Company</td>
-                <td class="p-4 text-gray-400">Lucas Martínez</td>
-                <td class="p-4 text-gray-400">{{ project.start_date }}</td>
-                <td class="p-4 text-gray-400">{{ project.end_date }}</td>
-                <td class="p-4 text-gray-400">{{ project.assigned_hours }} h</td>
-                <td class="p-4 flex">
-                  <StatusBadge :status="project.status" />
-                </td>
-              </tr>
+              <tr v-if="projects.length === 0" class="border-b border-gray-900 bg-gray-950">
+  <td colspan="7" class="p-4 text-center text-gray-400">No hay proyectos</td>
+</tr>
+
+<!-- Mostrar proyectos si hay datos -->
+<tr
+  v-for="project in projects"
+  :key="project.id"
+  class="border-b border-gray-900 bg-gray-950 hover:bg-gray-900 transition duration-200 cursor-pointer"
+  @click="$inertia.get(`/projects/${project.id}`)"
+>
+  <td class="p-4">{{ project.name || 'No hay texto' }}</td>
+  <td class="p-4 text-gray-400">{{ project.company || 'No hay texto' }}</td>
+  <td class="p-4 text-gray-400">{{ project.projectLeader || 'No hay texto' }}</td>
+  <td class="p-4 text-gray-400">{{ project.start_date || 'No hay texto' }}</td>
+  <td class="p-4 text-gray-400">{{ project.end_date || 'No hay texto' }}</td>
+  <td class="p-4 text-gray-400">{{ project.assigned_hours ? project.assigned_hours + ' h' : 'No hay texto' }}</td>
+  <td class="p-4 flex">
+    <StatusBadge :status="project.status" />
+  </td>
+</tr>
             </tbody>
           </table>
         </div>
