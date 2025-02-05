@@ -1,13 +1,15 @@
 <template>
-    <div class="w-1/2 flex items-center p-1 px-3 border border-gray-600 rounded-lg relative">
+  <div class="w-1/2 flex items-center p-1 px-3 border border-gray-600 rounded-lg relative">
+    <!-- Ícono -->
+    <box-icon
+      :type="fill"
+      :name="icon"
+      class="w-7 h-7 relative z-10 transition-transform duration-300 group-hover:scale-110"
+      :color="'#707070'"
+    ></box-icon>
 
-      <box-icon
-        :type="fill"
-        :name="icon"
-        class="w-7 h-7 relative z-10 transition-transform duration-300 group-hover:scale-110"
-        :color="'#707070'"
-      ></box-icon>
-  
+    <!-- Input o Select según `isSelect` -->
+    <template v-if="!isSelect">
       <input
         v-bind="$attrs"
         :value="modelValue"
@@ -15,9 +17,8 @@
         :placeholder="placeholder"
         :type="inputType"
         class="p-2 ml-2 w-full outline-none"
-    
       />
-
+      
       <span
         v-if="toggleVisibility"
         @click="toggleVisibilityfn"
@@ -25,44 +26,64 @@
       >
         {{ inputType === 'password' ? 'visibility_off' : 'visibility' }}
       </span>
-    </div>
-  </template>
-  
-  <script>
-    import 'boxicons'
-  import { ref } from 'vue'
-  const isHovered = ref(false)
+    </template>
 
-  export default {
-    props: {
-      modelValue: {
-        type: String,
-        required: true,
-      },
-      icon: String,
-      name: String,
-      placeholder: String,
-      type: {
-        type: String,
-        default: "text",
-      },
-      toggleVisibility: {
-        type: Boolean,
-        default: false,
-      },
+    <template v-else>
+      <select
+        v-bind="$attrs"
+        :value="modelValue"
+        @change="handleInput"
+        class="p-2 ml-2 w-full outline-none"
+      >
+        <option v-for="(option, index) in options" :key="index" :value="option.value">
+          {{ option.label }}
+        </option>
+      </select>
+    </template>
+  </div>
+</template>
+
+<script>
+import 'boxicons'
+
+export default {
+  props: {
+    modelValue: {
+      type: String,
+      required: true,
     },
-    data() {
-      return {
-        inputType: this.type,  
-      };
+    icon: String,
+    name: String,
+    placeholder: String,
+    type: {
+      type: String,
+      default: "text",
     },
-    methods: {
-      handleInput(event) {
-        this.$emit('update:modelValue', event.target.value);
-      },
-      toggleVisibilityfn() {
-        this.inputType = this.inputType === 'password' ? 'text' : 'password';
-      },
+    isSelect: {
+      type: Boolean,
+      default: false, // Si es true, renderiza un select en vez de un input
     },
-  };
-  </script>
+    options: {
+      type: Array,
+      default: () => [], // Opciones del select (ejemplo: [{ value: '1', label: 'Opción 1' }])
+    },
+    toggleVisibility: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  data() {
+    return {
+      inputType: this.type,
+    };
+  },
+  methods: {
+    handleInput(event) {
+      this.$emit("update:modelValue", event.target.value);
+    },
+    toggleVisibilityfn() {
+      this.inputType = this.inputType === "password" ? "text" : "password";
+    },
+  },
+};
+</script>

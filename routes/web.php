@@ -26,12 +26,16 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/projects', function () {
         return Inertia::render('ProjectManagement/Projects');
     })->name('projects');
+    Route::get('/projects/create', [ProjectController::class, 'create'])->name('projects.create');
+    
+    Route::get('projects', [ProjectController::class, 'index'])->name('projects.index');
+    Route::get('projects/{projects}',  [ProjectController::class, 'show'])->name('projects.show');  
+
+
     Route::get('logout', function () {
         Auth::logout();
         return redirect()->route('login');
     })->name('logout');
-    Route::get('projects', [ProjectController::class, 'index'])->name('projects.index');
-    Route::get('projects/{projects}',  [ProjectController::class, 'show'])->name('projects.show');  
 });
 Route::middleware(['guest'])->group(function () {
     Route::get('/login', [LoginController::class, 'create'])->name('login');

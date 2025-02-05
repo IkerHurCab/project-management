@@ -37,4 +37,21 @@ class ProjectController extends Controller
             'user' => request()->user(),
         ]);
     }
+
+    public function create()
+    {
+        $users = User::all();
+
+        $departmentHead = User::whereHas('roles', function ($query) {
+            $query->where('name', 'department_head');
+        })
+        ->select('id', 'name')
+        ->get();
+        
+        return Inertia::render('ProjectManagement/CreateProject', [
+            'users' => $users,
+            'departmentHead' => $departmentHead,
+            'user' => request()->user(),
+        ]);
+    }
 }
