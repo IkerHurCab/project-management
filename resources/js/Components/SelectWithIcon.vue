@@ -1,5 +1,5 @@
 <template>
-    <div class="w-1/2 flex items-center p-1 px-3 border border-gray-600 rounded-lg relative">
+    <div class="w-1/2 flex items-center p-1 px-3 border border-gray-600 focus-within:border-gray-300 rounded-lg relative">
       <box-icon
         :type="fill"
         :name="icon"
@@ -11,7 +11,8 @@
         v-bind="$attrs"
         :value="modelValue"
         @change="handleInput"
-        class="p-2 ml-2 w-full outline-none"
+    
+        class="p-2 ml-2 h-10 w-full bg-gray-950  outline-none"
       >
         <option v-for="(option, index) in options" :key="index" :value="option.value">
           {{ option.label }}

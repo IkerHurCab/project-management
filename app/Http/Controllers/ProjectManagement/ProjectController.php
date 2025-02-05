@@ -43,9 +43,14 @@ class ProjectController extends Controller
     {
         $users = User::all();
         $departmentHead = User::role('department_head')
-        ->select ('id', 'name')
-        ->get();
-    
+        ->select('id', 'name')
+        ->get()
+        ->map(function ($user) {
+            return [
+                'value' => $user->id, // id del usuario como value
+                'label' => $user->name, // nombre del usuario como label
+            ];
+        });
         return Inertia::render('ProjectManagement/CreateProject', [
             'users' => $users,
             'departmentHead' => $departmentHead,

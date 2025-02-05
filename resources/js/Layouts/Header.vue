@@ -1,6 +1,6 @@
 <template>
     <header class="flex items-center justify-between py-2  px-4 bg-black w-full">
-        <h1 class="text-4xl px-8">{{ page }}</h1>
+        <h1 class="text-3xl font-bold text-white mb-4 px-8 py-1">{{ page }}</h1>
         <div class="flex gap-4 items-center">
             <div class="flex items-center min-h-12">
                 <label for="theme-switch" class="flex items-center cursor-pointer">
