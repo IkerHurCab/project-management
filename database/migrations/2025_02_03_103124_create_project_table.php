@@ -19,6 +19,11 @@ return new class extends Migration
            $table->date('start_date');
            $table->date('end_date')->nullable();
            $table->string('status');
+           $table->boolean('is_public')->default(false);
+           $table->integer('priority')->default(1);
+           $table->foreignId('project_leader_id')->constrained('users')->onDelete('set null');
+           $table->json('attachments')->nullable();
+        //$table->foreignId('client_company_id')->nullable()->constrained('companies')->onDelete('set null');
            $table->timestamps();
         });
     }
