@@ -3,6 +3,7 @@
       class="p-3 relative cursor-pointer rounded-xl hover:text-white w-full flex items-center"
       @mouseenter="isHovered = true"
       @mouseleave="isHovered = false"
+      @click="action"
     >
    
       <div 
@@ -37,6 +38,7 @@
     badge: Boolean,
     type: String,
     noLine: Boolean,
+    action: Function,
   
   })
   

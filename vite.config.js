@@ -31,7 +31,7 @@ export default defineConfig({
 
     server: {
         host: process.env.VITE_HOST || "0.0.0.0",
-        port: parseInt(process.env.VITE_PORT),
+        port: process.env.VITE_PORT,
         hmr: {
             host: process.env.VITE_HMR_HOST || "localhost",
             protocol: process.env.VITE_HMR_PROTOCOL || "ws",
