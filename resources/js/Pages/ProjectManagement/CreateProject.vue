@@ -67,11 +67,17 @@
 
   <template>
     <Layout pageTitle="Project Management">
-    
+   
       <div class="flex flex-col bg-black text-gray-300 min-h-screen p-8">
-       
-        <h1 class="text-3xl font-bold text-white mb-4">Create Project</h1>
-        <p class="text-gray-400 mb-8 max-w-3xl">Create and Manage Projects of Any Scale: From Simple Tasks to Complex
+        <div class="flex flex-row  gap-x-4 ">
+          <div class="cursor-pointer flex items-center " @click="$inertia.visit('/projects')">
+
+          
+      <box-icon name='arrow-back' color='#fffdfd' ></box-icon>
+    </div>
+        <h1 class="text-3xl font-bold text-white ">Create Project</h1>
+      </div>
+        <p class="text-gray-400 my-8 max-w-3xl">Create and Manage Projects of Any Scale: From Simple Tasks to Complex
           Collaborative Workflows with Defined Deadlines and Milestones.</p>
 
         <div class="bg-gray-950 border border-gray-700 rounded-lg overflow-hidden">

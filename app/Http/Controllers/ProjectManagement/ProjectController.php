@@ -9,18 +9,30 @@ use App\Models\ProjectManagement\Project;
 use App\Models\ProjectManagement\Task;
 use App\Models\User;
 use Spatie\Permission\Models\Role;
+use Inertia\Response;
+
 
 class ProjectController extends Controller
 {
-    public function index()
-    {
-        $projects = Project::all();
+    public function index(Request $request) 
+{   
+    $projectsUrl = route('projects.index');
+ 
+        //dump($request->query('search'));
 
-        return Inertia::render('ProjectManagement/Projects', [
-            'projects' => $projects,
-            'user' => request()->user(),
-        ]);
-    }   
+    $search = $request->query('search');
+    
+    $projects = Project::with('leader:id,name')
+        ->when($search, fn($query) => $query->where('name', 'ILIKE', "%{$search}%"))
+        ->get();
+
+    return Inertia::render('ProjectManagement/Projects', [
+        'projects' => $projects,
+        'search' => $search, 
+        'user' => request()->user(),
+        'projectsUrl' => route('projects.index'),
+    ]);
+}
 
     public function show($id)
     {
@@ -47,8 +59,8 @@ class ProjectController extends Controller
         ->get()
         ->map(function ($user) {
             return [
-                'value' => $user->id, // id del usuario como value
-                'label' => $user->name, // nombre del usuario como label
+                'value' => $user->id, 
+                'label' => $user->name, 
             ];
         });
         return Inertia::render('ProjectManagement/CreateProject', [
@@ -75,10 +87,7 @@ class ProjectController extends Controller
             'description' => 'nullable|string',
             'attachments' => 'nullable|array',
         ]);
-       // dd($request->all());    
-       // $projectLeaderId = (int) $request->input('project_leader_id');
-      //  dd($projectLeaderId);
-        // Crear el proyecto
+     
         $project = Project::create([
             'name' => $request->name,
             'company' => $request->company,
