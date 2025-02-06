@@ -23,4 +23,13 @@ class DepartmentController extends Controller
 
         ]);
     }
+
+    public function showSingle($id){
+        $department = Department::find($id);
+        return Inertia::render('Users/SingleDepartment', [
+            'user' => request()->user(),
+            'department' => $department,
+            'users' => $department->users()->orderBy('name', 'asc')->get(),
+        ]);
+    }
 }

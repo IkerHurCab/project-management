@@ -6,7 +6,7 @@
                 <label for="theme-switch" class="flex items-center cursor-pointer">
                     <div class="relative">
                         <input id="theme-switch" type="checkbox" class="sr-only" />
-                        <div class="block bg-gray-800 w-24 min-h-12 rounded-full"></div>
+                        <div class="block bg-secondary w-24 min-h-12 rounded-full"></div>
                         <div class="absolute text-white flex items-center gap-4 top-3 left-4">
                             <box-icon name="moon" color="#FFFFFF"></box-icon>
                             <box-icon name="sun" color="#FFFFFF"></box-icon>
@@ -104,6 +104,5 @@ export default {
             });
         },
     }
-
 }
 </script>

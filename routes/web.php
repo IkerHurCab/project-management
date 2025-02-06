@@ -5,6 +5,7 @@ use Inertia\Inertia;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\HeaderController;
 use App\Http\Controllers\DepartmentController;
+use App\Http\Middleware\CheckDepartmentAccess;
 
 
 Route::middleware(['auth'])->group(function () {
@@ -27,6 +28,9 @@ Route::group(['middleware' => 'auth'], function () {
         return Inertia::render('ProjectManagement/Projects');
     })->name('projects');
     Route::get('/departments', [DepartmentController::class, 'show'])->name('departments');
+    
+    Route::get('/departments/{id}', [DepartmentController::class, 'showSingle'])->name('departments.showSingle')
+    ->middleware(CheckDepartmentAccess::class);
 });
 Route::middleware(['guest'])->group(function () {
     Route::get('/login', [LoginController::class, 'create'])->name('login');

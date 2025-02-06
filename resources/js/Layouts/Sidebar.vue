@@ -1,5 +1,5 @@
 <template>
-  <div class="fixed top-0 left-0 h-full w-16 flex flex-col justify-between py-4 bg-black text-white">
+  <div class="fixed top-0 left-0 h-full w-16 flex flex-col justify-between py-4 bg-black text-white overflow-y-auto sidebar">
     <!-- Sección superior  -->
     <div class="relative flex flex-col space-y-2" @mouseleave="activeTopIndex = null">
       <div class="absolute left-0 w-1 bg-white transition-all duration-300 ease-in-out" :style="topLineStyle"></div>
@@ -73,3 +73,16 @@ const createLineStyle = (activeIndex) => computed(() => {
 const topLineStyle = createLineStyle(activeTopIndex);
 const bottomLineStyle = createLineStyle(activeBottomIndex);
 </script>
+
+<style>
+
+.sidebar::-webkit-scrollbar {
+  width: 1px;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+  background-color: white;
+}
+
+
+</style>

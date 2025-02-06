@@ -4,7 +4,9 @@
 
 @theme {
     --font-apple: 'Archivo', -apple-system, BlinkMacSystemFont, sans-serif;
+    --color-secondary: #13100F;
 }
-*{
+
+* {
     font-family: 'Archivo', sans-serif;
 }
