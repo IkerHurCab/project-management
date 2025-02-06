@@ -1,6 +1,6 @@
 <script setup>
 import { defineProps, ref, watch } from 'vue';
-import { router } from '@inertiajs/vue3';
+import { router } from '@inertiajs/vue3'; // Usamos router aquí
 
 import StandardButton from '@/Components/StandardButton.vue';
 import InputWithIcon from '@/Components/InputWithIcon.vue';
@@ -21,13 +21,12 @@ const searchQuery = ref(props.search || '');
 
 
 watch(searchQuery, (newValue) => {
-  console.log('Nueva búsqueda:', newValue);
-
-  // Construimos la URL con el parámetro de búsqueda
-  const searchUrl = newValue.trim() ? `${props.projectsUrl}?search=${newValue}` : `${props.projectsUrl}`;
-
-  // Usamos Inertia.visit para hacer la solicitud sin recargar la página
-  Inertia.visit(searchUrl, { method: 'get', preserveState: true, replace: true });
+  const searchUrl = newValue.trim() ? `${props.projectsUrl}?search=${newValue}` : props.projectsUrl;
+  router.visit(searchUrl, {
+    method: 'get',
+    preserveState: true,
+    replace: true,
+  });
 });
 
 // Métodos para mostrar y cerrar el modal de filtros
@@ -68,7 +67,7 @@ const closeFilterModal = () => {
             </button>
 
 
-            <StandardButton @click="$inertia.get(`/projects/create`)">New Project</StandardButton>
+            <StandardButton @click="router.get(`/projects/create`)">New Project</StandardButton>
           </div>
         </div>
 
@@ -93,7 +92,7 @@ const closeFilterModal = () => {
 
               <tr v-for="project in projects" :key="project.id"
                 class="border-b border-gray-900 bg-gray-950 hover:bg-gray-900 transition duration-200 cursor-pointer"
-                @click="$inertia.get(`/projects/${project.id}`)">
+                @click="router.get(`/projects/${project.id}`)">
                 <td class="p-4">{{ project.name || 'No hay texto' }}</td>
                 <td class="p-4 text-gray-400">{{ project.company || 'No hay texto' }}</td>
                 <td class="p-4 text-gray-400">{{ project.leader?.name ?? 'No asignado' }}</td>
