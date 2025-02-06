@@ -14,25 +14,45 @@ use Inertia\Response;
 
 class ProjectController extends Controller
 {
-    public function index(Request $request) 
-{   
-    $projectsUrl = route('projects.index');
- 
-        //dump($request->query('search'));
-
-    $search = $request->query('search');
+    public function index(Request $request)
+    {
+        $filters = $request->only(['search', 'status', 'user', 'dateRange']);
     
-    $projects = Project::with('leader:id,name')
-        ->when($search, fn($query) => $query->where('name', 'ILIKE', "%{$search}%"))
-        ->get();
-
-    return Inertia::render('ProjectManagement/Projects', [
-        'projects' => $projects,
-        'search' => $search, 
-        'user' => request()->user(),
-        'projectsUrl' => route('projects.index'),
-    ]);
-}
+        $projects = Project::with('leader:id,name')
+            ->when($filters['search'] ?? null, function ($query, $search) {
+                $query->where('name', 'ILIKE', "%{$search}%");
+            })
+            ->when($filters['status'] ?? null, function ($query, $status) {
+                $query->where('status', $status);
+            })
+            ->when($filters['user'] ?? null, function ($query, $userId) {
+                $query->where('project_leader_id', $userId);
+            })
+            ->when($filters['dateRange'] ?? null, function ($query, $dateRange) {
+                if (!empty($dateRange['start'])) {
+                    $query->where('start_date', '>=', $dateRange['start']);
+                }
+                if (!empty($dateRange['end'])) {
+                    $query->where('end_date', '<=', $dateRange['end']);
+                }
+            })
+            ->get();
+    
+        $departmentHeads = User::whereHas('roles', function ($query) {
+            $query->where('name', 'department_head');
+        })->get(['id', 'name']);
+    
+        $statuses = Project::distinct()->pluck('status');
+    
+        return Inertia::render('ProjectManagement/Projects', [
+            'projects' => $projects,
+            'filters' => $filters,
+            'user' => request()->user(),
+            'projectsUrl' => route('projects.index'),
+            'departmentHeads' => $departmentHeads,
+            'statuses' => $statuses,
+        ]);
+    }
 
     public function show($id)
     {

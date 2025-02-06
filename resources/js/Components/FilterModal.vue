@@ -1,201 +1,178 @@
 <script setup>
-import { ref } from 'vue';
-
-
-const props = defineProps({
-  isOpen: Boolean
-});
+import { ref, watch } from 'vue';
+import 'boxicons';
+import FilterTag from '@/Components/FilterTag.vue';
 
 const emit = defineEmits(['close', 'update:filters']);
 
-const activeMenu = ref('main');
+const activeMenu = ref('');
+const isHoveringPrimary = ref(false);
+const isHoveringSecondary = ref(false);
 const selectedFilters = ref({
-  dateRange: {
-    start: '',
-    end: ''
-  },
+  dateRange: { start: '', end: '' },
   status: '',
   user: ''
 });
 
-const statuses = ['Pending', 'In Progress', 'Finished', 'Inactive'];
-const users = ['User 1', 'User 2', 'User 3', 'User 4'];
+const activeFilterTags = ref([]);
+
+const menuItems = [
+  { id: 'dates', icon: 'calendar', label: 'Date Range', value: 'dateRange' },
+  { id: 'status', icon: 'check-square', label: 'Status', value: 'status' },
+  { id: 'user', icon: 'user', label: 'User', value: 'user' }
+];
+
+const props = defineProps({
+  departmentHeads: Array,
+});
+
+const statuses = [
+  { value: 'pending', label: 'Pendiente' },
+  { value: 'in_progress', label: 'En progreso' },
+  { value: 'finished', label: 'Finalizado' },
+  { value: 'inactive', label: 'Inactivo' },
+];
+
 
 const showMenu = (menu) => {
   activeMenu.value = menu;
 };
 
-const goBack = () => {
-  activeMenu.value = 'main';
+const hideMenu = () => {
+  if (!isHoveringPrimary.value && !isHoveringSecondary.value) {
+    activeMenu.value = '';
+  }
 };
 
 const updateFilters = () => {
   emit('update:filters', selectedFilters.value);
+  updateFilterTags();
+};
+
+const updateFilterTags = () => {
+  activeFilterTags.value = [];
+  if (selectedFilters.value.dateRange.start || selectedFilters.value.dateRange.end) {
+    activeFilterTags.value.push({
+      type: 'dateRange',
+      label: `Date: ${selectedFilters.value.dateRange.start} - ${selectedFilters.value.dateRange.end}`
+    });
+  }
+  if (selectedFilters.value.status) {
+    // Buscar el 'label' correspondiente al 'value' en el array 'statuses'
+    const statusLabel = statuses.find(status => status.value === selectedFilters.value.status)?.label;
+    activeFilterTags.value.push({
+      type: 'status',
+      label: `Status: ${statusLabel || 'Not selected'}`  // Si no se encuentra, muestra 'Not selected'
+    });
+  }
+  if (selectedFilters.value.user) {
+    activeFilterTags.value.push({
+      type: 'user',
+      label: `User: ${selectedFilters.value.user.name}`
+    });
+  }
+};
+
+const removeFilter = (filterType) => {
+  if (filterType === 'dateRange') {
+    selectedFilters.value.dateRange = { start: '', end: '' };
+  } else {
+    selectedFilters.value[filterType] = '';
+  }
+  updateFilters();
 };
 
 const closeModal = () => {
   emit('close');
-  activeMenu.value = 'main';
+  activeMenu.value = '';
 };
+
+watch(activeFilterTags, (newTags) => {
+  emit('update:filterTags', newTags);
+}, { deep: true });
 </script>
 
 <template>
-  <div v-if="isOpen" class="fixed inset-0 z-50">
-    <!-- Overlay semi-transparente -->
-    <div class="absolute inset-0 bg-black bg-opacity-50" @click="closeModal"></div>
+  <div class="flex flex-col bg-gray-900 shadow-xl rounded-lg overflow-hidden">
+    <div class="flex items-center justify-between p-4 border-b border-gray-800">
+      <h2 class="text-xl font-semibold text-white">Filters</h2>
+      <button @click="closeModal" class="cursor-pointer text-gray-400 hover:text-white">
+        <box-icon name='x' color='#ffffff'></box-icon>
+      </button>
+    </div>
 
-    <!-- Modal principal -->
-    <div class="absolute inset-y-0 left-1/2 -translate-x-1/2 w-[500px] bg-gray-900 shadow-xl">
-      <!-- Header del modal -->
-      <div class="flex items-center justify-between p-4 border-b border-gray-800">
-        <h2 class="text-xl font-semibold text-white">Filters</h2>
-        <button @click="closeModal" class="text-gray-400 hover:text-white">
-          <X size="24" />
-        </button>
+    <div class="flex">
+      <!-- Menú secundario (a la izquierda, condicional) -->
+      <div 
+        v-if="activeMenu" 
+        class="w-64 p-4 bg-gray-800 rounded-l-lg"
+        @mouseenter="isHoveringSecondary = true"
+        @mouseleave="isHoveringSecondary = false; hideMenu()"
+      >
+        <h3 class="text-lg font-semibold text-white mb-4">{{ activeMenu }}</h3>
+        <div v-if="activeMenu === 'dates'" class="space-y-4">
+          <div>
+            <label class="block text-sm text-gray-400 mb-1">Start Date</label>
+            <input 
+              v-model="selectedFilters.dateRange.start"
+              type="date"
+              class="w-full bg-gray-700 text-white p-2 rounded-lg border border-gray-600 focus:outline-none focus:border-gray-500"
+              @change="updateFilters"
+            >
+          </div>
+          <div>
+            <label class="block text-sm text-gray-400 mb-1">End Date</label>
+            <input 
+              v-model="selectedFilters.dateRange.end"
+              type="date"
+              class="w-full bg-gray-700 text-white p-2 rounded-lg border border-gray-600 focus:outline-none focus:border-gray-500"
+              @change="updateFilters"
+            >
+          </div>
+        </div>
+        <div v-else-if="activeMenu === 'status'" class="space-y-2">
+  <button
+    v-for="status in statuses"
+    :key="status.value"
+    @click="selectedFilters.status = status.value; updateFilters()"
+    class="w-full text-left p-2 rounded-lg hover:bg-gray-700 text-white"
+    :class="{ 'bg-gray-700': selectedFilters.status === status.value }"
+  >
+    {{ status.label }}
+  </button>
+</div>
+        <div v-else-if="activeMenu === 'user'" class="space-y-2">
+          <button
+            v-for="user in props.departmentHeads"
+            :key="user.id"
+            @click="selectedFilters.user = user; updateFilters()"
+            class="w-full text-left p-2 rounded-lg hover:bg-gray-700 text-white"
+            :class="{ 'bg-gray-700': selectedFilters.user === user }"
+          >
+            {{ user.name }}
+          </button>
+        </div>
       </div>
 
-      <!-- Contenido del modal -->
-      <div class="relative h-[calc(100%-64px)]">
-        <!-- Menú principal -->
-        <div 
-          class="absolute inset-0 bg-gray-900 transition-transform duration-300"
-          :class="activeMenu !== 'main' ? '-translate-x-full' : 'translate-x-0'"
-        >
-          <div class="p-4 space-y-2">
-            <!-- Filtro de Fechas -->
-            <button 
-              @click="showMenu('dates')"
-              class="w-full flex items-center justify-between p-3 rounded-lg hover:bg-gray-800 text-white"
-            >
-              <div class="flex items-center">
-                <Calendar class="w-5 h-5 mr-2" />
-                <span>Date Range</span>
-              </div>
-              <span class="text-sm text-gray-400">
-                {{ selectedFilters.dateRange.start || selectedFilters.dateRange.end ? 'Selected' : '' }}
-              </span>
-            </button>
-
-            <!-- Filtro de Status -->
-            <button 
-              @click="showMenu('status')"
-              class="w-full flex items-center justify-between p-3 rounded-lg hover:bg-gray-800 text-white"
-            >
-              <div class="flex items-center">
-                <Tag class="w-5 h-5 mr-2" />
-                <span>Status</span>
-              </div>
-              <span class="text-sm text-gray-400">
-                {{ selectedFilters.status || '' }}
-              </span>
-            </button>
-
-            <!-- Filtro de Usuario -->
-            <button 
-              @click="showMenu('user')"
-              class="w-full flex items-center justify-between p-3 rounded-lg hover:bg-gray-800 text-white"
-            >
-              <div class="flex items-center">
-                <User class="w-5 h-5 mr-2" />
-                <span>User</span>
-              </div>
-              <span class="text-sm text-gray-400">
-                {{ selectedFilters.user || '' }}
-              </span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Menú de fechas -->
-        <div 
-          class="absolute inset-0 bg-gray-900 transition-transform duration-300"
-          :class="activeMenu === 'dates' ? 'translate-x-0' : 'translate-x-full'"
-        >
-          <div class="p-4">
-            <button 
-              @click="goBack"
-              class="mb-4 text-gray-400 hover:text-white flex items-center"
-            >
-              ← Back
-            </button>
-            <h3 class="text-lg font-semibold text-white mb-4">Date Range</h3>
-            <div class="space-y-4">
-              <div>
-                <label class="block text-sm text-gray-400 mb-1">Start Date</label>
-                <input 
-                  v-model="selectedFilters.dateRange.start"
-                  type="date"
-                  class="w-full bg-gray-800 text-white p-2 rounded-lg border border-gray-700 focus:outline-none focus:border-gray-600"
-                  @change="updateFilters"
-                >
-              </div>
-              <div>
-                <label class="block text-sm text-gray-400 mb-1">End Date</label>
-                <input 
-                  v-model="selectedFilters.dateRange.end"
-                  type="date"
-                  class="w-full bg-gray-800 text-white p-2 rounded-lg border border-gray-700 focus:outline-none focus:border-gray-600"
-                  @change="updateFilters"
-                >
-              </div>
+      <!-- Menú principal -->
+      <div class="w-64 bg-gray-900">
+        <div class="">
+          <button 
+            v-for="item in menuItems" 
+            :key="item.id"
+            @mouseenter="isHoveringPrimary = true; showMenu(item.id)"
+            @mouseleave="isHoveringPrimary = false; hideMenu()"
+            class="w-full flex items-center justify-between px-5 py-3 hover:bg-gray-800 text-white"
+          >
+            <div class="flex items-center gap-x-2">
+              <box-icon :name="item.icon" color='#ffffff'></box-icon>
+              <span>{{ item.label }}</span>
             </div>
-          </div>
-        </div>
-
-        <!-- Menú de status -->
-        <div 
-          class="absolute inset-0 bg-gray-900 transition-transform duration-300"
-          :class="activeMenu === 'status' ? 'translate-x-0' : 'translate-x-full'"
-        >
-          <div class="p-4">
-            <button 
-              @click="goBack"
-              class="mb-4 text-gray-400 hover:text-white flex items-center"
-            >
-              ← Back
-            </button>
-            <h3 class="text-lg font-semibold text-white mb-4">Status</h3>
-            <div class="space-y-2">
-              <button
-                v-for="status in statuses"
-                :key="status"
-                @click="selectedFilters.status = status; updateFilters()"
-                class="w-full text-left p-3 rounded-lg hover:bg-gray-800 text-white"
-                :class="{ 'bg-gray-800': selectedFilters.status === status }"
-              >
-                {{ status }}
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Menú de usuarios -->
-        <div 
-          class="absolute inset-0 bg-gray-900 transition-transform duration-300"
-          :class="activeMenu === 'user' ? 'translate-x-0' : 'translate-x-full'"
-        >
-          <div class="p-4">
-            <button 
-              @click="goBack"
-              class="mb-4 text-gray-400 hover:text-white flex items-center"
-            >
-              ← Back
-            </button>
-            <h3 class="text-lg font-semibold text-white mb-4">User</h3>
-            <div class="space-y-2">
-              <button
-                v-for="user in users"
-                :key="user"
-                @click="selectedFilters.user = user; updateFilters()"
-                class="w-full text-left p-3 rounded-lg hover:bg-gray-800 text-white"
-                :class="{ 'bg-gray-800': selectedFilters.user === user }"
-              >
-                {{ user }}
-              </button>
-            </div>
-          </div>
+          </button>
         </div>
       </div>
     </div>
+
+   
   </div>
 </template>
