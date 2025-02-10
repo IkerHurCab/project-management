@@ -68,7 +68,7 @@
   <template>
     <Layout pageTitle="Project Management">
    
-      <div class="flex flex-col bg-black text-gray-300 min-h-screen p-8">
+      <div class="flex flex-col bg-black text-gray-300 min-h-screen px-6 py-4">
         <div class="flex flex-row  gap-x-4 ">
           <div class="cursor-pointer flex items-center " @click="$inertia.visit('/projects')">
 

@@ -12,8 +12,8 @@ import 'boxicons';
 
 const props = defineProps({
   projects: Array,
-  search: String, 
-  projectsUrl: String, 
+  search: String,
+  projectsUrl: String,
   departmentHeads: Array,
   statuses: Array,
 });
@@ -26,7 +26,7 @@ onMounted(() => {
 
 
   const urlParams = new URLSearchParams(window.location.search);
-  
+
   activeFilters.value = {
     dateRange: {
       start: urlParams.get('start_date') || '',
@@ -124,7 +124,7 @@ const removeFilterTag = (filterType) => {
 
 const handleRemoveFilter = (filterType) => {
   filterTags.value = filterTags.value.filter(tag => tag.type !== filterType);
-  removeFilterTag(filterType); 
+  removeFilterTag(filterType);
 };
 
 // Props y eventos para FilterTag
@@ -139,30 +139,29 @@ const handleRemove = () => {
 <template>
   <Layout pageTitle="Project Management">
     <div class="flex flex-row bg-black text-gray-300 min-h-screen">
-      <div class="flex-1 p-8">
+      <div class="flex-1 px-6 py-4">
         <h1 class="text-3xl font-bold text-white mb-4">All Projects</h1>
         <div class="mb-6 flex justify-between items-center">
           <div class="flex flex-row space-x-2">
             <div class="relative">
-              <InputWithIcon icon="search" v-model="searchQuery" placeholder="Search projects..." class="h-10 w-full" type="text" />
+              <InputWithIcon icon="search" v-model="searchQuery" placeholder="Search projects..." class="h-10 w-full"
+                type="text" />
             </div>
             <div v-if="filterTags.length > 0" class="flex flex-wrap gap-2">
-              <FilterTag 
-                v-for="tag in filterTags" 
-                :key="tag.type" 
-                :label="tag.label"
-                @remove="handleRemoveFilter(tag.type)"
-              />
+              <FilterTag v-for="tag in filterTags" :key="tag.type" :label="tag.label"
+                @remove="handleRemoveFilter(tag.type)" />
             </div>
           </div>
           <div class="flex-row flex items-center justify-end gap-x-2 relative">
             <button
               class="group flex cursor-pointer items-center bg-gray-900 hover:bg-gray-800 text-white px-4 py-2 rounded-lg transition duration-200"
               @click="showFilterModal">
-              <box-icon name="filter" color="#ffffff" class="mr-2 transition-transform duration-300 group-hover:rotate-180"></box-icon>
+              <box-icon name="filter" color="#ffffff"
+                class="mr-2 transition-transform duration-300 group-hover:rotate-180"></box-icon>
               Filter
             </button>
-            <FilterModal :departmentHeads="departmentHeads"  v-if="isFilterModalOpen" @close="closeFilterModal" @update:filters="updateFilters" class="absolute top-full mt-2 left-[] z-50" />
+            <FilterModal :departmentHeads="departmentHeads" v-if="isFilterModalOpen" @close="closeFilterModal"
+              @update:filters="updateFilters" class="absolute top-full mt-2 left-[] z-50" />
             <StandardButton @click="router.get(`/projects/create`)">New Project</StandardButton>
           </div>
         </div>
@@ -194,7 +193,8 @@ const handleRemove = () => {
                 <td class="p-4 text-gray-400">{{ project.leader?.name ?? 'No asignado' }}</td>
                 <td class="p-4 text-gray-400">{{ project.start_date || 'No hay texto' }}</td>
                 <td class="p-4 text-gray-400">{{ project.end_date || 'No hay texto' }}</td>
-                <td class="p-4 text-gray-400">{{ project.assigned_hours ? project.assigned_hours + ' h' : 'No hay texto' }}</td>
+                <td class="p-4 text-gray-400">{{ project.assigned_hours ? project.assigned_hours + ' h' : 'No hay texto'
+                  }}</td>
                 <td class="p-4 flex">
                   <StatusBadge :status="project.status" />
                 </td>
@@ -206,4 +206,3 @@ const handleRemove = () => {
     </div>
   </Layout>
 </template>
-
