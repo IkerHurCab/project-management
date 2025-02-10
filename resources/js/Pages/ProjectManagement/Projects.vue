@@ -33,7 +33,7 @@ onMounted(() => {
       end: urlParams.get('end_date') || '',
     },
     status: urlParams.get('status') || '',
-    user: props.departmentHeads.find(user => user.id == urlParams.get('user')) || null,
+    user: props.departmentHeads.find(user => user.name == urlParams.get('user')) || null,
   };
 
   updateFilterTags();
@@ -101,7 +101,7 @@ const applyFilters = () => {
   }
 
   if (activeFilters.value.user) {
-    queryParams.append('user', activeFilters.value.user.id);
+    queryParams.append('user', activeFilters.value.user.name);
   }
 
   const url = queryParams.toString() ? `${props.projectsUrl}?${queryParams.toString()}` : props.projectsUrl;

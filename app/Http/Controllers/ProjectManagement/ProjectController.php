@@ -25,8 +25,10 @@ class ProjectController extends Controller
             ->when($filters['status'] ?? null, function ($query, $status) {
                 $query->where('status', $status);
             })
-            ->when($filters['user'] ?? null, function ($query, $userId) {
-                $query->where('project_leader_id', $userId);
+            ->when($filters['user'] ?? null, function ($query, $userName) {
+                $query->whereHas('leader', function ($query) use ($userName) {
+                    $query->where('name', 'ILIKE', "%{$userName}%");
+                });
             })
             ->when($filters['dateRange'] ?? null, function ($query, $dateRange) {
                 if (!empty($dateRange['start'])) {
