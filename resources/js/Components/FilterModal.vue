@@ -107,7 +107,7 @@ watch(activeFilterTags, (newTags) => {
         v-if="activeMenu" 
         class="w-64 p-4 bg-gray-800 rounded-l-lg"
         @mouseenter="isHoveringSecondary = true"
-        @mouseleave="isHoveringSecondary = false; hideMenu()"
+      
       >
         <h3 class="text-lg font-semibold text-white mb-4">{{ activeMenu }}</h3>
         <div v-if="activeMenu === 'dates'" class="space-y-4">
@@ -134,6 +134,7 @@ watch(activeFilterTags, (newTags) => {
   <button
     v-for="status in statuses"
     :key="status.value"
+    
     @click="selectedFilters.status = status.value; updateFilters()"
     class="w-full text-left p-2 rounded-lg hover:bg-gray-700 text-white"
     :class="{ 'bg-gray-700': selectedFilters.status === status.value }"

@@ -1,5 +1,7 @@
 <script setup>
 import 'boxicons';
+import { onMounted } from 'vue';
+
 const props = defineProps({
   label: {
     type: String,
@@ -10,6 +12,8 @@ const props = defineProps({
     required: true
   }
 });
+
+
 
 const emit = defineEmits(['remove']);
 

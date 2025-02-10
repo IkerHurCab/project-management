@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, watch, onMounted } from 'vue';
 import { router } from '@inertiajs/vue3';
 import StandardButton from '@/Components/StandardButton.vue';
 import InputWithIcon from '@/Components/InputWithIcon.vue';
@@ -9,6 +9,7 @@ import Layout from '@/Layouts/Layout.vue';
 import FilterModal from '@/Components/FilterModal.vue';
 import 'boxicons';
 
+
 const props = defineProps({
   projects: Array,
   search: String, 
@@ -17,7 +18,27 @@ const props = defineProps({
   statuses: Array,
 });
 
-const searchQuery = ref(props.search || '');
+
+const searchQuery = ref('');
+
+onMounted(() => {
+  searchQuery.value = props.search || '';
+
+
+  const urlParams = new URLSearchParams(window.location.search);
+  
+  activeFilters.value = {
+    dateRange: {
+      start: urlParams.get('start_date') || '',
+      end: urlParams.get('end_date') || '',
+    },
+    status: urlParams.get('status') || '',
+    user: props.departmentHeads.find(user => user.id == urlParams.get('user')) || null,
+  };
+
+  updateFilterTags();
+});
+
 const activeFilters = ref({
   dateRange: { start: '', end: '' },
   status: '',
@@ -25,7 +46,7 @@ const activeFilters = ref({
 });
 const filterTags = ref([]);
 
-watch(searchQuery, (newValue) => {
+watch(searchQuery, () => {
   applyFilters();
 });
 
@@ -46,58 +67,45 @@ const updateFilters = (newFilters) => {
 
 const updateFilterTags = () => {
   filterTags.value = [];
-  if (activeFilters.value.dateRange.start || activeFilters.value.dateRange.end) {
-    filterTags.value.push({
-      type: 'dateRange',
-      label: `Start Date: ${activeFilters.value.dateRange.start }`
-    });
+  if (activeFilters.value.dateRange.start) {
+    filterTags.value.push({ type: 'dateRange', label: `Start Date: ${activeFilters.value.dateRange.start}` });
   }
-  if(activeFilters.value.dateRange.end){
-    filterTags.value.push({
-      type: 'dateRange',
-      label: `End Date: ${activeFilters.value.dateRange.end}`
-    });
-
-
+  if (activeFilters.value.dateRange.end) {
+    filterTags.value.push({ type: 'dateRange', label: `End Date: ${activeFilters.value.dateRange.end}` });
   }
   if (activeFilters.value.status) {
-    filterTags.value.push({
-      type: 'status',
-      label: `Status: ${activeFilters.value.status}`
-    });
+    filterTags.value.push({ type: 'status', label: `Status: ${activeFilters.value.status}` });
   }
   if (activeFilters.value.user) {
-    filterTags.value.push({
-      type: 'user',
-      label: `User: ${activeFilters.value.user.name}`
-    });
+    filterTags.value.push({ type: 'user', label: `User: ${activeFilters.value.user.name}` });
   }
 };
 
 const applyFilters = () => {
   const queryParams = new URLSearchParams();
-  
+
   if (searchQuery.value) {
     queryParams.append('search', searchQuery.value);
   }
-  
+
   if (activeFilters.value.dateRange.start) {
     queryParams.append('start_date', activeFilters.value.dateRange.start);
   }
-  
+
   if (activeFilters.value.dateRange.end) {
     queryParams.append('end_date', activeFilters.value.dateRange.end);
   }
-  
+
   if (activeFilters.value.status) {
     queryParams.append('status', activeFilters.value.status);
   }
-  
+
   if (activeFilters.value.user) {
-    queryParams.append('user_id', activeFilters.value.user.id);
+    queryParams.append('user', activeFilters.value.user.id);
   }
 
-  const url = `${props.projectsUrl}?${queryParams.toString()}`;
+  const url = queryParams.toString() ? `${props.projectsUrl}?${queryParams.toString()}` : props.projectsUrl;
+
   router.visit(url, {
     method: 'get',
     preserveState: true,
@@ -106,22 +114,27 @@ const applyFilters = () => {
 };
 
 const removeFilterTag = (filterType) => {
-  // Elimina el filtro de activeFilters
   if (filterType === 'dateRange') {
     activeFilters.value.dateRange = { start: '', end: '' };
   } else {
     activeFilters.value[filterType] = '';
   }
-  // Llama a applyFilters para actualizar la URL con los filtros restantes
   applyFilters();
 };
 
 const handleRemoveFilter = (filterType) => {
   filterTags.value = filterTags.value.filter(tag => tag.type !== filterType);
-  removeFilterTag(filterType); // Elimina el filtro de activeFilters
+  removeFilterTag(filterType); 
 };
 
+// Props y eventos para FilterTag
+const emit = defineEmits(['remove']);
+
+const handleRemove = () => {
+  emit('remove', props.type);
+};
 </script>
+
 
 <template>
   <Layout pageTitle="Project Management">
