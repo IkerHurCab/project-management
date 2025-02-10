@@ -33,9 +33,8 @@ const statuses = [
   { value: 'inactive', label: 'Inactivo' },
 ];
 
-
 const showMenu = (menu) => {
-  activeMenu.value = menu;
+  activeMenu.value = activeMenu.value === menu ? '' : menu; // Toggle between showing and hiding the menu
 };
 
 const hideMenu = () => {
@@ -58,7 +57,6 @@ const updateFilterTags = () => {
     });
   }
   if (selectedFilters.value.status) {
-    // Buscar el 'label' correspondiente al 'value' en el array 'statuses'
     const statusLabel = statuses.find(status => status.value === selectedFilters.value.status)?.label;
     activeFilterTags.value.push({
       type: 'status',
@@ -103,53 +101,35 @@ watch(activeFilterTags, (newTags) => {
 
     <div class="flex">
       <!-- Menú secundario (a la izquierda, condicional) -->
-      <div 
-        v-if="activeMenu" 
-        class="w-64 p-4 bg-gray-800 rounded-l-lg"
-        @mouseenter="isHoveringSecondary = true"
-      
-      >
+      <div v-if="activeMenu" class="w-64 p-4 bg-gray-800 rounded-l-lg" @mouseenter="isHoveringSecondary = true">
         <h3 class="text-lg font-semibold text-white mb-4">{{ activeMenu }}</h3>
         <div v-if="activeMenu === 'dates'" class="space-y-4">
           <div>
             <label class="block text-sm text-gray-400 mb-1">Start Date</label>
-            <input 
-              v-model="selectedFilters.dateRange.start"
-              type="date"
+            <input v-model="selectedFilters.dateRange.start" type="date"
               class="w-full bg-gray-700 text-white p-2 rounded-lg border border-gray-600 focus:outline-none focus:border-gray-500"
-              @change="updateFilters"
-            >
+              @change="updateFilters">
           </div>
           <div>
             <label class="block text-sm text-gray-400 mb-1">End Date</label>
-            <input 
-              v-model="selectedFilters.dateRange.end"
-              type="date"
+            <input v-model="selectedFilters.dateRange.end" type="date"
               class="w-full bg-gray-700 text-white p-2 rounded-lg border border-gray-600 focus:outline-none focus:border-gray-500"
-              @change="updateFilters"
-            >
+              @change="updateFilters">
           </div>
         </div>
         <div v-else-if="activeMenu === 'status'" class="space-y-2">
-  <button
-    v-for="status in statuses"
-    :key="status.value"
-    
-    @click="selectedFilters.status = status.value; updateFilters()"
-    class="w-full text-left p-2 rounded-lg hover:bg-gray-700 text-white"
-    :class="{ 'bg-gray-700': selectedFilters.status === status.value }"
-  >
-    {{ status.label }}
-  </button>
-</div>
+          <button v-for="status in statuses" :key="status.value"
+            @click="selectedFilters.status = status.value; updateFilters()"
+            class="w-full text-left p-2 rounded-lg hover:bg-gray-700 text-white"
+            :class="{ 'bg-gray-700': selectedFilters.status === status.value }">
+            {{ status.label }}
+          </button>
+        </div>
         <div v-else-if="activeMenu === 'user'" class="space-y-2">
-          <button
-            v-for="user in props.departmentHeads"
-            :key="user.id"
+          <button v-for="user in props.departmentHeads" :key="user.id"
             @click="selectedFilters.user = user; updateFilters()"
             class="w-full text-left p-2 rounded-lg hover:bg-gray-700 text-white"
-            :class="{ 'bg-gray-700': selectedFilters.user === user }"
-          >
+            :class="{ 'bg-gray-700': selectedFilters.user === user }">
             {{ user.name }}
           </button>
         </div>
@@ -158,13 +138,9 @@ watch(activeFilterTags, (newTags) => {
       <!-- Menú principal -->
       <div class="w-64 bg-gray-900">
         <div class="">
-          <button 
-            v-for="item in menuItems" 
-            :key="item.id"
-            @mouseenter="isHoveringPrimary = true; showMenu(item.id)"
-            @mouseleave="isHoveringPrimary = false; hideMenu()"
-            class="w-full flex items-center justify-between px-5 py-3 hover:bg-gray-800 text-white"
-          >
+          <button v-for="item in menuItems" :key="item.id"  @click="showMenu(item.id)"
+            
+            class="w-full cursor-pointer flex items-center justify-between px-5 py-3 hover:bg-gray-800 text-white">
             <div class="flex items-center gap-x-2">
               <box-icon :name="item.icon" color='#ffffff'></box-icon>
               <span>{{ item.label }}</span>
@@ -173,7 +149,5 @@ watch(activeFilterTags, (newTags) => {
         </div>
       </div>
     </div>
-
-   
   </div>
 </template>
