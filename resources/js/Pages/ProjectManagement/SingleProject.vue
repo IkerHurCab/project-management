@@ -1,13 +1,20 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { router } from '@inertiajs/vue3';
+
 import Layout from '@/Layouts/Layout.vue';
 import StatusBadge from '@/Components/StatusBadge.vue';
 import StandardButton from '@/Components/StandardButton.vue';
 import VueApexCharts from 'vue3-apexcharts';
+
+import TaskList from './TaskList.vue';
 import 'boxicons';
 
 const props = defineProps({
+  tasksByStatus: {
+    type: Object,
+    required: false
+  },
   project: {
     type: Object,
     required: true
@@ -29,7 +36,7 @@ const chartOptions = computed(() => ({
     type: 'donut',
     background: 'transparent'
   },
-  colors: ['#3B82F6', '#10B981', '#F59E0B', '#EF4444'], // Updated colors
+  colors: ['#6366F1', '#22D3EE', '#F59E0B', '#EF4444'],
   plotOptions: {
     donut: {
       size: '85%',
@@ -77,7 +84,7 @@ const series = computed(() => {
 const tasksByStatus = computed(() => {
   if (!Array.isArray(props.tasks)) {
     return {
-      todo: [],
+      to_do: [],
       in_progress: [],
       review: [],
       done: []
@@ -85,18 +92,37 @@ const tasksByStatus = computed(() => {
   }
 
   return {
-    todo: props.tasks.filter(task => task.status === 'pending'),
+    to_do: props.tasks.filter(task => task.status === 'pending'),
     in_progress: props.tasks.filter(task => task.status === 'in_progress'),
     review: props.tasks.filter(task => task.status === 'review'),
     done: props.tasks.filter(task => task.status === 'completed')
   };
 });
+
+const totalTasks = computed(() => props.tasks.length);
+const completedTasks = computed(() => props.tasks.filter(task => task.status === 'completed').length);
+const progressPercentage = computed(() => (completedTasks.value / totalTasks.value) * 100 || 0);
+
+const priorityTasks = computed(() => 
+  props.tasks
+    .filter(task => task.priority === 3) 
+    .sort((a, b) => new Date(a.end_date) - new Date(b.end_date)) 
+    .slice(0, 3)
+);
+
+
+const recentActivities = [
+  { user: 'John Doe', action: 'completed task', task: 'Design UI mockups', time: '2 hours ago' },
+  { user: 'Jane Smith', action: 'commented on', task: 'Backend API development', time: '4 hours ago' },
+  { user: 'Mike Johnson', action: 'started task', task: 'User authentication', time: '1 day ago' },
+];
+
 </script>
 
 <template>
   <Layout pageTitle="Project Management">
     <div class="min-h-screen bg-black text-gray-300">
-      <div class="border-b border-gray-700 px-6 py-4">
+      <div class="border-b border-gray-800 px-6 py-4">
         <div class="flex items-center justify-between">
           <div class="flex items-center space-x-8">
             <a @click="$inertia.visit('/projects')"
@@ -107,18 +133,18 @@ const tasksByStatus = computed(() => {
             <h1 class="text-xl font-semibold text-white">{{ project.name }}</h1>
           </div>
           <div class="flex items-center space-x-4">
-            <StandardButton class="bg-blue-600 hover:bg-blue-700">+ Create Task</StandardButton>
+            <StandardButton>+ Create Task</StandardButton>
           </div>
         </div>
       </div>
 
       <div class="bg-gray-950 px-6 py-2 border-b border-gray-700">
         <div class="flex space-x-6">
-          <button v-for="tab in ['Overview', 'Tasks', 'Team', 'Analytics']" :key="tab"
+          <button v-for="tab in ['Overview', 'Tasks', 'Analytics', 'Files']" :key="tab"
             @click="activeTab = tab.toLowerCase()" :class="[
               'px-4 py-2 text-sm cursor-pointer font-medium rounded-md transition-colors',
               activeTab === tab.toLowerCase()
-                ? 'bg-blue-600 text-white'
+                ? 'bg-blue-500 text-white'
                 : 'text-gray-400 hover:text-white'
             ]">
             {{ tab }}
@@ -132,39 +158,21 @@ const tasksByStatus = computed(() => {
         <div class="flex-1 p-6 overflow-auto">
           <div v-if="activeTab === 'tasks'" class="grid grid-cols-4 gap-6 h-full">
             <!-- Task Columns -->
-            <template v-for="(tasks, status) in tasksByStatus" :key="status">
-              <div class="bg-gray-950 rounded-lg p-4 border border-gray-700">
-                <h3 class="text-white font-medium mb-4 flex items-center justify-between">
-                  {{ status.toUpperCase().replace('_', ' ') }}
-                  <span class="bg-gray-800 text-xs px-2 py-1 rounded-full">{{ tasks.length }}</span>
-                </h3>
-                <div class="space-y-3">
-                  <div v-for="task in tasks" :key="task.id"
-                    class="bg-gray-900 p-4 rounded-lg hover:bg-gray-800 transition-colors cursor-pointer border border-gray-700">
-                    <h4 class="text-white font-medium">{{ task.name }}</h4>
-                    <p class="text-gray-400 text-sm mt-1">{{ task.description }}</p>
-                    <div class="mt-3 flex items-center justify-between">
-                      <StatusBadge :status="task.status" />
-                      <span class="text-gray-400 text-sm">{{ task.estimated_hours }}h</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </template>
+              <TaskList ref="taskContainer" :projectId="project.id" :tasksByStatus="tasksByStatus" />
           </div>
 
           <div v-if="activeTab === 'overview'" class="grid grid-cols-12 gap-6">
             <!-- Project Details -->
             <div class="col-span-8 bg-gray-950 rounded-lg overflow-hidden border border-gray-700">
               <div class="border-b border-gray-700 px-6 py-4">
-                <h2 class="text-2xl font-semibold text-white ">Project Details</h2>
+                <h2 class="text-2xl font-semibold text-white">Project Details</h2>
               </div>
               <div class="p-6 space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div class="space-y-2 flex flex-col ">
+                  <div class="space-y-2 flex flex-col">
                     <span class="text-sm font-medium text-gray-400">Status</span>
                     <StatusBadge :status="project.status"
-                      class="bg-blue-500 text-white w-fit rounded-full py-1 px-4 text-sm" />
+                      class="bg-indigo-600 text-white w-fit rounded-full py-1 px-4 text-sm" />
                   </div>
                   <div class="space-y-2">
                     <span class="text-sm font-medium text-gray-400">Company</span>
@@ -178,16 +186,15 @@ const tasksByStatus = computed(() => {
                     <span class="text-sm font-medium text-gray-400">End Date</span>
                     <span class="text-lg text-white block font-light">{{ project.end_date }}</span>
                   </div>
-                  <div class="space-y-2 col-span-2">
+                  <div class="space-y-2 col-span-2 flex flex-col w-full max-w-full overflow-auto">
                     <span class="text-sm font-medium text-gray-400">Description</span>
-                    <p class="text-white">SmartTask Manager es una aplicación web diseñada para optimizar la gestión de tareas diarias tanto a nivel personal como profesional. Con una interfaz intuitiva y fácil de usar, permite a los usuarios crear, organizar y hacer seguimiento de sus tareas de manera eficiente. La aplicación ofrece funciones como la asignación de prioridades.</p>
+                    <p class="text-white text-lg leading-snug break-words w-full max-w-full overflow-auto">
+                      {{ project.description }}
+                    </p>
                   </div>
-                 
                 </div>
-                
               </div>
             </div>
-
 
             <!-- Hours Chart -->
             <div class="col-span-4 bg-gray-950 rounded-lg overflow-hidden border border-gray-700">
@@ -202,30 +209,73 @@ const tasksByStatus = computed(() => {
         </div>
 
         <!-- Right Sidebar -->
-        <div class="w-80 bg-gray-950 border-l border-gray-700">
-          <div class="p-6 space-y-6">
+        <div class="w-96 bg-gray-950 border-l border-gray-700 overflow-y-auto">
+          <div class="p-6 space-y-8">
             <div>
-              <h3 class="text-sm font-medium text-gray-400 mb-4">Project Leader</h3>
-              <div class="flex items-center space-x-3">
-                <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white">
-                  {{ project.leader?.name.charAt(0) }}
-                </div>
-                <span class="text-white">{{ project.leader?.name }}</span>
+              <h3 class="text-lg font-semibold text-white mb-4">Project Progress s</h3>
+              <div class="bg-gray-700 h-2 rounded-full">
+                <div class="bg-blue-600 h-2 rounded-full" :style="{ width: `${progressPercentage}%` }"></div>
+              </div>
+              <div class="mt-2 text-sm text-gray-400">
+                {{ completedTasks }} of {{ totalTasks }} tasks completed
               </div>
             </div>
 
             <div>
-              <h3 class="text-sm font-medium text-gray-400 mb-4">Team Members</h3>
+              <h3 class="text-lg font-semibold text-white mb-4">Project Leader</h3>
+              <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white text-lg font-semibold">
+                  {{ project.leader?.name.charAt(0) }}
+                </div>
+                <div>
+                  <span class="text-white block">{{ project.leader?.name }}</span>
+                  <span class="text-sm text-gray-400">Project Manager</span>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h3 class="text-lg font-semibold text-white mb-4">Team Members</h3>
               <div class="space-y-3">
                 <div v-for="employee in employees" :key="employee.id"
-                  class="flex items-center justify-between p-2 hover:bg-gray-900 rounded-lg transition-colors">
+                     class="flex items-center justify-between p-2 hover:bg-gray-700 rounded-lg transition-colors">
                   <div class="flex items-center space-x-3">
-                    <div class="w-8 h-8 bg-gray-700 rounded-full flex items-center justify-center text-white">
+                    <div class="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center text-white">
                       {{ employee.name.charAt(0) }}
                     </div>
                     <span class="text-white">{{ employee.name }}</span>
                   </div>
                   <span class="text-gray-400 text-sm">{{ employee.role }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h3 class="text-lg font-semibold text-white mb-4">Priority Tasks</h3>
+              <div class="space-y-3">
+                <div v-for="task in priorityTasks" :key="task.id"
+                     class="bg-gray-700 p-3 rounded-lg">
+                  <h4 class="text-white font-medium">{{ task.name }}</h4>
+                  <p class="text-sm text-gray-400 mt-1">Due: {{ task.end_date }}</p>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h3 class="text-lg font-semibold text-white mb-4">Recent Activity</h3>
+              <div class="space-y-4">
+                <div v-for="(activity, index) in recentActivities" :key="index"
+                     class="flex items-start space-x-3">
+                  <div class="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center text-white text-sm">
+                    {{ activity.user.charAt(0) }}
+                  </div>
+                  <div>
+                    <p class="text-sm text-white">
+                      <span class="font-medium">{{ activity.user }}</span> {{ activity.action }} 
+                      <span class="font-medium">{{ activity.task }}</span>
+                    </p>
+                    <p class="text-xs text-gray-400">{{ activity.time }}</p>
+                  </div>
                 </div>
               </div>
             </div>

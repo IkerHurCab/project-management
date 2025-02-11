@@ -70,6 +70,7 @@ class ProjectController extends Controller
         return Inertia::render('ProjectManagement/SingleProject', [
             'project' => $project,
             'user' => request()->user(),
+            'tasks' => $project->tasks,
         ]);
     }
 

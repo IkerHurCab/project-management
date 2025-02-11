@@ -20,7 +20,11 @@
         "@tailwindcss/vite": "^4.0.0",
         "apexcharts": "^4.4.0",
         "boxicons": "^2.1.4",
+        "install": "^0.13.0",
+        "npm": "^11.1.0",
         "tailwindcss": "^4.0.0",
-        "vue3-apexcharts": "^1.8.0"
+        "vue-draggable-next": "^2.2.1",
+        "vue3-apexcharts": "^1.8.0",
+        "vuedraggable": "^4.1.0"
     }
 }
