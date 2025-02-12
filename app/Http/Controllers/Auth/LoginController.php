@@ -30,10 +30,14 @@ class LoginController extends Controller
             ]);
         }
 
-        if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
+        if (Auth::attempt([
+            'email' => $request->email, 
+            'password' => $request->password
+        ], $request->remember)) {
             $request->session()->regenerate();
             return redirect()->route('home');
         }
+        
       
         return Inertia::render('Auth/Login', [
             'errors' => 'The provided credentials do not match our records.',
