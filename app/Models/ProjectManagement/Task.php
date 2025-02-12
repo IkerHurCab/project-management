@@ -1,8 +1,10 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\ProjectManagement;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\ProjectManagement\Project;
+use App\Models\User;
 
 class Task extends Model
 {
@@ -11,10 +13,12 @@ class Task extends Model
     protected $fillable = [
         'name',
         'description',
-        'assigned_hours',
+        'estimated_hours',
+        'completed_hours',
+        'status',
+        'priority',
         'start_date',
         'end_date',
-        'status',
     ];
 
     public function project()
