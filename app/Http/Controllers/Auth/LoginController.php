@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
 class LoginController extends Controller
 {
@@ -15,23 +16,34 @@ class LoginController extends Controller
     }
 
     public function store(Request $request) {
-        $credentials = $request->validate([
-            'email' => ['required', 'email'],
-            'password' => ['required', 'string'],
+
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
+            'password' => 'required',
         ]);
-    
-      
-        if (!Auth::attempt($credentials, $request->boolean('remember'))) {
-            return Inertia::render('Auth/Login', [
-                'errors' => [
-                    'email' => 'Email or password incorrect.'
-                ]
+
+        if ($validator->fails()) {
+           
+            return Inertia::render('Login', [
+                
+                'errors' => $validator->errors(),
             ]);
         }
-    
-        $request->session()->regenerate();
+
+        if (Auth::attempt([
+            'email' => $request->email, 
+            'password' => $request->password
+        ], $request->remember)) {
+            $request->session()->regenerate();
+            return redirect()->route('home');
+        }
         
-        return redirect()->route('home');
+      
+        return Inertia::render('Auth/Login', [
+            'errors' => 'The provided credentials do not match our records.',
+        ]);
+
+
     }
 
     public function destroy(Request $request) {
