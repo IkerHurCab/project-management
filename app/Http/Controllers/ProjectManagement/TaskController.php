@@ -26,11 +26,7 @@ class TaskController extends Controller
 
    
 
-    // Devuelves solo los datos necesarios para actualizar el frontend
-    return Inertia::render('ProjectManagement/SingleProject', [
-        'project' => $projectId,
-        'tasks' => $task,  // Actualiza solo las tareas para 'TaskList'
-    ]);
+   
 }
 
 

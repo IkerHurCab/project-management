@@ -33,7 +33,7 @@ const priorityFirstChar = computed(() =>
   >
     <div class="flex justify-between items-start mb-2">
       <h3 class="text-white font-medium text-lg">{{ task.name }}</h3>
-      <StatusBadge :status="task.status" />
+ 
     </div>
     <p class="text-gray-300 text-sm mb-3">{{ task.description }}</p>
     <div class="flex justify-between items-center">

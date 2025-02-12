@@ -92,10 +92,10 @@ const tasksByStatus = computed(() => {
   }
 
   return {
-    to_do: props.tasks.filter(task => task.status === 'pending'),
+    to_do: props.tasks.filter(task => task.status === 'to_do'),
     in_progress: props.tasks.filter(task => task.status === 'in_progress'),
     review: props.tasks.filter(task => task.status === 'review'),
-    done: props.tasks.filter(task => task.status === 'completed')
+    done: props.tasks.filter(task => task.status === 'done')
   };
 });
 
