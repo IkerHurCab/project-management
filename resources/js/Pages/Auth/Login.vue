@@ -15,7 +15,7 @@ export default {
         const form = useForm({
             email: '',
             password: '',
-            remember: false, // Agregar remember a la definición del formulario
+
         });
 
         function login() {
@@ -24,7 +24,6 @@ export default {
                 data: {
                     email: form.email,
                     password: form.password,
-                    remember: form.remember, // Enviar el valor del checkbox
                 },
             });
         }
@@ -70,25 +69,9 @@ export default {
                 <InputWithIcon v-model="form.password" icon="lock" placeholder="Password" type="password" class="w-full"
                     :toggleVisibility="true" required />
                 <SubmitButton variant="primary" type="submit" class="w-full">Login</SubmitButton>
-                <div class="flex items-center justify-between w-full">
-                    <label class="flex items-center space-x-3 cursor-pointer group">
-                        <div class="relative">
-                            <input type="checkbox" v-model="form.remember" class="sr-only" />
-                            <div
-                                class="w-5 h-5 bg-gray-700 border-2 border-gray-600 rounded-md transition-all duration-200 ease-in-out group-hover:border-gray-500">
-                                <svg class="w-3 h-3 text-blue-500 opacity-0 transition-opacity duration-200 ease-in-out absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
-                                    :class="{ 'opacity-100': form.remember }" fill="none" viewBox="0 0 24 24"
-                                    stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
-                                        d="M5 13l4 4L19 7" />
-                                </svg>
-                            </div>
-                        </div>
-                        <span
-                            class="text-sm text-gray-400 group-hover:text-gray-300 transition-colors duration-200 ease-in-out">Remember
-                            session</span>
-                    </label>
-                    <a href="#" class="text-gray-400 hover:text-gray-200 text-sm transition duration-150 ease-in-out">
+                <div class="flex items-center justify-end w-full">
+                    
+                    <a href="#" class="text-gray-400 hover:text-gray-200 hover:underline text-sm transition duration-150 ease-in-out">
                         Forgot password?
                     </a>
                 </div>
