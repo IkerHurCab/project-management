@@ -19,6 +19,9 @@ class Task extends Model
         'priority',
         'start_date',
         'end_date',
+        'project_id',
+        'user_id',
+        'attachments'
     ];
 
     public function project()

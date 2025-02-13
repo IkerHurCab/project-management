@@ -7,6 +7,7 @@ import StatusBadge from '@/Components/StatusBadge.vue';
 import StandardButton from '@/Components/StandardButton.vue';
 import VueApexCharts from 'vue3-apexcharts';
 import InputWithIcon from '@/Components/InputWithIcon.vue';
+import CreateTaskModal from './CreateTaskModal.vue';
 
 
 import TaskList from './TaskList.vue';
@@ -155,7 +156,15 @@ const applyFilters = () => {
 };
 
 
+const isCreateTaskModalOpen = ref(false);
 
+const openCreateTaskModal = () => {
+  isCreateTaskModalOpen.value = true;
+};
+
+const closeCreateTaskModal = () => {
+  isCreateTaskModalOpen.value = false;
+};
 
 
 
@@ -175,7 +184,7 @@ const applyFilters = () => {
             <h1 class="text-xl font-semibold text-white">{{ project.name }}</h1>
           </div>
           <div class="flex items-center space-x-4">
-            <StandardButton>+ Create Task</StandardButton>
+            <StandardButton @click="openCreateTaskModal">+ Create Task</StandardButton>
           </div>
         </div>
       </div>
@@ -331,5 +340,11 @@ const applyFilters = () => {
         </div>
       </div>
     </div>
+    <CreateTaskModal 
+    :is-open="isCreateTaskModalOpen"
+    :project-id="project.id"
+    :employees="employees"
+    @close="closeCreateTaskModal"
+  />
   </Layout>
 </template>
