@@ -277,12 +277,13 @@ const applyFilters = () => {
             </div>
 
             <div>
-              <h3 class="text-lg font-semibold text-white mb-4">Team Members</h3>
+              <h3 class="text-lg  font-semibold text-white mb-4">Team Members</h3>
               <div class="space-y-3">
                 <div>
                   <InputWithIcon icon="search" v-model="searchQuery" placeholder="Search members..." class="h-10 w-full"
                   type="text" />
               </div>
+              <div class="overflow-y-auto max-h-50 scrollbar">
                 <div v-for="employee in employees" :key="employee.id"
                      class="flex cursor-pointer items-center justify-between p-2 hover:bg-gray-700 rounded-lg transition-colors">
                   <div class="flex items-center space-x-3">
@@ -293,6 +294,7 @@ const applyFilters = () => {
                   </div>
                   <span class="text-gray-400 text-sm">{{ employee.role }}</span>
                 </div>
+              </div>
               </div>
             </div>
 
