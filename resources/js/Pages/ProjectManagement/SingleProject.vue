@@ -106,7 +106,7 @@ const tasksByStatus = computed(() => {
 });
 
 const totalTasks = computed(() => props.tasks.length);
-const completedTasks = computed(() => props.tasks.filter(task => task.status === 'completed').length);
+const completedTasks = computed(() => props.tasks.filter(task => task.status === 'done').length);
 const progressPercentage = computed(() => (completedTasks.value / totalTasks.value) * 100 || 0);
 
 const priorityTasks = computed(() => 
@@ -307,16 +307,6 @@ const closeCreateTaskModal = () => {
               </div>
             </div>
 
-            <div>
-              <h3 class="text-lg font-semibold text-white mb-4">Priority Tasks</h3>
-              <div class="space-y-3">
-                <div v-for="task in priorityTasks" :key="task.id"
-                     class="bg-gray-700 p-3 rounded-lg">
-                  <h4 class="text-white font-medium">{{ task.name }}</h4>
-                  <p class="text-sm text-gray-400 mt-1">Due: {{ task.end_date }}</p>
-                </div>
-              </div>
-            </div>
 
             <div>
               <h3 class="text-lg font-semibold text-white mb-4">Recent Activity</h3>

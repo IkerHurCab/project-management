@@ -55,6 +55,7 @@ const onMove = (e) => {
 
 
 <template>
+
   <div
     v-for="(tasks, status) in tasksList"
     :key="status"
@@ -72,11 +73,12 @@ const onMove = (e) => {
       item-key="id"
       @end="onMove"
       :data-status="status" 
-      class="h-full "
+      class="h-full max-h-[70vh] overflow-y-auto "
     >
-      <div v-for="task in tasks" :key="task.id" class="py-2 px-3 " :id="task.id">
+      <div v-for="task in tasks" :key="task.id" class="py-2 px-3  " :id="task.id">
         <TaskCard :task="task" />
       </div>
     </VueDraggableNext>
   </div>
+
 </template>
