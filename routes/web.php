@@ -32,6 +32,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('projects', [ProjectController::class, 'index'])->name('projects.index');
     Route::get('projects/{projects}',  [ProjectController::class, 'show'])->name('projects.show');  
     Route::post('projects', [ProjectController::class, 'store'])->name('projects.store');
+    Route::get('projects/{projectId}/search-member', [ProjectController::class, 'searchMember'])->name('projects.search-member');
+
     Route::post('projects/{projectId}/tasks/{taskId}/update-status', [TaskController::class, 'updateStatus'])->name('tasks.update-status');
 
 

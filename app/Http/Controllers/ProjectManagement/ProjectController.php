@@ -45,7 +45,7 @@ class ProjectController extends Controller
         })->get(['id', 'name']);
     
         $statuses = Project::distinct()->pluck('status');
-    
+     
         return Inertia::render('ProjectManagement/Projects', [
             'projects' => $projects,
             'filters' => $filters,
@@ -56,14 +56,22 @@ class ProjectController extends Controller
         ]);
     }
 
-    public function show($id)
+    public function show($id, Request $request)
     {
-    
+            $searchMember = $request->query('searchMember');
+         
         $project = Project::with(['tasks', 'users'])->findOrFail($id);
         $project->load(['tasks.user']);
-        
-    if (!$project) {
-       
+
+        $membersQuery = $project->users()->newQuery();  
+
+    if ($searchMember) {
+        $membersQuery->where('name', 'LIKE', "%$searchMember%");
+    }
+
+    $members = $membersQuery->get();
+
+    if (!$project) { 
         abort(404, 'Project not found');
     }
 
@@ -71,6 +79,8 @@ class ProjectController extends Controller
             'project' => $project,
             'user' => request()->user(),
             'tasks' => $project->tasks,
+            'employees' => $members,
+            'searchQuery' => $request->input('searchMember', '')
         ]);
     }
 
@@ -122,11 +132,13 @@ class ProjectController extends Controller
             'is_public' => $request->is_public,
             'priority' => $request->priority,
             'description' => $request->description,
-            'attachments' => json_encode($request->attachments), // Asegúrate de manejar los archivos correctamente
+            'attachments' => json_encode($request->attachments), 
         ]);
 
 
         return redirect()->route('projects.index'); 
     }
+
+    
 
 }

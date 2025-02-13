@@ -48,7 +48,7 @@ const priorityFirstChar = computed(() =>
       </div>
       <div class="flex items-center space-x-2">
         <div class="w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center text-white text-sm font-medium">
-          <!-- Aquí puedes agregar el avatar o las iniciales del empleado asignado -->
+   
         </div>
         <span class="text-gray-300 text-sm">{{ task.assigned_to }}</span>
       </div>

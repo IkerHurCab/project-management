@@ -1,11 +1,13 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue';
-import { router } from '@inertiajs/vue3';
+import { ref, computed, onMounted, watch } from 'vue';
+import { router, usePage } from '@inertiajs/vue3';
 
 import Layout from '@/Layouts/Layout.vue';
 import StatusBadge from '@/Components/StatusBadge.vue';
 import StandardButton from '@/Components/StandardButton.vue';
 import VueApexCharts from 'vue3-apexcharts';
+import InputWithIcon from '@/Components/InputWithIcon.vue';
+
 
 import TaskList from './TaskList.vue';
 import 'boxicons';
@@ -26,9 +28,12 @@ const props = defineProps({
   tasks: {
     type: Array,
     required: true
+  },
+  searchQuery: {
+    type: String,
   }
 });
-
+console.log(props.employees);
 const activeTab = ref('tasks');
 
 const chartOptions = computed(() => ({
@@ -116,6 +121,43 @@ const recentActivities = [
   { user: 'Jane Smith', action: 'commented on', task: 'Backend API development', time: '4 hours ago' },
   { user: 'Mike Johnson', action: 'started task', task: 'User authentication', time: '1 day ago' },
 ];
+
+
+const searchQuery = ref(usePage().props.searchQuery || '');
+
+onMounted(() => {
+});
+
+
+watch(searchQuery, () => {
+  console.log(props.employees)
+  applyFilters();
+});
+
+const applyFilters = () => {
+  const queryParams = new URLSearchParams();
+
+  if (searchQuery.value) {
+    queryParams.append('searchMember', searchQuery.value); 
+  }
+
+  console.log(props.filteredEmployees);
+
+  const url = queryParams.toString() 
+    ? `${props.project.id}/?${queryParams.toString()}` 
+    : `${props.project.id}`; // Elimina `/search-member` si no hay filtro
+
+  router.visit(url, {
+    method: 'get',
+    preserveState: true,
+    replace: true,
+  });
+};
+
+
+
+
+
 
 </script>
 
@@ -212,7 +254,7 @@ const recentActivities = [
         <div class="w-96 bg-gray-950 border-l border-gray-700 overflow-y-auto">
           <div class="p-6 space-y-8">
             <div>
-              <h3 class="text-lg font-semibold text-white mb-4">Project Progress s</h3>
+              <h3 class="text-lg font-semibold text-white mb-4">Project Progress</h3>
               <div class="bg-gray-700 h-2 rounded-full">
                 <div class="bg-blue-600 h-2 rounded-full" :style="{ width: `${progressPercentage}%` }"></div>
               </div>
@@ -237,8 +279,12 @@ const recentActivities = [
             <div>
               <h3 class="text-lg font-semibold text-white mb-4">Team Members</h3>
               <div class="space-y-3">
+                <div>
+                  <InputWithIcon icon="search" v-model="searchQuery" placeholder="Search members..." class="h-10 w-full"
+                  type="text" />
+              </div>
                 <div v-for="employee in employees" :key="employee.id"
-                     class="flex items-center justify-between p-2 hover:bg-gray-700 rounded-lg transition-colors">
+                     class="flex cursor-pointer items-center justify-between p-2 hover:bg-gray-700 rounded-lg transition-colors">
                   <div class="flex items-center space-x-3">
                     <div class="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center text-white">
                       {{ employee.name.charAt(0) }}
