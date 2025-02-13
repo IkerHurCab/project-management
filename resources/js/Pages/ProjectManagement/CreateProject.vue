@@ -77,12 +77,9 @@
     </div>
         <h1 class="text-3xl font-bold text-white ">Create Project</h1>
       </div>
-        <p class="text-gray-400 my-8 max-w-3xl">Create and Manage Projects of Any Scale: From Simple Tasks to Complex
-          Collaborative Workflows with Defined Deadlines and Milestones.</p>
-
-        <div class="bg-gray-950 border border-gray-700 rounded-lg overflow-hidden">
+        <div class="bg-gray-950 border border-gray-700 mt-5 rounded-lg overflow-hidden">
           <div class="border-b border-gray-700 p-6">
-            <h3 class="text-xl font-semibold text-white">Project details</h3>
+            <h3 class="text-xl font-semibold text-white">Project Details</h3>
           </div>
 
           <form @submit.prevent="createProject" class="p-6">
@@ -102,7 +99,7 @@
                 <label for="projectLeader" class="block text-sm font-medium text-gray-400 mb-2">Project Leader</label>
                 <SelectWithIcon v-model="projectLeader" icon="user" placeholder="Select project leader" class="w-full"
                 :options="[
-    { label: 'Select your project leader', value: '' },
+    { label: 'Select the project leader', value: '' },
     ...departmentHead.map(leader => ({ label: leader.label, value: leader.value }))
   ]" />
               </div>
