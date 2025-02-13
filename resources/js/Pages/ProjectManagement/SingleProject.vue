@@ -10,6 +10,7 @@ import InputWithIcon from '@/Components/InputWithIcon.vue';
 import CreateTaskModal from './CreateTaskModal.vue';
 
 
+
 import TaskList from './TaskList.vue';
 import 'boxicons';
 
@@ -19,6 +20,10 @@ const props = defineProps({
     required: false
   },
   project: {
+    type: Object,
+    required: true
+  },
+  user: {
     type: Object,
     required: true
   },
@@ -32,11 +37,15 @@ const props = defineProps({
   },
   searchQuery: {
     type: String,
+  },
+  personalTasks: {
+    type: Array,
   }
 });
-console.log(props.employees);
-const activeTab = ref('tasks');
 
+
+
+const activeTab = ref('overview');
 const chartOptions = computed(() => ({
   chart: {
     type: 'donut',
@@ -123,7 +132,9 @@ const recentActivities = [
   { user: 'Mike Johnson', action: 'started task', task: 'User authentication', time: '1 day ago' },
 ];
 
-
+const leader = computed(() => {
+  return props.project.users.find(user => user.id === props.project.project_leader_id)
+})
 const searchQuery = ref(usePage().props.searchQuery || '');
 
 onMounted(() => {
@@ -146,7 +157,7 @@ const applyFilters = () => {
 
   const url = queryParams.toString() 
     ? `${props.project.id}/?${queryParams.toString()}` 
-    : `${props.project.id}`; // Elimina `/search-member` si no hay filtro
+    : `${props.project.id}`; 
 
   router.visit(url, {
     method: 'get',
@@ -204,17 +215,17 @@ const closeCreateTaskModal = () => {
       </div>
 
       <!-- Main Content -->
-      <div class="flex h-[calc(100vh-132px)]">
+      <div class="flex min-h-[80vh]">
         <!-- Left Panel -->
         <div class="flex-1 p-6 overflow-auto">
-          <div v-if="activeTab === 'tasks'" class="grid grid-cols-4 gap-6 h-full">
+          <div v-if="activeTab === 'tasks'" class="grid grid-cols-4 gap-6 ">
             <!-- Task Columns -->
               <TaskList ref="taskContainer" :projectId="project.id" :tasksByStatus="tasksByStatus" />
           </div>
 
-          <div v-if="activeTab === 'overview'" class="grid grid-cols-12 gap-6">
+          <div v-if="activeTab === 'overview'" class="grid grid-cols-3  gap-6">
             <!-- Project Details -->
-            <div class="col-span-8 bg-gray-950 rounded-lg overflow-hidden border border-gray-700">
+            <div class="col-span-2 bg-gray-950 rounded-lg overflow-hidden border border-gray-700">
               <div class="border-b border-gray-700 px-6 py-4">
                 <h2 class="text-2xl font-semibold text-white">Project Details</h2>
               </div>
@@ -222,8 +233,7 @@ const closeCreateTaskModal = () => {
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div class="space-y-2 flex flex-col">
                     <span class="text-sm font-medium text-gray-400">Status</span>
-                    <StatusBadge :status="project.status"
-                      class="bg-indigo-600 text-white w-fit rounded-full py-1 px-4 text-sm" />
+                    <StatusBadge :status="project.status" class="bg-indigo-600 text-white w-fit rounded-full py-1 px-4 text-sm" />
                   </div>
                   <div class="space-y-2">
                     <span class="text-sm font-medium text-gray-400">Company</span>
@@ -246,15 +256,61 @@ const closeCreateTaskModal = () => {
                 </div>
               </div>
             </div>
-
+          
             <!-- Hours Chart -->
-            <div class="col-span-4 bg-gray-950 rounded-lg overflow-hidden border border-gray-700">
+            <div class="col-span-1 bg-gray-950 rounded-lg overflow-hidden border border-gray-700">
               <div class="border-b border-gray-700 px-6 py-4">
                 <h2 class="text-xl font-bold text-white">Hours Overview</h2>
               </div>
               <div class="p-6">
                 <VueApexCharts type="donut" height="300" :options="chartOptions" :series="series" />
               </div>
+            </div>
+          
+           
+            <div class="col-span-3 bg-gray-950 rounded-lg overflow-hidden border border-gray-700 ">
+              <div class="border-b border-gray-700 px-6 py-4">
+              <h2 class="text-2xl font-semibold text-white ">Your Tasks</h2>
+              </div>
+              <div class="">
+                <div class="bg-gray-900  overflow-hidden">
+                  <table class="w-full">
+                    <thead>
+                      <tr class="bg-gray-800 text-left">
+                        <th class="p-4 font-semibold text-gray-400">Task Name</th>
+                        <th class="p-4 font-semibold text-gray-400">Priority</th>
+                        <th class="p-4 font-semibold text-gray-400">Start Date</th>
+                        <th class="p-4 font-semibold text-gray-400">End Date</th>
+                        <th class="p-4 font-semibold text-gray-400">Completed Hours</th>
+                        <th class="p-4 font-semibold text-gray-400">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      
+                      <!-- Si no hay tareas pendientes -->
+<tr v-if="Object.keys(props.personalTasks).length === 0" class="border-b border-gray-900 bg-gray-950">
+  <td colspan="7" class="p-4 text-center text-gray-400">There are no pending tasks</td>
+</tr>
+
+
+<tr v-for="task in props.personalTasks" :key="task.id" class="bg-gray-950 border-b border-gray-700 text-left cursor-pointer hover:bg-gray-900">
+  <td class="p-4 text-gray-400">{{ task.name }}</td>
+  <td class="p-4 text-gray-400">{{ task.description }}</td>
+  <td class="p-4 text-gray-400">{{ task.start_date }}</td>
+  <td class="p-4 text-gray-400">{{ task.end_date }}</td>
+  <td class="p-4  text-gray-400">{{ task.completed_hours || 0 }} h</td>
+  <td class="p-4 text-gray-400"><StatusBadge :status="task.status" /></td>
+</tr>
+
+                      
+        
+                      
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+           
+              
             </div>
           </div>
         </div>
@@ -292,7 +348,7 @@ const closeCreateTaskModal = () => {
                   <InputWithIcon icon="search" v-model="searchQuery" placeholder="Search members..." class="h-10 w-full"
                   type="text" />
               </div>
-              <div class="overflow-y-auto max-h-50 scrollbar">
+              <div class="overflow-y-auto max-h-70 scrollbar">
                 <div v-for="employee in employees" :key="employee.id"
                      class="flex cursor-pointer items-center justify-between p-2 hover:bg-gray-700 rounded-lg transition-colors">
                   <div class="flex items-center space-x-3">
@@ -308,24 +364,7 @@ const closeCreateTaskModal = () => {
             </div>
 
 
-            <div>
-              <h3 class="text-lg font-semibold text-white mb-4">Recent Activity</h3>
-              <div class="space-y-4">
-                <div v-for="(activity, index) in recentActivities" :key="index"
-                     class="flex items-start space-x-3">
-                  <div class="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center text-white text-sm">
-                    {{ activity.user.charAt(0) }}
-                  </div>
-                  <div>
-                    <p class="text-sm text-white">
-                      <span class="font-medium">{{ activity.user }}</span> {{ activity.action }} 
-                      <span class="font-medium">{{ activity.task }}</span>
-                    </p>
-                    <p class="text-xs text-gray-400">{{ activity.time }}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
+           
           </div>
         </div>
       </div>

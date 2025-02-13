@@ -74,11 +74,18 @@ class ProjectController extends Controller
     if (!$project) { 
         abort(404, 'Project not found');
     }
-
+    
+    
+    $personalTasks = $project->tasks->filter(function ($task) {
+        return $task->user_id === auth()->id() && $task->status !== 'done';
+    });
+    
+    
         return Inertia::render('ProjectManagement/SingleProject', [
             'project' => $project,
             'user' => request()->user(),
             'tasks' => $project->tasks,
+            'personalTasks' => $personalTasks,
             'employees' => $members,
             'searchQuery' => $request->input('searchMember', '')
         ]);

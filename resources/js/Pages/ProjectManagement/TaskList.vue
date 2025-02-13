@@ -73,7 +73,7 @@ const onMove = (e) => {
       item-key="id"
       @end="onMove"
       :data-status="status" 
-      class="h-full max-h-[70vh] overflow-y-auto "
+      class="h-full overflow-y-auto "
     >
       <div v-for="task in tasks" :key="task.id" class="py-2 px-3  " :id="task.id">
         <TaskCard :task="task" />
