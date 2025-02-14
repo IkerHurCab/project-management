@@ -46,7 +46,7 @@ class ProjectController extends Controller
     
         $statuses = Project::distinct()->pluck('status');
      
-        return Inertia::render('ProjectManagement/Projects', [
+        return Inertia::render('ProjectManagement/Project/Projects', [
             'projects' => $projects,
             'filters' => $filters,
             'user' => request()->user(),
@@ -58,7 +58,7 @@ class ProjectController extends Controller
 
     public function show($id, Request $request)
     {
-            $searchMember = $request->query('searchMember');
+        $searchMember = $request->query('searchMember');
          
         $project = Project::with(['tasks', 'users'])->findOrFail($id);
         $project->load(['tasks.user']);
@@ -81,7 +81,7 @@ class ProjectController extends Controller
     });
     
     
-        return Inertia::render('ProjectManagement/SingleProject', [
+        return Inertia::render('ProjectManagement/Project/SingleProject', [
             'project' => $project,
             'user' => request()->user(),
             'tasks' => $project->tasks,
@@ -103,7 +103,7 @@ class ProjectController extends Controller
                 'label' => $user->name, 
             ];
         });
-        return Inertia::render('ProjectManagement/CreateProject', [
+        return Inertia::render('ProjectManagement/Project/CreateProject', [
             'users' => $users,
             'departmentHead' => $departmentHead,
             'user' => request()->user(),

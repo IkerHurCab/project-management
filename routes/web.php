@@ -36,6 +36,7 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::post('projects/{projectId}/tasks/{taskId}/update-status', [TaskController::class, 'updateStatus'])->name('tasks.update-status');
     Route::post('projects/{projectId}/tasks/', [TaskController::class, 'store'])->name('tasks.store');
+    Route::get('projects/{projectId}/task/{taskId}', [TaskController::class, 'show'])->name('tasks.show');
 
     Route::get('logout', function () {
         Auth::logout();

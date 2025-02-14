@@ -1,0 +1,329 @@
+<script setup>
+  import { ref, computed } from 'vue'
+  import { useForm } from '@inertiajs/vue3'
+  import Layout from '@/Layouts/Layout.vue'
+  import Button from '@/Components/StandardButton.vue'
+  import StatusBadge from '@/Components/StatusBadge.vue'
+  import EditTaskModal from '@/Pages/ProjectManagement/Task/EditTaskModal.vue'
+  import LogTimeModal from '@/Pages/ProjectManagement/Task/LogTimeModal.vue'
+  import AddAttachmentModal from '@/Pages/ProjectManagement/Task/AddAttachmentModal.vue'
+  import VueApexCharts from 'vue3-apexcharts'
+  
+  const props = defineProps({
+    task: Object,
+    user: Object,
+  })
+  
+  const isEditTaskModalOpen = ref(false)
+  const isLogTimeModalOpen = ref(false)
+  const isAddAttachmentModalOpen = ref(false)
+  
+  const openEditTaskModal = () => isEditTaskModalOpen.value = true
+  const closeEditTaskModal = () => isEditTaskModalOpen.value = false
+  const openLogTimeModal = () => isLogTimeModalOpen.value = true
+  const closeLogTimeModal = () => isLogTimeModalOpen.value = false
+  const openAddAttachmentModal = () => isAddAttachmentModalOpen.value = true
+  const closeAddAttachmentModal = () => isAddAttachmentModalOpen.value = false
+  
+  const progressPercentage = computed(() => {
+    return Math.round((props.task.completed_hours / props.task.estimated_hours) * 100)
+  })
+  
+  const chartOptions = {
+    chart: {
+      type: 'radialBar',
+      foreColor: '#E5E7EB',
+    },
+    plotOptions: {
+      radialBar: {
+        hollow: {
+          size: '70%',
+        },
+        dataLabels: {
+          name: {
+            show: false,
+          },
+          value: {
+            color: '#E5E7EB',
+            fontSize: '30px',
+            fontWeight: 600,
+          },
+        },
+      },
+    },
+    labels: ['Progress'],
+    colors: ['#3B82F6'],
+  }
+  
+  const getPriorityLabel = (priority) => {
+    const labels = ['Low', 'Medium', 'High', 'Urgent']
+    return labels[priority - 1] || 'Unknown'
+  }
+  
+  const formatDate = (date) => {
+    return new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+  }
+  
+  const downloadAttachment = (attachment) => {
+    // Implement download logic here
+    console.log('Downloading:', attachment.name)
+  }
+  
+  const updateTask = (updatedTask) => {
+    // Implement task update logic here
+    console.log('Updating task:', updatedTask)
+  }
+  
+  const logTime = (timeEntry) => {
+    // Implement time logging logic here
+    console.log('Logging time:', timeEntry)
+  }
+  
+  const addAttachment = (attachment) => {
+    // Implement attachment adding logic here
+    console.log('Adding attachment:', attachment)
+  }
+  
+  const newComment = ref('')
+  const addComment = () => {
+    if (newComment.value.trim()) {
+      // Implement comment adding logic here
+      console.log('Adding comment:', newComment.value)
+      newComment.value = ''
+    }
+  }
+  
+  // Mock data for recent activity
+  const recentActivity = [
+    { id: 1, user: 'John Doe', date: '2025-02-13', description: 'Updated task status to In Progress' },
+    { id: 2, user: 'Jane Smith', date: '2025-02-12', description: 'Added a new attachment' },
+    { id: 3, user: 'Mike Johnson', date: '2025-02-11', description: 'Commented on the task' },
+  ]
+  
+  // Mock data for related tasks
+  const relatedTasks = [
+    { id: 1, name: 'Design UI mockups', status: 'completed' },
+    { id: 2, name: 'Implement backend API', status: 'in-progress' },
+    { id: 3, name: 'Write unit tests', status: 'pending' },
+  ]
+  
+  // Mock data for task dependencies
+  const taskDependencies = [
+    { id: 1, name: 'Setup development environment', status: 'completed' },
+    { id: 2, name: 'Create database schema', status: 'completed' },
+    { id: 3, name: 'Design system architecture', status: 'in-progress' },
+  ]
+  
+  // Mock data for comments
+  const comments = [
+    { id: 1, user: { name: 'Alice Johnson' }, created_at: '2025-02-14', content: 'Great progress on this task!' },
+    { id: 2, user: { name: 'Bob Smith' }, created_at: '2025-02-13', content: 'Ive added some notes to the attachment.' },
+    { id: 3, user: { name: 'Charlie Brown' }, created_at: '2025-02-12', content: 'Let me know if you need any help with this.' },
+  ]
+  </script>
+  
+<template>
+  <Layout pageTitle="Task">
+    <div class="min-h-screen bg-black text-gray-300">
+      <!-- Header -->
+      <div class="border-b border-gray-800 px-6 py-4">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-8">
+            <a @click="$inertia.visit('/projects/' + task.project_id)"
+              class="text-gray-300 hover:text-white cursor-pointer flex items-center space-x-2 transition-colors">
+              <box-icon name='arrow-back' color='#E5E7EB'></box-icon>
+              <span>Back to Project</span>
+            </a>
+            <h1 class="text-xl font-semibold text-white">{{ task.name }}</h1>
+          </div>
+          <div class="flex items-center space-x-4">
+            <Button @click="openEditTaskModal">Edit Task</Button>
+            <Button @click="openLogTimeModal" variant="secondary">Log Time</Button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Content -->
+      <div class="flex min-h-[80vh]">
+        <!-- Left Panel -->
+        <div class="flex-1 p-6 overflow-auto">
+          <div class="grid grid-cols-3 gap-6">
+            <!-- Task Details -->
+            <div class="col-span-2 bg-gray-950 rounded-lg overflow-hidden border border-gray-700">
+              <div class="border-b border-gray-700 px-6 py-4">
+                <h2 class="text-2xl font-semibold text-white">Task Details</h2>
+              </div>
+              <div class="p-6 space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div class="space-y-2 flex flex-col">
+                    <span class="text-sm font-medium text-gray-400">Status</span>
+                    
+                  </div>
+                  <div class="space-y-2">
+                    <span class="text-sm font-medium text-gray-400">Priority</span>
+                    <span class="text-lg text-white block font-light">{{ getPriorityLabel(task.priority) }}</span>
+                  </div>
+                  <div class="space-y-2">
+                    <span class="text-sm font-medium text-gray-400">Start Date</span>
+                    <span class="text-lg text-white block font-light">{{ formatDate(task.start_date) }}</span>
+                  </div>
+                  <div class="space-y-2">
+                    <span class="text-sm font-medium text-gray-400">End Date</span>
+                    <span class="text-lg text-white block font-light">{{ formatDate(task.end_date) }}</span>
+                  </div>
+                  <div class="space-y-2">
+                    <span class="text-sm font-medium text-gray-400">Estimated Hours</span>
+                    <span class="text-lg text-white block font-light">{{ task.estimated_hours }} h</span>
+                  </div>
+                  <div class="space-y-2">
+                    <span class="text-sm font-medium text-gray-400">Completed Hours</span>
+                    <span class="text-lg text-white block font-light">{{ task.completed_hours }} h</span>
+                  </div>
+                  <div class="space-y-2 col-span-2 flex flex-col w-full max-w-full overflow-auto">
+                    <span class="text-sm font-medium text-gray-400">Description</span>
+                    <p class="text-white text-lg leading-snug break-words w-full max-w-full overflow-auto">
+                      {{ task.description }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Progress Chart -->
+            <div class="col-span-1 bg-gray-950 rounded-lg overflow-hidden border border-gray-700">
+              <div class="border-b border-gray-700 px-6 py-4">
+                <h2 class="text-xl font-bold text-white">Progress Overview</h2>
+              </div>
+              <div class="p-6">
+                <VueApexCharts type="radialBar" height="300" :options="chartOptions" :series="[progressPercentage]" />
+              </div>
+            </div>
+
+            <!-- Time Tracking -->
+            <div class="col-span-2 bg-gray-950 rounded-lg overflow-hidden border border-gray-700">
+              <div class="border-b border-gray-700 px-6 py-4 flex justify-between items-center">
+                <h2 class="text-2xl font-semibold text-white">Time Tracking</h2>
+                <Button @click="openLogTimeModal" size="sm">Log Time</Button>
+              </div>
+              <div class="p-6">
+                <div class="mb-4">
+                  <div class="flex justify-between text-sm text-gray-400 mb-2">
+                    <span>Progress</span>
+                    <span>{{ progressPercentage }}%</span>
+                  </div>
+                  <div class="w-full bg-gray-700 rounded-full h-2.5">
+                    <div class="bg-blue-600 h-2.5 rounded-full" :style="{ width: `${progressPercentage}%` }"></div>
+                  </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4 text-center">
+                  <div>
+                    <p class="text-gray-400 text-sm">Estimated</p>
+                    <p class="text-white text-lg font-semibold">{{ task.estimated_hours }} hours</p>
+                  </div>
+                  <div>
+                    <p class="text-gray-400 text-sm">Logged</p>
+                    <p class="text-white text-lg font-semibold">{{ task.completed_hours }} hours</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Related Tasks -->
+            <div class="col-span-1 bg-gray-950 rounded-lg overflow-hidden border border-gray-700">
+              <div class="border-b border-gray-700 px-6 py-4">
+                <h2 class="text-xl font-semibold text-white">Related Tasks</h2>
+              </div>
+              <div class="p-6">
+                <ul class="space-y-2">
+                  <li v-for="relatedTask in relatedTasks" :key="relatedTask.id" class="flex items-center justify-between">
+                    <a @click="$inertia.visit(`/tasks/${relatedTask.id}`)" class="text-blue-400 hover:text-blue-300 cursor-pointer">
+                      {{ relatedTask.name }}
+                    </a>
+                    
+                  </li>
+                </ul>
+              </div>
+            </div>
+
+            <!-- Attachments -->
+            <div class="col-span-3 bg-gray-950 rounded-lg overflow-hidden border border-gray-700">
+              <div class="border-b border-gray-700 px-6 py-4 flex justify-between items-center">
+                <h2 class="text-2xl font-semibold text-white">Attachments</h2>
+                <Button @click="openAddAttachmentModal" size="sm">Add Attachment</Button>
+              </div>
+              <div class="p-6">
+                <div v-if="Array.isArray(task.attachments) && task.attachments.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div v-for="attachment in task.attachments" :key="attachment.id" class="bg-gray-900 p-4 rounded-lg flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                      <box-icon name='file-blank' color='#ffffff'></box-icon>
+                      <span class="text-white truncate">{{ attachment.name }}</span>
+                    </div>
+                    <Button @click="downloadAttachment(attachment)" size="sm">Download</Button>
+                  </div>
+                </div>
+                <div v-else class="text-gray-400 text-center py-4">
+                  No attachments available
+                </div>
+              </div>
+            </div>
+
+            <!-- Comments Section -->
+            <div class="col-span-3 bg-gray-950 rounded-lg overflow-hidden border border-gray-700">
+              <div class="border-b border-gray-700 px-6 py-4">
+                <h2 class="text-2xl font-semibold text-white">Comments</h2>
+              </div>
+              <div class="p-6">
+                <div class="space-y-4 mb-6">
+                  <div v-for="comment in comments" :key="comment.id" class="bg-gray-900 p-4 rounded-lg">
+                    <div class="flex items-center justify-between mb-2">
+                      <div class="flex items-center space-x-2">
+                        <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-sm font-semibold">
+                          {{ comment.user.name.charAt(0) }}
+                        </div>
+                        <span class="text-white font-medium">{{ comment.user.name }}</span>
+                      </div>
+                      <span class="text-sm text-gray-400">{{ formatDate(comment.created_at) }}</span>
+                    </div>
+                    <p class="text-gray-300">{{ comment.content }}</p>
+                  </div>
+                </div>
+                <div class="flex items-start space-x-4">
+                  <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-sm font-semibold">
+                    {{ user.name.charAt(0) }}
+                  </div>
+                  <div class="flex-grow">
+                    <textarea v-model="newComment" rows="3" class="w-full bg-gray-800 text-white rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Add a comment..."></textarea>
+                    <Button @click="addComment" class="mt-2">Post Comment</Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Sidebar -->
+        
+      </div>
+    </div>
+    <EditTaskModal 
+      :is-open="isEditTaskModalOpen"
+      :task="task"
+      @close="closeEditTaskModal"
+      @update="updateTask"
+    />
+    <LogTimeModal
+      :is-open="isLogTimeModalOpen"
+      :task="task"
+      @close="closeLogTimeModal"
+      @log-time="logTime"
+    />
+    <AddAttachmentModal
+      :is-open="isAddAttachmentModalOpen"
+      :task-id="task.id"
+      @close="closeAddAttachmentModal"
+      @add-attachment="addAttachment"
+    />
+  </Layout>
+</template>
+
+

@@ -7,11 +7,11 @@ import StatusBadge from '@/Components/StatusBadge.vue';
 import StandardButton from '@/Components/StandardButton.vue';
 import VueApexCharts from 'vue3-apexcharts';
 import InputWithIcon from '@/Components/InputWithIcon.vue';
-import CreateTaskModal from './CreateTaskModal.vue';
+import CreateTaskModal from '@/Pages/ProjectManagement/Task/CreateTaskModal.vue';
 
 
 
-import TaskList from './TaskList.vue';
+import TaskList from '@/Pages/ProjectManagement/Task/TaskList.vue';
 import 'boxicons';
 
 const props = defineProps({
@@ -42,6 +42,7 @@ const props = defineProps({
     type: Array,
   }
 });
+
 
 
 
@@ -288,12 +289,12 @@ const closeCreateTaskModal = () => {
                     <tbody>
                       
                       <!-- Si no hay tareas pendientes -->
-<tr v-if="Object.keys(props.personalTasks).length === 0" class="border-b border-gray-900 bg-gray-950">
+<tr v-if="personalTasks.length === 0" class="border-b border-gray-900 bg-gray-950">
   <td colspan="7" class="p-4 text-center text-gray-400">There are no pending tasks</td>
 </tr>
 
 
-<tr v-for="task in props.personalTasks" :key="task.id" class="bg-gray-950 border-b border-gray-700 text-left cursor-pointer hover:bg-gray-900">
+<tr v-for="task in personalTasks" :key="task.id"  @click="router.get(`/projects/${project.id}/task/${task.id}`)" class="bg-gray-950 border-b border-gray-700 text-left cursor-pointer hover:bg-gray-900">
   <td class="p-4 text-gray-400">{{ task.name }}</td>
   <td class="p-4 text-gray-400">{{ task.description }}</td>
   <td class="p-4 text-gray-400">{{ task.start_date }}</td>

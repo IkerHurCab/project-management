@@ -10,7 +10,30 @@ use App\Models\ProjectManagement\Task;
 class TaskController extends Controller
 {
 
-   
+    public function show(Request $request, $projectId, $taskId)
+    {
+        
+        $task = Task::where('id', $taskId)
+                    ->where('project_id', $projectId)
+                    ->with('project')
+                    ->first();
+                    $task->load(['user']);
+                 
+
+        if(!$task)
+        {
+            abort(404, 'Task not found'); 
+        }
+
+        return Inertia::render('ProjectManagement/Task/SingleTask', [
+            'project' => $task->project,
+            'task' => $task->toArray(),
+            'user' => request()->user(),
+        ]);
+
+    }
+
+
     public function updateStatus(Request $request, $projectId, $taskId)
 {
     $validated = $request->validate([
@@ -54,7 +77,7 @@ class TaskController extends Controller
 
  
 
-        return Inertia::render('ProjectManagement/SingleProject', [
+        return Inertia::render('ProjectManagement/Project/SingleProject', [
             'tasks' => $task,
         ]);
 
