@@ -5,6 +5,7 @@ namespace App\Models\ProjectManagement;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\ProjectManagement\Project;
 use App\Models\User;
+use App\Models\ProjectManagement\Comment;
 
 class Task extends Model
 {
@@ -32,5 +33,10 @@ class Task extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
     }
 }

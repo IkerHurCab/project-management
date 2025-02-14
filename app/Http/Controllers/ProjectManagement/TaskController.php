@@ -19,16 +19,20 @@ class TaskController extends Controller
                     ->first();
                     $task->load(['user']);
                  
-
+        $task->load(['comments.user']);
+        
         if(!$task)
         {
             abort(404, 'Task not found'); 
-        }
+        }   
+
 
         return Inertia::render('ProjectManagement/Task/SingleTask', [
             'project' => $task->project,
             'task' => $task->toArray(),
             'user' => request()->user(),
+            'comments' => $task->comments,
+        
         ]);
 
     }

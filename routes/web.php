@@ -6,6 +6,8 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\ProjectManagement\ProjectController;
 use App\Http\Controllers\HeaderController;
 use App\Http\Controllers\ProjectManagement\TaskController;
+use App\Http\Controllers\ProjectManagement\CommentController;
+
 
 
 Route::middleware(['auth'])->group(function () {
@@ -37,6 +39,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('projects/{projectId}/tasks/{taskId}/update-status', [TaskController::class, 'updateStatus'])->name('tasks.update-status');
     Route::post('projects/{projectId}/tasks/', [TaskController::class, 'store'])->name('tasks.store');
     Route::get('projects/{projectId}/task/{taskId}', [TaskController::class, 'show'])->name('tasks.show');
+
+    Route::post('projects/{projectId}/task/{taskId}/comment', [CommentController::class, 'store'])->name('comment.store');
 
     Route::get('logout', function () {
         Auth::logout();

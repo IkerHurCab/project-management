@@ -1,6 +1,6 @@
 <script setup>
   import { ref, computed } from 'vue'
-  import { useForm } from '@inertiajs/vue3'
+  import { useForm, router } from '@inertiajs/vue3'
   import Layout from '@/Layouts/Layout.vue'
   import Button from '@/Components/StandardButton.vue'
   import StatusBadge from '@/Components/StatusBadge.vue'
@@ -12,6 +12,8 @@
   const props = defineProps({
     task: Object,
     user: Object,
+    project: Object,
+    comments: Object,
   })
   
   const isEditTaskModalOpen = ref(false)
@@ -84,14 +86,26 @@
     console.log('Adding attachment:', attachment)
   }
   
+  // Comment Section
   const newComment = ref('')
-  const addComment = () => {
-    if (newComment.value.trim()) {
-      // Implement comment adding logic here
-      console.log('Adding comment:', newComment.value)
-      newComment.value = ''
-    }
+  const addComment = async () => {
+  const commentData = {
+    content: newComment.value,
   }
+
+  try {
+    // Esperar la respuesta de la solicitud POST
+    await router.post(`/projects/${props.project.id}/task/${props.task.id}/comment`, commentData)
+    
+    // Limpiar el campo newComment después de enviar el comentario
+    newComment.value = ''
+  } catch (error) {
+    console.error('Error adding comment:', error)
+  }
+
+
+}
+
   
   // Mock data for recent activity
   const recentActivity = [
@@ -114,12 +128,7 @@
     { id: 3, name: 'Design system architecture', status: 'in-progress' },
   ]
   
-  // Mock data for comments
-  const comments = [
-    { id: 1, user: { name: 'Alice Johnson' }, created_at: '2025-02-14', content: 'Great progress on this task!' },
-    { id: 2, user: { name: 'Bob Smith' }, created_at: '2025-02-13', content: 'Ive added some notes to the attachment.' },
-    { id: 3, user: { name: 'Charlie Brown' }, created_at: '2025-02-12', content: 'Let me know if you need any help with this.' },
-  ]
+
   </script>
   
 <template>
@@ -278,7 +287,7 @@
                     <div class="flex items-center justify-between mb-2">
                       <div class="flex items-center space-x-2">
                         <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-sm font-semibold">
-                          {{ comment.user.name.charAt(0) }}
+                          {{ comment.user.name.charAt(0) || 0 }}
                         </div>
                         <span class="text-white font-medium">{{ comment.user.name }}</span>
                       </div>
@@ -293,7 +302,7 @@
                   </div>
                   <div class="flex-grow">
                     <textarea v-model="newComment" rows="3" class="w-full bg-gray-800 text-white rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Add a comment..."></textarea>
-                    <Button @click="addComment" class="mt-2">Post Comment</Button>
+                    <Button @click="addComment"  class="mt-2">Post Comment</Button>
                   </div>
                 </div>
               </div>
