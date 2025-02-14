@@ -4,6 +4,7 @@ namespace App\Http\Controllers\ProjectManagement;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use App\Models\ProjectManagement\Task;
 
@@ -39,6 +40,57 @@ class TaskController extends Controller
 
     }
 
+    public function update(Request $request, $projectId, $taskId)
+    {
+       
+      
+        
+        $task = Task::find($taskId);
+
+        if ($request->hasFile('attachments')) {
+            $files = $request->file('attachments');
+            if(!is_array($files))
+            {
+                $files = [$files];
+            }
+
+            $folderPath = 'projects' . DIRECTORY_SEPARATOR . $task->project->name .DIRECTORY_SEPARATOR  . 'attachments';
+
+            Storage::makeDirectory($folderPath);
+
+            $currentAttachments = $task->attachments ? json_decode($task->attachments) : [];
+
+
+            foreach ($files as $file) {
+            
+                if ($file->isValid()) {
+                    // Obtener la extensión original
+                    $extension = $file->getClientOriginalExtension();
+        
+                    // Crear el nombre del archivo con la extensión correcta
+                    $filename = uniqid() . '.' . $extension;
+        
+                    // Almacenar el archivo con el nombre y la extensión correcta
+                    $path = $file->storeAs($folderPath, $filename, 'local');
+        
+                    // Reemplazar las barras invertidas con barras normales
+                    $path = str_replace('\\', '/', $path);
+        
+                    $currentAttachments[] = $path;
+                }
+            }
+            
+
+            $task->attachments = json_encode($currentAttachments);   
+            $task->save();
+
+        }
+       
+    
+
+       
+    }
+    
 
     public function updateStatus(Request $request, $projectId, $taskId)
 {

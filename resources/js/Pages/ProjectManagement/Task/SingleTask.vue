@@ -82,10 +82,31 @@
     console.log('Logging time:', timeEntry)
   }
   
-  const addAttachment = (attachment) => {
-    // Implement attachment adding logic here
-    console.log('Adding attachment:', attachment)
+  const addAttachment = async (attachment) => {
+  try {
+    const formData = new FormData();
+
+  
+    const file = attachment.attachments[0];
+
+    if (file instanceof File) {  //
+      formData.append('attachments', file);  
+
+      await router.post(`/projects/${props.project.id}/task/${props.task.id}`, formData,  {
+        _method: "PUT"
+      });
+      console.log(formData);
+      console.log('Attachment added successfully');
+    } else {
+      console.error('No valid file found in attachments');
+    }
+  } catch (error) {
+    console.error('Error adding attachment:', error);
   }
+};
+
+
+
   
   // Comment Section
 
@@ -102,12 +123,7 @@
     console.error('Error adding comment:', error)
   }
 
-  //Redirect to Related Task
-
-  // const redirectToRelatedTask = () => {
-  //   console.log("relatedTask");
-  //   ;
-  // };
+ 
 
 }
 
