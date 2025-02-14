@@ -13,7 +13,8 @@
     task: Object,
     user: Object,
     project: Object,
-    comments: Object,
+    comments: Array,
+    relatedTasks: Array,
   })
   
   const isEditTaskModalOpen = ref(false)
@@ -26,7 +27,7 @@
   const closeLogTimeModal = () => isLogTimeModalOpen.value = false
   const openAddAttachmentModal = () => isAddAttachmentModalOpen.value = true
   const closeAddAttachmentModal = () => isAddAttachmentModalOpen.value = false
-  
+  const redirectToRelatedTask =  (relatedTask) =>  router.get(`/projects/${props.project.id}/task/${relatedTask.id}`);
   const progressPercentage = computed(() => {
     return Math.round((props.task.completed_hours / props.task.estimated_hours) * 100)
   })
@@ -87,46 +88,35 @@
   }
   
   // Comment Section
+
   const newComment = ref('')
   const addComment = async () => {
   const commentData = {
     content: newComment.value,
   }
-
   try {
-    // Esperar la respuesta de la solicitud POST
     await router.post(`/projects/${props.project.id}/task/${props.task.id}/comment`, commentData)
-    
-    // Limpiar el campo newComment después de enviar el comentario
+  
     newComment.value = ''
   } catch (error) {
     console.error('Error adding comment:', error)
   }
 
+  //Redirect to Related Task
+
+  // const redirectToRelatedTask = () => {
+  //   console.log("relatedTask");
+  //   ;
+  // };
 
 }
 
   
-  // Mock data for recent activity
-  const recentActivity = [
-    { id: 1, user: 'John Doe', date: '2025-02-13', description: 'Updated task status to In Progress' },
-    { id: 2, user: 'Jane Smith', date: '2025-02-12', description: 'Added a new attachment' },
-    { id: 3, user: 'Mike Johnson', date: '2025-02-11', description: 'Commented on the task' },
-  ]
+ 
   
-  // Mock data for related tasks
-  const relatedTasks = [
-    { id: 1, name: 'Design UI mockups', status: 'completed' },
-    { id: 2, name: 'Implement backend API', status: 'in-progress' },
-    { id: 3, name: 'Write unit tests', status: 'pending' },
-  ]
   
-  // Mock data for task dependencies
-  const taskDependencies = [
-    { id: 1, name: 'Setup development environment', status: 'completed' },
-    { id: 2, name: 'Create database schema', status: 'completed' },
-    { id: 3, name: 'Design system architecture', status: 'in-progress' },
-  ]
+  
+
   
 
   </script>
@@ -245,7 +235,7 @@
               <div class="p-6">
                 <ul class="space-y-2">
                   <li v-for="relatedTask in relatedTasks" :key="relatedTask.id" class="flex items-center justify-between">
-                    <a @click="$inertia.visit(`/tasks/${relatedTask.id}`)" class="text-blue-400 hover:text-blue-300 cursor-pointer">
+                    <a @click="redirectToRelatedTask(relatedTask)" class="text-blue-400 hover:text-blue-300 cursor-pointer">
                       {{ relatedTask.name }}
                     </a>
                     
