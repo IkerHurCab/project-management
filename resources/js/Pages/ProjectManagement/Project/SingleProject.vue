@@ -146,9 +146,11 @@ const searchQuery = ref(usePage().props.searchQuery || '');
 
 
 
-watch(searchQuery, () => {
+watch(searchQuery,  () => {
   applyFilters();
 });
+
+
 
 
 
@@ -192,9 +194,7 @@ const closeModal = () => {
   isModalOpen.value = false;
 }
 
-const updateSearchQuery = (newSearchQuery) => {
-  searchQuery.value = newSearchQuery;
-}
+
 const handleAddMembers= (newEmployees) => {
   router.post(`/projects/${props.project.id}/new-members`, { users: newEmployees });
 };
@@ -398,10 +398,9 @@ const handleAddMembers= (newEmployees) => {
     <AddMemberModal 
   :is-open="isModalOpen"
   :all-members="allUsers"
-  :searchQuery="searchQuery"
   @close="closeModal"
   @add-members="handleAddMembers"
-  @update-search-query="updateSearchQuery"
+ 
 />
     <CreateTaskModal 
     :is-open="isCreateTaskModalOpen"

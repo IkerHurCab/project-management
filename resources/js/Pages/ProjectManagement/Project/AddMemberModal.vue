@@ -16,11 +16,15 @@
       selectedMembers: [],
     });
     
-    const searchQuery = ref(props.searchQuery || '');
+  
+    const allUsersSearchQuery = ref('');
     
-    const filteredMembers = computed(() => {
-      return props.allMembers.filter(member => 
-        member.name.toLowerCase().includes(searchQuery.value.toLowerCase())
+
+    
+    const filteredAllUsers = computed(() => {
+      return props.allMembers.filter(user => 
+        user.name.toLowerCase().includes(allUsersSearchQuery.value.toLowerCase()) &&
+        !form.selectedMembers.some(selectedMember => selectedMember.id === user.id)
       );
     });
     
@@ -43,9 +47,12 @@
       emit('close');
     };
     
-    const handleInputChange = (event) => {
-      searchQuery.value = event.target.value;
-      emit('update-search-query', searchQuery.value);
+  
+    
+    const handleAllUsersInputChange = (event) => {
+      allUsersSearchQuery.value = event.target.value;
+      emit('update-all-users', allUsersSearchQuery.value)
+      
     };
     
     const removeMember = (member) => {
@@ -69,10 +76,10 @@
             <div>
               <InputWithIcon 
                 icon="search" 
-                :value="searchQuery"
-                @input="handleInputChange"
-                placeholder="Search members..." 
-                class="h-10 w-full"
+                v-model="allUsersSearchQuery"
+                @input="handleAllUsersInputChange"
+                placeholder="Search all users..." 
+                class="h-10 w-full "
                 type="text" 
               />
             </div>
@@ -89,33 +96,41 @@
                     </div>
                     <span class="text-white text-sm">{{ member.name }}</span>
                   </div>
-                  <button @click="removeMember(member)" class="text-red-500 hover:text-red-700">
+                  <button @click="removeMember(member)" class="cursor-pointer mt-1 text-red-500 hover:text-red-700">
                     <box-icon name='x' size="sm" color='currentColor'></box-icon>
                   </button>
                 </div>
               </div>
             </div>
+           
             
-            <!-- Member List -->
             <div class="overflow-y-auto max-h-60 scrollbar">
-              <div 
-                v-for="member in filteredMembers" 
-                :key="member.id"
-                @click="toggleMemberSelection(member)"
-                class="flex cursor-pointer items-center justify-between p-2 hover:bg-gray-700 rounded-lg transition-colors"
-              >
-                <div class="flex items-center space-x-3">
-                  <div class="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center text-white">
-                    {{ member.name.charAt(0) }}
+                <template v-if="filteredAllUsers.length > 0">
+                  <div 
+                    v-for="user in filteredAllUsers" 
+                    :key="user.id"
+                    @click="toggleMemberSelection(user)"
+                    class="flex cursor-pointer items-center justify-between p-2 hover:bg-gray-700 rounded-lg transition-colors"
+                  >
+                    <div class="flex items-center space-x-3">
+                      <div class="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center text-white">
+                        {{ user.name.charAt(0) }}
+                      </div>
+                      <span class="text-white">{{ user.name }}</span>
+                    </div>
+                    <span class="text-gray-400 text-sm">{{ user.role }}</span>
+                    <div v-if="isMemberSelected(user)" class="text-green-500">
+                      <box-icon name='check' color='currentColor'></box-icon>
+                    </div>
                   </div>
-                  <span class="text-white">{{ member.name }}</span>
-                </div>
-                <span class="text-gray-400 text-sm">{{ member.role }}</span>
-                <div v-if="isMemberSelected(member)" class="text-green-500">
-                  <box-icon name='check' color='currentColor'></box-icon>
-                </div>
+                </template>
+                <template v-else>
+                  <div class=" text-center text-gray-300">
+                    No users found 
+                  </div>
+                </template>
               </div>
-            </div>
+              
             <div class="flex justify-end space-x-3 mt-6">
               <StandardButton type="button" @click="emit('close')" class="bg-gray-600 hover:bg-gray-500 transition-colors">
                 Cancel

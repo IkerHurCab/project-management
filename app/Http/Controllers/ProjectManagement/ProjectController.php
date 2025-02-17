@@ -80,9 +80,9 @@ class ProjectController extends Controller
         return $task->user_id === auth()->id() && $task->status !== 'done';
     });
 
-    //pending of change to all users FROM THE SAME DEPARTMENT
+    // pending of change to all users FROM THE SAME DEPARTMENT
     
-    $allUsers = User::all();
+    $allUsers = User::whereNotIn('id', $members->pluck('id'))->get();
 
         return Inertia::render('ProjectManagement/Project/SingleProject', [
             'project' => $project,
