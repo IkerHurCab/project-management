@@ -34,6 +34,7 @@ class TaskController extends Controller
             'task' => $task->toArray(),
             'user' => request()->user(),
             'comments' => $task->comments,
+            
             'relatedTasks' => $relatedTasks,
         
         ]);

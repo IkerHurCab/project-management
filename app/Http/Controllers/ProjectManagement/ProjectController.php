@@ -79,15 +79,19 @@ class ProjectController extends Controller
     $personalTasks = $project->tasks->filter(function ($task) {
         return $task->user_id === auth()->id() && $task->status !== 'done';
     });
+
+    //pending of change to all users FROM THE SAME DEPARTMENT
     
-    
+    $allUsers = User::all();
+
         return Inertia::render('ProjectManagement/Project/SingleProject', [
             'project' => $project,
             'user' => request()->user(),
             'tasks' => $project->tasks,
             'personalTasks' => $personalTasks,
             'employees' => $members,
-            'searchQuery' => $request->input('searchMember', '')
+            'searchQuery' => $request->input('searchMember', ''),
+            'allUsers' => $allUsers,
         ]);
     }
 
@@ -144,6 +148,24 @@ class ProjectController extends Controller
 
 
         return redirect()->route('projects.index'); 
+    }
+
+    public function storeMember(Request $request, $projectId)
+    {
+       
+        $user = $request->input('users');
+      
+        $usersId = array_map(function($user){
+            return $user['id'];
+        }, $request->input('users'));
+
+    
+        $project = Project::findOrFail($projectId); 
+    
+        
+        $project->users()->attach($usersId); 
+    
+      
     }
 
     

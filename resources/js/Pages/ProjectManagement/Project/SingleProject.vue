@@ -8,6 +8,7 @@ import StandardButton from '@/Components/StandardButton.vue';
 import VueApexCharts from 'vue3-apexcharts';
 import InputWithIcon from '@/Components/InputWithIcon.vue';
 import CreateTaskModal from '@/Pages/ProjectManagement/Task/CreateTaskModal.vue';
+import AddMemberModal from '@/Pages/ProjectManagement/Project/AddMemberModal.vue';
 
 
 
@@ -31,6 +32,10 @@ const props = defineProps({
     type: Array,
     required: true
   },
+  allUsers: {
+    type: Array,
+    required: true
+  },
   tasks: {
     type: Array,
     required: true
@@ -40,7 +45,8 @@ const props = defineProps({
   },
   personalTasks: {
     type: Array,
-  }
+  },
+
 });
 
 
@@ -138,14 +144,13 @@ const leader = computed(() => {
 })
 const searchQuery = ref(usePage().props.searchQuery || '');
 
-onMounted(() => {
-});
 
 
 watch(searchQuery, () => {
-  console.log(props.employees)
   applyFilters();
 });
+
+
 
 const applyFilters = () => {
   const queryParams = new URLSearchParams();
@@ -169,6 +174,8 @@ const applyFilters = () => {
 
 
 const isCreateTaskModalOpen = ref(false);
+const isModalOpen = ref(false);
+const allMembers = ref([]);
 
 const openCreateTaskModal = () => {
   isCreateTaskModalOpen.value = true;
@@ -178,7 +185,19 @@ const closeCreateTaskModal = () => {
   isCreateTaskModalOpen.value = false;
 };
 
+const openModal = () => {
+  isModalOpen.value = true;
+}
+const closeModal = () => {
+  isModalOpen.value = false;
+}
 
+const updateSearchQuery = (newSearchQuery) => {
+  searchQuery.value = newSearchQuery;
+}
+const handleAddMembers= (newEmployees) => {
+  router.post(`/projects/${props.project.id}/new-members`, { users: newEmployees });
+};
 
 </script>
 
@@ -343,7 +362,13 @@ const closeCreateTaskModal = () => {
             </div>
 
             <div>
-              <h3 class="text-lg  font-semibold text-white mb-4">Team Members</h3>
+              <div class="flex justify-between items-center">
+                <h3 class="text-lg font-semibold text-white mb-4">Team Members</h3>
+                <StandardButton @click="openModal" class="h-7 w-7 mb-4 flex items-center justify-center">
+                 +
+                </StandardButton>
+              </div>
+
               <div class="space-y-3">
                 <div>
                   <InputWithIcon icon="search" v-model="searchQuery" placeholder="Search members..." class="h-10 w-full"
@@ -370,11 +395,20 @@ const closeCreateTaskModal = () => {
         </div>
       </div>
     </div>
+    <AddMemberModal 
+  :is-open="isModalOpen"
+  :all-members="allUsers"
+  :searchQuery="searchQuery"
+  @close="closeModal"
+  @add-members="handleAddMembers"
+  @update-search-query="updateSearchQuery"
+/>
     <CreateTaskModal 
     :is-open="isCreateTaskModalOpen"
     :project-id="project.id"
     :employees="employees"
     @close="closeCreateTaskModal"
   />
+  
   </Layout>
 </template>

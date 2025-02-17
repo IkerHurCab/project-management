@@ -1,6 +1,6 @@
 <script setup>
-  import { ref, computed } from 'vue'
-  import { useForm, router } from '@inertiajs/vue3'
+  import { ref, computed, onMounted, watch } from 'vue'
+  import { useForm, router  } from '@inertiajs/vue3'
   import Layout from '@/Layouts/Layout.vue'
   import Button from '@/Components/StandardButton.vue'
   import StatusBadge from '@/Components/StatusBadge.vue'
@@ -16,7 +16,28 @@
     comments: Array,
     relatedTasks: Array,
   })
-  
+  const attachmentsTask = ref(false);
+
+  onMounted(() => {
+    updateAttachmentsTask();
+  });
+
+  watch(() => props.task.attachments, () => {
+    updateAttachmentsTask();
+  }, { deep: true });
+
+  function updateAttachmentsTask() {
+  try {
+    const parsedAttachments = JSON.parse(props.task.attachments || "[]");
+    attachmentsTask.value = Array.isArray(parsedAttachments) && parsedAttachments.length > 0;
+  } catch (error) {
+    console.error("Error parsing attachments:", error);
+    attachmentsTask.value = false;
+  }
+}
+
+
+
   const isEditTaskModalOpen = ref(false)
   const isLogTimeModalOpen = ref(false)
   const isAddAttachmentModalOpen = ref(false)
@@ -68,8 +89,13 @@
   }
   
   const downloadAttachment = (attachment) => {
-    // Implement download logic here
-    console.log('Downloading:', attachment.name)
+    const link = document.createElement("a")
+    link.href = attachment;
+    link.download = attachment.split('/').pop()
+    console.log(link.href)
+    document.body.appendChild(link);
+    link.click()
+    document.body.removeChild(link);
   }
   
   const updateTask = (updatedTask) => {
@@ -87,21 +113,22 @@
     const formData = new FormData();
 
   
-    const file = attachment.attachments[0];
+    attachment.attachments.forEach((file, index) => {
+      if (file instanceof File) {
+        formData.append(`attachments[${index}]`, file);
+      }
+    });
 
-    if (file instanceof File) {  //
-      formData.append('attachments', file);  
-
-      await router.post(`/projects/${props.project.id}/task/${props.task.id}`, formData,  {
+    if (formData.has('attachments[0]')) {
+      await router.post(`/projects/${props.project.id}/task/${props.task.id}`, formData, {
         _method: "PUT"
       });
-      console.log(formData);
-      console.log('Attachment added successfully');
+      console.log('Attachments added successfully');
     } else {
-      console.error('No valid file found in attachments');
+      console.error('No valid files found in attachments');
     }
   } catch (error) {
-    console.error('Error adding attachment:', error);
+    console.error('Error adding attachments:', error);
   }
 };
 
@@ -127,7 +154,7 @@
 
 }
 
-  
+  console.log(JSON.parse(props.task.attachments))
  
   
   
@@ -267,18 +294,19 @@
                 <Button @click="openAddAttachmentModal" size="sm">Add Attachment</Button>
               </div>
               <div class="p-6">
-                <div v-if="Array.isArray(task.attachments) && task.attachments.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  <div v-for="attachment in task.attachments" :key="attachment.id" class="bg-gray-900 p-4 rounded-lg flex items-center justify-between">
-                    <div class="flex items-center space-x-3">
-                      <box-icon name='file-blank' color='#ffffff'></box-icon>
-                      <span class="text-white truncate">{{ attachment.name }}</span>
-                    </div>
-                    <Button @click="downloadAttachment(attachment)" size="sm">Download</Button>
+                <div v-if="attachmentsTask" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div v-for="(attachment, index) in JSON.parse(task.attachments)" :key="index" class="bg-gray-900 p-4 rounded-lg flex items-center justify-between">
+                      <div class="flex items-center space-x-3">
+                          <box-icon name='file-blank' color='#ffffff'></box-icon>
+                          <span class="text-white truncate">{{ attachment.split('/').pop() }}</span>
+                      </div>
+                      <Button @click="downloadAttachment(attachment)" size="sm">Download</Button>
                   </div>
-                </div>
-                <div v-else class="text-gray-400 text-center py-4">
+              </div>
+              <div v-else class="text-gray-400 text-center py-4">
                   No attachments available
-                </div>
+              </div>
+              
               </div>
             </div>
 
