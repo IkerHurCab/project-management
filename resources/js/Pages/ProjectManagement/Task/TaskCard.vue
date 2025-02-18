@@ -1,56 +1,64 @@
 <script setup>
-import { computed } from 'vue';
-import StatusBadge from '@/Components/StatusBadge.vue';
+  import { computed } from 'vue';
+  import StatusBadge from '@/Components/StatusBadge.vue';
+  
+  const props = defineProps({
+    task: {
+      type: Object,
+      required: true
+    }
+  });
+  
+  const priorityColor = computed(() => {
+    const colors = {
+      1: 'bg-red-500',
+      2: 'bg-yellow-500',
+      3: 'bg-green-500'
+    };
+    return colors[props.task.priority] || 'bg-gray-500';
+  });
+  
+  const priorityLabel = computed(() => {
+    const labels = {
+      1: 'High',
+      2: 'Medium',
+      3: 'Low'
+    };
+    return labels[props.task.priority] || 'Unknown';
+  });
+  
+  const getInitials = (name) => {
 
-const props = defineProps({
-  task: {
-    type: Object,
-    required: true
-  }
-});
-
-const priorityColor = computed(() => {
-  switch (props.task.priority) {
-    case 1:
-      return 'bg-red-500';
-    case 2:
-      return 'bg-yellow-500';
-    case 3:
-      return 'bg-green-500';
-    default:
-      return 'bg-gray-500';
-  }
-});
-
-const priorityFirstChar = computed(() => 
-  String(props.task.priority).charAt(0).toUpperCase()
-);
-</script>
+  };
+  </script>
 
 <template>
   <div
-    class="bg-gray-800 p-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 cursor-move"
+    class="bg-gray-800 p-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 cursor-move border border-gray-700 hover:border-gray-600"
   >
-    <div class="flex justify-between items-start mb-2">
+    <div class="flex justify-between items-start mb-3">
       <h3 class="text-white font-medium text-lg">{{ task.name }}</h3>
- 
+    
     </div>
-    <p class="text-gray-300 text-sm mb-3">{{ task.description }}</p>
+    <p class="text-gray-300 text-sm mb-4 line-clamp-2">{{ task.description }}</p>
     <div class="flex justify-between items-center">
-      <div class="flex items-center space-x-2">
+      <div class="flex items-center space-x-3">
         <div
-          class="w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-medium"
+          class="px-2 py-1 rounded text-xs font-medium text-white"
           :class="priorityColor"
         >
-          {{ priorityFirstChar }}
+          {{ priorityLabel }}
         </div>
-        <span class="text-gray-400 text-xs">{{ task.estimated_hours }}h</span>
+        <span class="text-gray-400 text-xs flex items-center">
+          <box-icon name='time' color='#9CA3AF' class="w-4 h-4 mr-1"></box-icon>
+          {{ task.estimated_hours }}h
+        </span>
       </div>
       <div class="flex items-center space-x-2">
         <div class="w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center text-white text-sm font-medium">
-   
+          {{ getInitials(task.assigned_to) }}
         </div>
-        <span class="text-gray-300 text-sm">{{ task.assigned_to }}</span>
+        <span class="text-gray-300 text-sm hidden md:inline">{{ task.assigned_to }}</span>
       </div>
     </div>
   </div>

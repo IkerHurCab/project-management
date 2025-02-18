@@ -49,7 +49,14 @@ const props = defineProps({
 
 });
 
+const formatDate = (date) => {
+  return new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+}
 
+const projectProgress = computed(() => {
+  if (props.project.total_tasks === 0) return 0
+  return Math.round((props.project.completed_tasks / props.project.total_tasks) * 100)
+})
 
 
 const activeTab = ref('overview');
@@ -150,9 +157,15 @@ watch(searchQuery,  () => {
   applyFilters();
 });
 
+const getPriorityColor = (priority) => {
+  const colors = ['bg-green-500', 'bg-yellow-500', 'bg-orange-500', 'bg-red-500']
+  return colors[priority - 1] || 'bg-gray-500'
+}
 
-
-
+const getPriorityLabel = (priority) => {
+    const labels = ['Low', 'Medium', 'High', 'Urgent']
+    return labels[priority - 1] || 'Unknown'
+  }
 
 const applyFilters = () => {
   const queryParams = new URLSearchParams();
@@ -246,33 +259,71 @@ const handleAddMembers= (newEmployees) => {
           <div v-if="activeTab === 'overview'" class="grid grid-cols-3  gap-6">
             <!-- Project Details -->
             <div class="col-span-2 bg-gray-950 rounded-lg overflow-hidden border border-gray-700">
-              <div class="border-b border-gray-700 px-6 py-4">
+              <div class="border-b border-gray-700 px-6 py-4 flex justify-between items-center">
                 <h2 class="text-2xl font-semibold text-white">Project Details</h2>
+                <StandardButton @click="openEditProjectModal" size="sm" class="">Edit Project</StandardButton>
               </div>
-              <div class="p-6 space-y-6">
+              <div class="p-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div class="space-y-2 flex flex-col">
-                    <span class="text-sm font-medium text-gray-400">Status</span>
-                    <StatusBadge :status="project.status" class="bg-indigo-600 text-white w-fit rounded-full py-1 px-4 text-sm" />
+                  <div class="bg-gray-900 rounded-lg p-4 flex flex-col justify-between">
+                    <div class="flex flex-col">
+                      <span class="text-sm font-medium text-gray-400">Status</span>
+                      <StatusBadge :status="project.status" class="mt-2  w-fit" />
+                    </div>
+                    <div class="mt-4">
+                      <span class="text-sm font-medium text-gray-400">Priority</span>
+                      <div class="flex items-center mt-1">
+                        <div :class="`w-3 h-3 rounded-full ${getPriorityColor(project.priority)} mr-2`"></div>
+                        <span class="text-lg text-white font-light">{{ getPriorityLabel(project.priority) }}</span>
+                      </div>
+                    </div>
                   </div>
-                  <div class="space-y-2">
-                    <span class="text-sm font-medium text-gray-400">Company</span>
-                    <span class="text-lg text-white block font-light">Company</span>
+                  <div class="bg-gray-900 rounded-lg p-4 flex flex-col justify-between">
+                    <div>
+                      <span class="text-sm font-medium text-gray-400">Start Date</span>
+                      <div class="flex items-center mt-1">
+                        <box-icon name='calendar' color='#9CA3AF' class="mr-2"></box-icon>
+                        <span class="text-lg text-white font-light">{{ formatDate(project.start_date) }}</span>
+                      </div>
+                    </div>
+                    <div class="mt-4">
+                      <span class="text-sm font-medium text-gray-400">End Date</span>
+                      <div class="flex items-center mt-1">
+                        <box-icon name='calendar-check' color='#9CA3AF' class="mr-2"></box-icon>
+                        <span class="text-lg text-white font-light">{{ formatDate(project.end_date) }}</span>
+                      </div>
+                    </div>
                   </div>
-                  <div class="space-y-2">
-                    <span class="text-sm font-medium text-gray-400">Start Date</span>
-                    <span class="text-lg text-white block font-light">{{ project.start_date }}</span>
+                  
+                  <div class="bg-gray-900 rounded-lg p-4 col-span-2 flex justify-between">
+                    <div>
+                      <span class="text-sm font-medium text-gray-400">Total Tasks</span>
+                      <div class="flex items-center mt-1">
+                        <box-icon name='task' color='#9CA3AF' class="mr-2"></box-icon>
+                        <span class="text-lg text-white font-light">{{ project.total_tasks }}</span>
+                      </div>
+                    </div>
+                    <div>
+                      <span class="text-sm font-medium text-gray-400">Completed Tasks</span>
+                      <div class="flex items-center mt-1">
+                        <box-icon name='check-circle' color='#9CA3AF' class="mr-2"></box-icon>
+                        <span class="text-lg text-white font-light">{{ project.completed_tasks }}</span>
+                      </div>
+                    </div>
+                    <div>
+                      <span class="text-sm font-medium text-gray-400">Team Members</span>
+                      <div class="flex items-center mt-1">
+                        <box-icon name='group' color='#9CA3AF' class="mr-2"></box-icon>
+                        <span class="text-lg text-white font-light">1</span>
+                      </div>
+                    </div>
                   </div>
-                  <div class="space-y-2">
-                    <span class="text-sm font-medium text-gray-400">End Date</span>
-                    <span class="text-lg text-white block font-light">{{ project.end_date }}</span>
-                  </div>
-                  <div class="space-y-2 col-span-2 flex flex-col w-full max-w-full overflow-auto">
-                    <span class="text-sm font-medium text-gray-400">Description</span>
-                    <p class="text-white text-lg leading-snug break-words w-full max-w-full overflow-auto">
-                      {{ project.description }}
-                    </p>
-                  </div>
+                </div>
+                <div class="mt-6 bg-gray-900 rounded-lg p-4">
+                  <span class="text-sm font-medium text-gray-400">Description</span>
+                  <p class="text-white text-lg leading-relaxed mt-2 break-words">
+                    {{ project.description }}
+                  </p>
                 </div>
               </div>
             </div>
@@ -336,7 +387,7 @@ const handleAddMembers= (newEmployees) => {
         </div>
 
         <!-- Right Sidebar -->
-        <div class="w-96 bg-gray-950 border-l border-gray-700 overflow-y-auto">
+        <div class="w-96 bg-gray-950  right-0 border-l border-gray-700 overflow-y-auto">
           <div class="p-6 space-y-8">
             <div>
               <h3 class="text-lg font-semibold text-white mb-4">Project Progress</h3>

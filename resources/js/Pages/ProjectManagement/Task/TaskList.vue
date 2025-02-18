@@ -49,6 +49,15 @@ const onMove = (e) => {
     }
   
 };
+const getStatusColor = (status) => {
+  const colors = {
+    to_do: 'bg-blue-600',
+    in_progress: 'bg-yellow-600',
+    review: 'bg-purple-600',
+    done: 'bg-green-600'
+  };
+  return colors[status] || 'bg-gray-600';
+};
 
 
 </script>
@@ -61,11 +70,15 @@ const onMove = (e) => {
     :key="status"
     class="bg-gray-950 rounded-lg overflow-hidden border border-gray-700"
   >
-    <h3 class="text-white font-medium flex p-4 items-center justify-between">
-      {{ status.toUpperCase().replace('_', ' ') }}
+  <div class="bg-gray-800 p-4">
+    <h3 class="text-white font-medium flex items-center justify-between">
+      <span class="flex items-center">
+        <div :class="[getStatusColor(status), 'w-3 h-3 rounded-full mr-2']"></div>
+        {{ status.toUpperCase().replace('_', ' ') }}
+      </span>
       <span class="bg-gray-700 text-xs px-2 py-1 rounded-full">{{ tasks.length }}</span>
     </h3>
-    <hr class="border-t border-gray-700 mb-2" />
+  </div>
 
     <VueDraggableNext
       :list="tasks"
