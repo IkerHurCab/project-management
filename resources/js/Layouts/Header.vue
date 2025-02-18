@@ -28,7 +28,7 @@
             </div>
 
             <div v-if="isPopupVisible"
-                class="border-2 border-gray-800 absolute right-0 top-17 mt-2 bg-black text-white rounded-b-lg shadow-lg p-4 w-96">
+                class="border-b-2 border-l-2 border-gray-800 absolute right-0 top-18 mt-2 bg-black text-white rounded-b-lg shadow-lg p-4 w-48 z-11">
                 <h3 class="font-bold p-2">Estado</h3>
                 <ul>
                     <li @click="changeStatus('online')"

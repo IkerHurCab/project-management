@@ -1,15 +1,15 @@
 <template>
-  <div class="flex h-screen overflow-hidden">
+  <div class="flex h-screen">
     <aside :class="sidebar ? 'w-16' : 'w-0'" class="transition-all duration-300 ease-in-out">
       <Sidebar v-if="sidebar" />
     </aside>
 
-    <div class="flex flex-col flex-grow overflow-hidden">
-      <header :class="[header ? 'h-16' : 'h-0', 'transition-all duration-300 ease-in-out']">
+    <div class="flex flex-col flex-grow">
+      <header :class="[header ? 'h-20' : 'h-0', 'transition-all duration-300 ease-in-out z-10 border-b-2 border-gray-800']">
         <Header v-if="header" :page="pageTitle" />
       </header>
 
-      <main class="flex-grow p-4 overflow-auto">
+      <main class="flex-grow p-4">
         <slot />
       </main>
     </div>
@@ -40,6 +40,5 @@ export default {
       isPopupVisible: false,
     }
   },
-
 }
 </script>

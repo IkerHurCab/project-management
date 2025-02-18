@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\ProjectManagement;
 
 use Illuminate\Database\Eloquent\Model;
 
@@ -20,6 +20,11 @@ class Project extends Model
     public function tasks()
     {
         return $this->hasMany(Task::class, 'project_id');
+    }
+
+    public function departments()
+    {
+        return $this->belongsToMany(Department::class, 'department_project', 'project_id', 'department_id');
     }
 
 }

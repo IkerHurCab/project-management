@@ -5,6 +5,7 @@
 @theme {
     --font-apple: 'Archivo', -apple-system, BlinkMacSystemFont, sans-serif;
     --color-secondary: #13100F;
+    --color-secondary-light: #3D3D3D;
 }
 
 * {

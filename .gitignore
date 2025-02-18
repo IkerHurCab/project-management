@@ -22,4 +22,5 @@ yarn-error.log
 /.vscode
 /.zed
 docker-compose.yml
+vite.config.js
 core

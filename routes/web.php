@@ -14,11 +14,8 @@ Route::middleware(['auth'])->group(function () {
             'user' => request()->user(),
         ]);
     })->name('home');
-
     Route::post('/update-status', [HeaderController::class, 'changeStatus']);
 });
-
-
 
 Route::group(['middleware' => 'auth'], function () {
     Route::get('/dashboard', function () {
@@ -32,6 +29,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/departments/{id}', [DepartmentController::class, 'showSingle'])->name('departments.showSingle')
     ->middleware(CheckDepartmentAccess::class);
 });
+
 Route::middleware(['guest'])->group(function () {
     Route::get('/login', [LoginController::class, 'create'])->name('login');
     Route::post('/login', [LoginController::class, 'store']);
