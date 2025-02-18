@@ -26,6 +26,8 @@ class TaskController extends Controller
         {
             abort(404, 'Task not found'); 
         }   
+        $taskLogs = $task->logs()->orderBy('log_date')->get();
+    
 
         $relatedTasks = $task->project->tasks()->limit(3)->get();
 
@@ -34,7 +36,7 @@ class TaskController extends Controller
             'task' => $task->toArray(),
             'user' => request()->user(),
             'comments' => $task->comments,
-            
+            'taskLogs' => $taskLogs,
             'relatedTasks' => $relatedTasks,
         
         ]);

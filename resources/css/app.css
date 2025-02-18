@@ -2,6 +2,7 @@
 @import 'boxicons/css/boxicons.min.css';
 @source "../views";
 
+
 @theme {
     --font-apple: 'Archivo', -apple-system, BlinkMacSystemFont, sans-serif;
 }

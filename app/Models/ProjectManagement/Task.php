@@ -4,6 +4,7 @@ namespace App\Models\ProjectManagement;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Models\ProjectManagement\Project;
+use App\Models\ProjectManagement\TaskLog;
 use App\Models\User;
 use App\Models\ProjectManagement\Comment;
 
@@ -39,4 +40,8 @@ class Task extends Model
     {
         return $this->hasMany(Comment::class);
     }
+    public function logs()
+{
+    return $this->hasMany(TaskLog::class);
+}
 }

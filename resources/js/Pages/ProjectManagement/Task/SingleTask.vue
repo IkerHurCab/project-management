@@ -8,6 +8,7 @@
   import LogTimeModal from '@/Pages/ProjectManagement/Task/LogTimeModal.vue'
   import AddAttachmentModal from '@/Pages/ProjectManagement/Task/AddAttachmentModal.vue'
   import VueApexCharts from 'vue3-apexcharts'
+  import FloatingVue from 'floating-vue'
   
   const props = defineProps({
     task: Object,
@@ -15,6 +16,7 @@
     project: Object,
     comments: Array,
     relatedTasks: Array,
+    taskLogs: Array,
   })
   const attachmentsTask = ref(false);
 
@@ -104,7 +106,7 @@
   }
   
   const logTime = (timeEntry) => {
-    // Implement time logging logic here
+ 
     console.log('Logging time:', timeEntry)
   }
   
@@ -132,10 +134,20 @@
   }
 };
 
+const totalLoggedHours = computed(() => {
+  return props.taskLogs.reduce((total, log) => total + log.log_time, 0);
+});
 
+
+function getRandomColor(index) {
+  const colors = [
+    '#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8',
+    '#F06292', '#AED581', '#FFD54F', '#4DB6AC', '#7986CB'
+  ];
+  return colors[index % colors.length];
+}
 
   
-  // Comment Section
 
   const newComment = ref('')
   const addComment = async () => {
@@ -180,7 +192,6 @@
           </div>
           <div class="flex items-center space-x-4">
             <Button @click="openEditTaskModal">Edit Task</Button>
-            <Button @click="openLogTimeModal" variant="secondary">Log Time</Button>
           </div>
         </div>
       </div>
@@ -253,8 +264,17 @@
                     <span>Progress</span>
                     <span>{{ progressPercentage }}%</span>
                   </div>
-                  <div class="w-full bg-gray-700 rounded-full h-2.5">
-                    <div class="bg-blue-600 h-2.5 rounded-full" :style="{ width: `${progressPercentage}%` }"></div>
+                  <div class="w-full bg-gray-700 rounded-full h-5 overflow-hidden">
+                    <div 
+                      v-for="(log, index) in taskLogs" 
+                      :key="index"
+                      class="h-full inline-block"
+                      :style="{
+                        width: `${(log.log_time / task.estimated_hours) * 100}%`,
+                        backgroundColor: getRandomColor(index)
+                      }"
+                      v-tooltip="`${log.description}`"
+                    ></div>
                   </div>
                 </div>
                 <div class="grid grid-cols-2 gap-4 text-center">
@@ -264,11 +284,12 @@
                   </div>
                   <div>
                     <p class="text-gray-400 text-sm">Logged</p>
-                    <p class="text-white text-lg font-semibold">{{ task.completed_hours }} hours</p>
+                    <p class="text-white text-lg font-semibold">{{ totalLoggedHours }} hours</p>
                   </div>
                 </div>
               </div>
             </div>
+            
 
             <!-- Related Tasks -->
             <div class="col-span-1 bg-gray-950 rounded-lg overflow-hidden border border-gray-700">
@@ -357,6 +378,8 @@
     <LogTimeModal
       :is-open="isLogTimeModalOpen"
       :task="task"
+      :user="user"
+      :project="project"
       @close="closeLogTimeModal"
       @log-time="logTime"
     />
