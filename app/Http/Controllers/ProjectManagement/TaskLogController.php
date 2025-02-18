@@ -28,6 +28,11 @@ class TaskLogController extends Controller
                 'description' => $validated['description'],
                 'log_date' => $validated['date'],
             ]);
+
+            $task->update([
+                'completed_hours' => $task->completed_hours + $validated['hours']
+            ]);
+        
             
 
 

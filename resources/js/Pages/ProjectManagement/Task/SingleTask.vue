@@ -51,6 +51,7 @@
   const openAddAttachmentModal = () => isAddAttachmentModalOpen.value = true
   const closeAddAttachmentModal = () => isAddAttachmentModalOpen.value = false
   const redirectToRelatedTask =  (relatedTask) =>  router.get(`/projects/${props.project.id}/task/${relatedTask.id}`);
+  
   const progressPercentage = computed(() => {
     return Math.round((props.task.completed_hours / props.task.estimated_hours) * 100)
   })
@@ -133,11 +134,10 @@
     console.error('Error adding attachments:', error);
   }
 };
-
-const totalLoggedHours = computed(() => {
-  return props.taskLogs.reduce((total, log) => total + log.log_time, 0);
-});
-
+const getPriorityColor = (priority) => {
+  const colors = ['bg-green-500', 'bg-yellow-500', 'bg-orange-500', 'bg-red-500']
+  return colors[priority - 1] || 'bg-gray-500'
+}
 
 function getRandomColor(index) {
   const colors = [
@@ -190,9 +190,7 @@ function getRandomColor(index) {
             </a>
             <h1 class="text-xl font-semibold text-white">{{ task.name }}</h1>
           </div>
-          <div class="flex items-center space-x-4">
-            <Button @click="openEditTaskModal">Edit Task</Button>
-          </div>
+          
         </div>
       </div>
 
@@ -203,41 +201,71 @@ function getRandomColor(index) {
           <div class="grid grid-cols-3 gap-6">
             <!-- Task Details -->
             <div class="col-span-2 bg-gray-950 rounded-lg overflow-hidden border border-gray-700">
-              <div class="border-b border-gray-700 px-6 py-4">
+              <div class="border-b border-gray-700 px-6 py-4 flex justify-between items-center">
                 <h2 class="text-2xl font-semibold text-white">Task Details</h2>
+                <Button @click="openEditTaskModal" size="sm" class="bg-blue-600 hover:bg-blue-700">Edit Task</Button>
               </div>
-              <div class="p-6 space-y-6">
+              <div class="p-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div class="space-y-2 flex flex-col">
-                    <span class="text-sm font-medium text-gray-400">Status</span>
-                    
+                  <div class="bg-gray-900 rounded-lg p-4 flex flex-col justify-between">
+                    <div class="flex flex-col">
+                      <span class="text-sm font-medium text-gray-400">Status</span>
+                      <StatusBadge :status="task.status" class="mt-1 w-fit" />
+                    </div>
+                    <div class="mt-4">
+                      <span class="text-sm font-medium text-gray-400">Priority</span>
+                      <div class="flex items-center mt-1">
+                        <div :class="`w-3 h-3 rounded-full ${getPriorityColor(task.priority)} mr-2`"></div>
+                        <span class="text-lg text-white font-light">{{ getPriorityLabel(task.priority) }}</span>
+                      </div>
+                    </div>
                   </div>
-                  <div class="space-y-2">
-                    <span class="text-sm font-medium text-gray-400">Priority</span>
-                    <span class="text-lg text-white block font-light">{{ getPriorityLabel(task.priority) }}</span>
+                  <div class="bg-gray-900 rounded-lg p-4 flex flex-col justify-between">
+                    <div>
+                      <span class="text-sm font-medium text-gray-400">Start Date</span>
+                      <div class="flex items-center mt-1">
+                        <box-icon name='calendar' color='#9CA3AF' class="mr-2"></box-icon>
+                        <span class="text-lg text-white font-light">{{ formatDate(task.start_date) }}</span>
+                      </div>
+                    </div>
+                    <div class="mt-4">
+                      <span class="text-sm font-medium text-gray-400">End Date</span>
+                      <div class="flex items-center mt-1">
+                        <box-icon name='calendar-check' color='#9CA3AF' class="mr-2"></box-icon>
+                        <span class="text-lg text-white font-light">{{ formatDate(task.end_date) }}</span>
+                      </div>
+                    </div>
                   </div>
-                  <div class="space-y-2">
-                    <span class="text-sm font-medium text-gray-400">Start Date</span>
-                    <span class="text-lg text-white block font-light">{{ formatDate(task.start_date) }}</span>
+                  <div class="bg-gray-900 rounded-lg p-4 flex items-center justify-between">
+                    <div>
+                      <span class="text-sm font-medium text-gray-400">Estimated Hours</span>
+                      <div class="flex items-center mt-1">
+                        <box-icon name='time' color='#9CA3AF' class="mr-2"></box-icon>
+                        <span class="text-lg text-white font-light">{{ task.estimated_hours }} h</span>
+                      </div>
+                    </div>
+                    <div class="h-12 w-12 rounded-full bg-blue-600 flex items-center justify-center">
+                      <span class="text-white font-bold">{{ Math.round((task.completed_hours / task.estimated_hours) * 100) }}%</span>
+                    </div>
                   </div>
-                  <div class="space-y-2">
-                    <span class="text-sm font-medium text-gray-400">End Date</span>
-                    <span class="text-lg text-white block font-light">{{ formatDate(task.end_date) }}</span>
-                  </div>
-                  <div class="space-y-2">
-                    <span class="text-sm font-medium text-gray-400">Estimated Hours</span>
-                    <span class="text-lg text-white block font-light">{{ task.estimated_hours }} h</span>
-                  </div>
-                  <div class="space-y-2">
+                  <div class="bg-gray-900 rounded-lg p-4">
                     <span class="text-sm font-medium text-gray-400">Completed Hours</span>
-                    <span class="text-lg text-white block font-light">{{ task.completed_hours }} h</span>
+                    <div class="flex items-center justify-between mt-1">
+                      <div class="flex items-center">
+                        <box-icon name='check-circle' color='#9CA3AF' class="mr-2"></box-icon>
+                        <span class="text-lg text-white font-light">{{ task.completed_hours }} h</span>
+                      </div>
+                      <div class="w-1/2 bg-gray-700 rounded-full h-2">
+                        <div class="bg-blue-600 h-2 rounded-full" :style="{ width: `${(task.completed_hours / task.estimated_hours) * 100}%` }"></div>
+                      </div>
+                    </div>
                   </div>
-                  <div class="space-y-2 col-span-2 flex flex-col w-full max-w-full overflow-auto">
-                    <span class="text-sm font-medium text-gray-400">Description</span>
-                    <p class="text-white text-lg leading-snug break-words w-full max-w-full overflow-auto">
-                      {{ task.description }}
-                    </p>
-                  </div>
+                </div>
+                <div class="mt-6 bg-gray-900 rounded-lg p-4">
+                  <span class="text-sm font-medium text-gray-400">Description</span>
+                  <p class="text-white text-lg leading-relaxed mt-2 break-words">
+                    {{ task.description }}
+                  </p>
                 </div>
               </div>
             </div>
@@ -280,11 +308,11 @@ function getRandomColor(index) {
                 <div class="grid grid-cols-2 gap-4 text-center">
                   <div>
                     <p class="text-gray-400 text-sm">Estimated</p>
-                    <p class="text-white text-lg font-semibold">{{ task.estimated_hours }} hours</p>
+                    <p class="text-white text-lg font-semibold">{{ task.estimated_hours ?? 0 }} hours</p>
                   </div>
                   <div>
                     <p class="text-gray-400 text-sm">Logged</p>
-                    <p class="text-white text-lg font-semibold">{{ totalLoggedHours }} hours</p>
+                    <p class="text-white text-lg font-semibold">{{ task.completed_hours ?? '' }}  hours</p>
                   </div>
                 </div>
               </div>
