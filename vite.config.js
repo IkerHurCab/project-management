@@ -59,6 +59,9 @@ export default defineConfig({
                     base: null,
                     includeAbsolute: false,
                 },
+                compilerOptions: {
+                    isCustomElement: (tag) => ['box-icon'].includes(tag),
+                }
             },
         }),
     ],
@@ -70,12 +73,12 @@ export default defineConfig({
     server: {
         host: "0.0.0.0",
         port: 5184,
-        hmr:{
+        hmr: {
             host: "10.40.1.54",
             protocol: "ws",
         },
         cors: {
             origin: '*',
-          },
+        },
     },
 });

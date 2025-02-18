@@ -51,15 +51,27 @@ function searchMembers(event) {
 
 
 function changePage(page) {
-    router.get(`${url}?page=${page}`, {}, {
-        preserveState: true,
-        preserveScroll: true,
-        onSuccess: (page) => {
-            pagination.value = page.props.pagination;
-            filteredUsers.value = page.props.users;
+    clearTimeout(timeout);
+    timeout = setTimeout(() => {
+        if (page > pagination.value.last_page) {
+            page = pagination.value.last_page;
         }
-    });
+
+        const query = new URLSearchParams(window.location.search).get('search') || ''; 
+
+        router.get(`${url}?search=${query}&page=${page}`, {}, {
+            preserveState: true,
+            preserveScroll: true,
+            onSuccess: (page) => {
+                pagination.value = page.props.pagination;
+                filteredUsers.value = page.props.users;
+            }
+        });
+        
+    }, 300);
 }
+
+
 
 
 </script>
@@ -85,18 +97,19 @@ function changePage(page) {
                 <InputWithIcon icon="search" placeholder="Search members" class="h-10 w-full"
                     @keyup.stop="searchMembers" />
                 <ul class="mt-4 max-h-152 overflow-y-auto custom-scrollbar">
-                    <li v-if="props.users.length === 0" class="text-gray-400">
-                        There are no members in this department.
-                    </li>
-                    <li v-else-if="filteredUsers.length === 0" class="text-gray-400">
+                    <li v-if="props.users.length === 0"
+                        class="text-gray-400 flex items-center justify-center gap-2 overflow-hidden">
+                        <box-icon name='error-circle' color="#9CA3AF"></box-icon>
                         No members found.
                     </li>
                     <li v-else v-for="user in filteredUsers" :key="user.id"
                         class="mt-2 hover:bg-gray-800 p-1 transition duration-300 hover:cursor-pointer">
                         <div class="flex items-center gap-4">
-                            <div class="border border-gray-700 rounded-full relative w-10 h-10">
-                                <box-icon :name="'user'" :color="'gray'"
-                                    class="w-6 h-6 absolute top-2 left-2"></box-icon>
+                            <div
+                                class="border border-gray-700 rounded-full relative w-10 h-10 flex items-center justify-center bg-gray-600">
+                                <span class="text-white text-lg font-bold">
+                                    {{ user.name.charAt(0).toUpperCase() }}
+                                </span>
                                 <div class="border border-gray-700 absolute w-2 h-2 rounded-full top-7 right-0" :class="{
                                     'bg-yellow-500': user.status === 'away',
                                     'bg-green-500': user.status === 'online',
@@ -110,15 +123,24 @@ function changePage(page) {
                 </ul>
                 <div class="flex justify-between items-center mt-4 align-self-end mt-auto">
                     <span class="text-gray-400">Page {{ pagination.current_page }} of {{ pagination.last_page }}</span>
-                    <button v-if="pagination.current_page > 1" @click="changePage(pagination.current_page - 1)"
-                        class="bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-700 transition duration-300">
-                        Previous
-                    </button>
-                    <button v-if="pagination.current_page < pagination.last_page"
-                        @click="changePage(pagination.current_page + 1)"
-                        class="bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-700 transition duration-300">
-                        Next
-                    </button>
+                    <div class="flex gap-2">
+                        <input type="number" v-model.number="pagination.current_page"
+                            @input="changePage(pagination.current_page)"
+                            class="w-16 text-center bg-gray-800 text-white rounded" :max="pagination.last_page"
+                            :min="1" />
+                        <button :disabled="pagination.current_page <= 1"
+                            @click="changePage(pagination.current_page - 1)"
+                            :class="['px-4 py-2 rounded transition duration-300',
+                                pagination.current_page <= 1 ? 'bg-gray-700 text-gray-500 cursor-not-allowed' : 'bg-gray-800 text-white hover:bg-gray-700 cursor-pointer']">
+                            Previous
+                        </button>
+                        <button :disabled="pagination.current_page >= pagination.last_page"
+                            @click="changePage(pagination.current_page + 1)"
+                            :class="['px-4 py-2 rounded transition duration-300 ',
+                                pagination.current_page >= pagination.last_page ? 'bg-gray-700 text-gray-500 cursor-not-allowed' : 'bg-gray-800 text-white hover:bg-gray-700 cursor-pointer']">
+                            Next
+                        </button>
+                    </div>
                 </div>
             </div>
             <div class="col-span-2 rounded-2xl pb-40">
@@ -186,5 +208,15 @@ ul.custom-scrollbar::-webkit-scrollbar-thumb {
 
 ul.custom-scrollbar::-webkit-scrollbar-thumb:hover {
     background: #555;
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type="number"] {
+    -moz-appearance: textfield;
 }
 </style>
