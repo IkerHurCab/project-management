@@ -62,9 +62,9 @@
                 </div>
               </div>
             </div>
-            <div class="flex justify-end space-x-3 mt-6">
-              <StandardButton type="button" @click="emit('close')" class="bg-gray-600 hover:bg-gray-500 transition-colors">Cancel</StandardButton>
-              <StandardButton type="submit" class="bg-blue-600 hover:bg-blue-500 transition-colors">Add Attachment</StandardButton>
+            <div class="flex justify-end space-x-3 mt-7">
+             
+              <StandardButton type="submit" class="bg-blue-600 w-full hover:bg-blue-500 transition-colors">Add Attachment</StandardButton>
             </div>
           </form>
         </div>
