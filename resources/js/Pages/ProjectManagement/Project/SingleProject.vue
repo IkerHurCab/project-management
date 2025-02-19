@@ -1,216 +1,215 @@
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue';
-import { router, usePage } from '@inertiajs/vue3';
+  import { ref, computed, onMounted, watch } from 'vue';
+  import { router, usePage } from '@inertiajs/vue3';
 
-import Layout from '@/Layouts/Layout.vue';
-import StatusBadge from '@/Components/StatusBadge.vue';
-import StandardButton from '@/Components/StandardButton.vue';
-import VueApexCharts from 'vue3-apexcharts';
-import InputWithIcon from '@/Components/InputWithIcon.vue';
-import CreateTaskModal from '@/Pages/ProjectManagement/Task/CreateTaskModal.vue';
-import AddMemberModal from '@/Pages/ProjectManagement/Project/AddMemberModal.vue';
-
-
-
-import TaskList from '@/Pages/ProjectManagement/Task/TaskList.vue';
-import 'boxicons';
-
-const props = defineProps({
-  tasksByStatus: {
-    type: Object,
-    required: false
-  },
-  project: {
-    type: Object,
-    required: true
-  },
-  user: {
-    type: Object,
-    required: true
-  },
-  employees: {
-    type: Array,
-    required: true
-  },
-  allUsers: {
-    type: Array,
-    required: true
-  },
-  tasks: {
-    type: Array,
-    required: true
-  },
-  searchQuery: {
-    type: String,
-  },
-  personalTasks: {
-    type: Array,
-  },
-
-});
-
-const formatDate = (date) => {
-  return new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
-}
-
-const projectProgress = computed(() => {
-  if (props.project.total_tasks === 0) return 0
-  return Math.round((props.project.completed_tasks / props.project.total_tasks) * 100)
-})
+  import Layout from '@/Layouts/Layout.vue';
+  import StatusBadge from '@/Components/StatusBadge.vue';
+  import StandardButton from '@/Components/StandardButton.vue';
+  import VueApexCharts from 'vue3-apexcharts';
+  import InputWithIcon from '@/Components/InputWithIcon.vue';
+  import CreateTaskModal from '@/Pages/ProjectManagement/Task/CreateTaskModal.vue';
+  import AddMemberModal from '@/Pages/ProjectManagement/Project/AddMemberModal.vue';
 
 
-const activeTab = ref('overview');
-const chartOptions = computed(() => ({
-  chart: {
-    type: 'donut',
-    background: 'transparent'
-  },
-  colors: ['#6366F1', '#22D3EE', '#F59E0B', '#EF4444'],
-  plotOptions: {
-    donut: {
-      size: '85%',
-      background: 'transparent',
-      labels: {
-        show: true,
-        total: {
+
+  import TaskList from '@/Pages/ProjectManagement/Task/TaskList.vue';
+  import 'boxicons';
+
+  const props = defineProps({
+    tasksCompleted: {
+      type: Number,
+    },
+    project: {
+      type: Object,
+      required: true
+    },
+    user: {
+      type: Object,
+      required: true
+    },
+    employees: {
+      type: Array,
+      required: true
+    },
+    allUsers: {
+      type: Array,
+      required: true
+    },
+    tasks: {
+      type: Array,
+      required: true
+    },
+    searchQuery: {
+      type: String,
+    },
+    personalTasks: {
+      type: Array,
+    },
+
+  });
+ 
+  const taskCount = computed(() => props.tasks.length);
+
+  console.log(props.tasks)
+
+  const formatDate = (date) => {
+    return new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+  }
+
+  const projectProgress = computed(() => {
+    if (props.project.total_tasks === 0) return 0
+    return Math.round((props.project.completed_tasks / props.project.total_tasks) * 100)
+  })
+
+ 
+  const activeTab = ref('overview');
+  const chartOptions = computed(() => ({
+    chart: {
+      type: 'donut',
+      background: 'transparent'
+    },
+    colors: ['#6366F1', '#22D3EE', '#F59E0B', '#EF4444'],
+    plotOptions: {
+      donut: {
+        size: '85%',
+        background: 'transparent',
+        labels: {
           show: true,
-          label: 'Total Hours',
-          color: '#E5E7EB',
-          fontSize: '16px',
-          fontFamily: 'Inter, sans-serif'
+          total: {
+            show: true,
+            label: 'Total Hours',
+            color: '#E5E7EB',
+            fontSize: '16px',
+            fontFamily: 'Inter, sans-serif'
+          }
         }
       }
-    }
-  },
-  legend: {
-    position: 'bottom',
-    labels: {
-      colors: '#E5E7EB'
     },
-    markers: {
-      width: 8,
-      height: 8,
-      radius: 12
+    legend: {
+      position: 'bottom',
+      labels: {
+        colors: '#E5E7EB'
+      },
+      markers: {
+        width: 8,
+        height: 8,
+        radius: 12
+      }
+    },
+    theme: {
+      mode: 'dark'
     }
-  },
-  theme: {
-    mode: 'dark'
-  }
-}));
+  }));
 
-const series = computed(() => {
-  const completed = props.tasks
-    .filter(task => task.status === 'completed')
-    .reduce((sum, task) => sum + task.estimated_hours, 0);
+  const series = computed(() => {
+    const completed = props.tasks
+      .filter(task => task.status === 'completed')
+      .reduce((sum, task) => sum + task.estimated_hours, 0);
 
-  const inProgress = props.tasks
-    .filter(task => task.status === 'in_progress')
-    .reduce((sum, task) => sum + task.estimated_hours, 0);
+    const inProgress = props.tasks
+      .filter(task => task.status === 'in_progress')
+      .reduce((sum, task) => sum + task.estimated_hours, 0);
 
-  return [completed, inProgress];
-});
+    return [completed, inProgress];
+  });
 
-const tasksByStatus = computed(() => {
-  if (!Array.isArray(props.tasks)) {
+  const tasksByStatus = computed(() => {
+    if (!Array.isArray(props.tasks)) {
+      return {
+        to_do: [],
+        in_progress: [],
+        review: [],
+        done: []
+      };
+    }
     return {
-      to_do: [],
-      in_progress: [],
-      review: [],
-      done: []
+      to_do: props.tasks.filter(task => task.status === 'to_do'),
+      in_progress: props.tasks.filter(task => task.status === 'in_progress'),
+      review: props.tasks.filter(task => task.status === 'review'),
+      done: props.tasks.filter(task => task.status === 'done')
     };
+  });
+
+
+
+  const totalTasks = computed(() => props.tasks.length);
+  const completedTasks = computed(() => props.tasks.filter(task => task.status === 'done').length);
+  const progressPercentage = computed(() => (completedTasks.value / totalTasks.value) * 100 || 0);
+
+  const priorityTasks = computed(() =>
+    props.tasks
+      .filter(task => task.priority === 3)
+      .sort((a, b) => new Date(a.end_date) - new Date(b.end_date))
+      .slice(0, 3)
+  );
+    
+
+
+  const leader = computed(() => {
+    return props.project.users.find(user => user.id === props.project.project_leader_id)
+  })
+  const searchQuery = ref(usePage().props.searchQuery || '');
+
+
+
+  watch(searchQuery, () => {
+    applyFilters();
+  });
+
+  const getPriorityColor = (priority) => {
+    const colors = ['bg-green-500', 'bg-yellow-500', 'bg-orange-500', 'bg-red-500']
+    return colors[priority - 1] || 'bg-gray-500'
   }
 
-  return {
-    to_do: props.tasks.filter(task => task.status === 'to_do'),
-    in_progress: props.tasks.filter(task => task.status === 'in_progress'),
-    review: props.tasks.filter(task => task.status === 'review'),
-    done: props.tasks.filter(task => task.status === 'done')
-  };
-});
-
-const totalTasks = computed(() => props.tasks.length);
-const completedTasks = computed(() => props.tasks.filter(task => task.status === 'done').length);
-const progressPercentage = computed(() => (completedTasks.value / totalTasks.value) * 100 || 0);
-
-const priorityTasks = computed(() => 
-  props.tasks
-    .filter(task => task.priority === 3) 
-    .sort((a, b) => new Date(a.end_date) - new Date(b.end_date)) 
-    .slice(0, 3)
-);
-
-
-const recentActivities = [
-  { user: 'John Doe', action: 'completed task', task: 'Design UI mockups', time: '2 hours ago' },
-  { user: 'Jane Smith', action: 'commented on', task: 'Backend API development', time: '4 hours ago' },
-  { user: 'Mike Johnson', action: 'started task', task: 'User authentication', time: '1 day ago' },
-];
-
-const leader = computed(() => {
-  return props.project.users.find(user => user.id === props.project.project_leader_id)
-})
-const searchQuery = ref(usePage().props.searchQuery || '');
-
-
-
-watch(searchQuery,  () => {
-  applyFilters();
-});
-
-const getPriorityColor = (priority) => {
-  const colors = ['bg-green-500', 'bg-yellow-500', 'bg-orange-500', 'bg-red-500']
-  return colors[priority - 1] || 'bg-gray-500'
-}
-
-const getPriorityLabel = (priority) => {
+  const getPriorityLabel = (priority) => {
     const labels = ['Low', 'Medium', 'High', 'Urgent']
     return labels[priority - 1] || 'Unknown'
   }
 
-const applyFilters = () => {
-  const queryParams = new URLSearchParams();
+  const applyFilters = () => {
+    const queryParams = new URLSearchParams();
 
-  if (searchQuery.value) {
-    queryParams.append('searchMember', searchQuery.value); 
+    if (searchQuery.value) {
+      queryParams.append('searchMember', searchQuery.value);
+    }
+
+    console.log(props.filteredEmployees);
+
+    const url = queryParams.toString()
+      ? `${props.project.id}/?${queryParams.toString()}`
+      : `${props.project.id}`;
+
+    router.visit(url, {
+      method: 'get',
+      preserveState: true,
+      replace: true,
+    });
+  };
+
+
+  const isCreateTaskModalOpen = ref(false);
+  const isModalOpen = ref(false);
+  const allMembers = ref([]);
+
+  const openCreateTaskModal = () => {
+    isCreateTaskModalOpen.value = true;
+  };
+
+  const closeCreateTaskModal = () => {
+    isCreateTaskModalOpen.value = false;
+  };
+
+  const openModal = () => {
+    isModalOpen.value = true;
+  }
+  const closeModal = () => {
+    isModalOpen.value = false;
   }
 
-  console.log(props.filteredEmployees);
 
-  const url = queryParams.toString() 
-    ? `${props.project.id}/?${queryParams.toString()}` 
-    : `${props.project.id}`; 
-
-  router.visit(url, {
-    method: 'get',
-    preserveState: true,
-    replace: true,
-  });
-};
-
-
-const isCreateTaskModalOpen = ref(false);
-const isModalOpen = ref(false);
-const allMembers = ref([]);
-
-const openCreateTaskModal = () => {
-  isCreateTaskModalOpen.value = true;
-};
-
-const closeCreateTaskModal = () => {
-  isCreateTaskModalOpen.value = false;
-};
-
-const openModal = () => {
-  isModalOpen.value = true;
-}
-const closeModal = () => {
-  isModalOpen.value = false;
-}
-
-
-const handleAddMembers= (newEmployees) => {
-  router.post(`/projects/${props.project.id}/new-members`, { users: newEmployees });
-};
+  const handleAddMembers = (newEmployees) => {
+    router.post(`/projects/${props.project.id}/new-members`, { users: newEmployees });
+  };
 
 </script>
 
@@ -235,7 +234,7 @@ const handleAddMembers= (newEmployees) => {
 
       <div class="bg-gray-950 px-6 py-2 border-b border-gray-700">
         <div class="flex space-x-6">
-          <button v-for="tab in ['Overview', 'Tasks', 'Analytics', 'Files']" :key="tab"
+          <button v-for="tab in ['Overview', 'Tasks', 'Documentation', 'Analytics', 'Files']" :key="tab"
             @click="activeTab = tab.toLowerCase()" :class="[
               'px-4 py-2 text-sm cursor-pointer font-medium rounded-md transition-colors',
               activeTab === tab.toLowerCase()
@@ -253,7 +252,7 @@ const handleAddMembers= (newEmployees) => {
         <div class="flex-1 p-6 overflow-auto">
           <div v-if="activeTab === 'tasks'" class="grid grid-cols-4 gap-6 ">
             <!-- Task Columns -->
-              <TaskList ref="taskContainer" :projectId="project.id" :tasksByStatus="tasksByStatus" />
+            <TaskList ref="taskContainer" :projectId="project.id" :tasksByStatus="tasksByStatus" />
           </div>
 
           <div v-if="activeTab === 'overview'" class="grid grid-cols-3  gap-6">
@@ -294,27 +293,27 @@ const handleAddMembers= (newEmployees) => {
                       </div>
                     </div>
                   </div>
-                  
+
                   <div class="bg-gray-900 rounded-lg p-4 col-span-2 flex justify-between">
                     <div>
                       <span class="text-sm font-medium text-gray-400">Total Tasks</span>
                       <div class="flex items-center mt-1">
                         <box-icon name='task' color='#9CA3AF' class="mr-2"></box-icon>
-                        <span class="text-lg text-white font-light">{{ project.total_tasks }}</span>
+                        <span class="text-lg text-white font-light">{{ totalTasks }}</span>
                       </div>
                     </div>
                     <div>
                       <span class="text-sm font-medium text-gray-400">Completed Tasks</span>
                       <div class="flex items-center mt-1">
                         <box-icon name='check-circle' color='#9CA3AF' class="mr-2"></box-icon>
-                        <span class="text-lg text-white font-light">{{ project.completed_tasks }}</span>
+                        <span class="text-lg text-white font-light">{{ tasksCompleted }}</span>
                       </div>
                     </div>
                     <div>
                       <span class="text-sm font-medium text-gray-400">Team Members</span>
                       <div class="flex items-center mt-1">
                         <box-icon name='group' color='#9CA3AF' class="mr-2"></box-icon>
-                        <span class="text-lg text-white font-light">1</span>
+                        <span class="text-lg text-white font-light">{{ employees.length }}</span>
                       </div>
                     </div>
                   </div>
@@ -327,7 +326,7 @@ const handleAddMembers= (newEmployees) => {
                 </div>
               </div>
             </div>
-          
+
             <!-- Hours Chart -->
             <div class="col-span-1 bg-gray-950 rounded-lg overflow-hidden border border-gray-700">
               <div class="border-b border-gray-700 px-6 py-4">
@@ -337,11 +336,11 @@ const handleAddMembers= (newEmployees) => {
                 <VueApexCharts type="donut" height="300" :options="chartOptions" :series="series" />
               </div>
             </div>
-          
-           
+
+
             <div class="col-span-3 bg-gray-950 rounded-lg overflow-hidden border border-gray-700 ">
               <div class="border-b border-gray-700 px-6 py-4">
-              <h2 class="text-2xl font-semibold text-white ">Your Tasks</h2>
+                <h2 class="text-2xl font-semibold text-white ">Your Tasks</h2>
               </div>
               <div class="">
                 <div class="bg-gray-900  overflow-hidden">
@@ -357,32 +356,40 @@ const handleAddMembers= (newEmployees) => {
                       </tr>
                     </thead>
                     <tbody>
-                      
+
                       <!-- Si no hay tareas pendientes -->
-<tr v-if="personalTasks.length === 0" class="border-b border-gray-900 bg-gray-950">
-  <td colspan="7" class="p-4 text-center text-gray-400">There are no pending tasks</td>
-</tr>
+                      <tr v-if="personalTasks.length === 0" class="border-b border-gray-900 bg-gray-950">
+                        <td colspan="7" class="p-4 text-center text-gray-400">There are no pending tasks</td>
+                      </tr>
 
 
-<tr v-for="task in personalTasks" :key="task.id"  @click="router.get(`/projects/${project.id}/task/${task.id}`)" class="bg-gray-950 border-b border-gray-700 text-left cursor-pointer hover:bg-gray-900">
-  <td class="p-4 text-gray-400">{{ task.name }}</td>
-  <td class="p-4 text-gray-400">{{ task.description }}</td>
-  <td class="p-4 text-gray-400">{{ task.start_date }}</td>
-  <td class="p-4 text-gray-400">{{ task.end_date }}</td>
-  <td class="p-4  text-gray-400">{{ task.completed_hours || 0 }} h</td>
-  <td class="p-4 text-gray-400"><StatusBadge :status="task.status" /></td>
-</tr>
+                      <tr v-for="task in personalTasks" :key="task.id"
+                        @click="router.get(`/projects/${project.id}/task/${task.id}`)"
+                        class="bg-gray-950 border-b border-gray-700 text-left cursor-pointer hover:bg-gray-900">
+                        <td class="p-4 text-gray-400">{{ task.name }}</td>
+                        <td class="p-4 text-gray-400">{{ task.description }}</td>
+                        <td class="p-4 text-gray-400">{{ task.start_date }}</td>
+                        <td class="p-4 text-gray-400">{{ task.end_date }}</td>
+                        <td class="p-4  text-gray-400">{{ task.completed_hours || 0 }} h</td>
+                        <td class="p-4 text-gray-400">
+                          <StatusBadge :status="task.status" />
+                        </td>
+                      </tr>
 
-                      
-        
-                      
+
+
+
                     </tbody>
                   </table>
                 </div>
               </div>
-           
-              
+
+
             </div>
+          </div>
+
+          <div v-if="activeTab === 'documentation'">
+            <ProjectDocumentation :project /> 
           </div>
         </div>
 
@@ -402,7 +409,8 @@ const handleAddMembers= (newEmployees) => {
             <div>
               <h3 class="text-lg font-semibold text-white mb-4">Project Leader</h3>
               <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white text-lg font-semibold">
+                <div
+                  class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white text-lg font-semibold">
                   {{ project.leader?.name.charAt(0) }}
                 </div>
                 <div>
@@ -416,49 +424,40 @@ const handleAddMembers= (newEmployees) => {
               <div class="flex justify-between items-center">
                 <h3 class="text-lg font-semibold text-white mb-4">Team Members</h3>
                 <StandardButton @click="openModal" class="h-7 w-7 mb-4 flex items-center justify-center">
-                 +
+                  +
                 </StandardButton>
               </div>
 
               <div class="space-y-3">
                 <div>
                   <InputWithIcon icon="search" v-model="searchQuery" placeholder="Search members..." class="h-10 w-full"
-                  type="text" />
-              </div>
-              <div class="overflow-y-auto max-h-70 scrollbar">
-                <div v-for="employee in employees" :key="employee.id"
-                     class="flex cursor-pointer items-center justify-between p-2 hover:bg-gray-700 rounded-lg transition-colors">
-                  <div class="flex items-center space-x-3">
-                    <div class="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center text-white">
-                      {{ employee.name.charAt(0) }}
-                    </div>
-                    <span class="text-white">{{ employee.name }}</span>
-                  </div>
-                  <span class="text-gray-400 text-sm">{{ employee.role }}</span>
+                    type="text" />
                 </div>
-              </div>
+                <div class="overflow-y-auto max-h-70 scrollbar">
+                  <div v-for="employee in employees" :key="employee.id"
+                    class="flex cursor-pointer items-center justify-between p-2 hover:bg-gray-700 rounded-lg transition-colors">
+                    <div class="flex items-center space-x-3">
+                      <div class="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center text-white">
+                        {{ employee.name.charAt(0) }}
+                      </div>
+                      <span class="text-white">{{ employee.name }}</span>
+                    </div>
+                    <span class="text-gray-400 text-sm">{{ employee.role }}</span>
+                  </div>
+                </div>
               </div>
             </div>
 
 
-           
+
           </div>
         </div>
       </div>
     </div>
-    <AddMemberModal 
-  :is-open="isModalOpen"
-  :all-members="allUsers"
-  @close="closeModal"
-  @add-members="handleAddMembers"
- 
-/>
-    <CreateTaskModal 
-    :is-open="isCreateTaskModalOpen"
-    :project-id="project.id"
-    :employees="employees"
-    @close="closeCreateTaskModal"
-  />
-  
+    <AddMemberModal :is-open="isModalOpen" :all-members="allUsers" @close="closeModal"
+      @add-members="handleAddMembers" />
+    <CreateTaskModal :is-open="isCreateTaskModalOpen" :project-id="project.id" :employees="employees"
+      @close="closeCreateTaskModal" />
+
   </Layout>
 </template>

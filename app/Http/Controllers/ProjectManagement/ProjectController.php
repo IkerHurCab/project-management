@@ -84,6 +84,11 @@ class ProjectController extends Controller
     
     $allUsers = User::whereNotIn('id', $members->pluck('id'))->get();
 
+    $totalCompletedTasks = $project->tasks->filter(function ($task) {
+        return $task->status === 'done';
+    })->count();
+
+
         return Inertia::render('ProjectManagement/Project/SingleProject', [
             'project' => $project,
             'user' => request()->user(),
@@ -92,6 +97,7 @@ class ProjectController extends Controller
             'employees' => $members,
             'searchQuery' => $request->input('searchMember', ''),
             'allUsers' => $allUsers,
+            'tasksCompleted' => $totalCompletedTasks,
         ]);
     }
 
