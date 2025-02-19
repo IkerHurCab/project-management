@@ -3,7 +3,7 @@ import { createInertiaApp } from '@inertiajs/vue3'
 import 'boxicons';
 import FloatingVue from 'floating-vue'
 import 'floating-vue/dist/style.css';
-//console.log(window.Inertia);
+
 
 createInertiaApp({
   resolve: name => {
@@ -15,5 +15,5 @@ createInertiaApp({
       .use(plugin)
       .use(FloatingVue)
       .mount(el)
-  },
+  }
 })

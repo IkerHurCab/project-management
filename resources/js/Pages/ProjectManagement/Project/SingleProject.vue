@@ -9,6 +9,7 @@
   import InputWithIcon from '@/Components/InputWithIcon.vue';
   import CreateTaskModal from '@/Pages/ProjectManagement/Task/CreateTaskModal.vue';
   import AddMemberModal from '@/Pages/ProjectManagement/Project/AddMemberModal.vue';
+  import ProjectDocumentation from '@/Pages/ProjectManagement/Project/ProjectDocumentation.vue';
 
 
 
@@ -227,6 +228,7 @@
             <h1 class="text-xl font-semibold text-white">{{ project.name }}</h1>
           </div>
           <div class="flex items-center space-x-4">
+            <StandardButton @click="openCreateDocumentationModal">+ Add Documentation</StandardButton>
             <StandardButton @click="openCreateTaskModal">+ Create Task</StandardButton>
           </div>
         </div>
@@ -388,13 +390,13 @@
             </div>
           </div>
 
-          <div v-if="activeTab === 'documentation'">
-            <ProjectDocumentation :project /> 
+          <div v-if="activeTab === 'documentation'" class="flex justify-center w-full flex-col rounded-lg overflow-auto">
+           <ProjectDocumentation /> 
           </div>
         </div>
 
         <!-- Right Sidebar -->
-        <div class="w-96 bg-gray-950  right-0 border-l border-gray-700 overflow-y-auto">
+        <div class="w-[20%] bg-gray-950  right-0 border-l border-gray-700 overflow-y-auto">
           <div class="p-6 space-y-8">
             <div>
               <h3 class="text-lg font-semibold text-white mb-4">Project Progress</h3>
