@@ -21,7 +21,7 @@
       start_date: startDate.value,
       end_date: endDate.value,
       assigned_hours: assignedHours.value,
-      status: status.value,
+      status: 'in_progress',
       description: description.value,
       priority: priority.value,
       is_public: !isPublic.value,
@@ -77,12 +77,9 @@
     </div>
         <h1 class="text-3xl font-bold text-white ">Create Project</h1>
       </div>
-        <p class="text-gray-400 my-8 max-w-3xl">Create and Manage Projects of Any Scale: From Simple Tasks to Complex
-          Collaborative Workflows with Defined Deadlines and Milestones.</p>
-
-        <div class="bg-gray-950 border border-gray-700 rounded-lg overflow-hidden">
+        <div class="bg-gray-950 border border-gray-700 mt-5 rounded-lg overflow-hidden">
           <div class="border-b border-gray-700 p-6">
-            <h3 class="text-xl font-semibold text-white">Project details</h3>
+            <h3 class="text-xl font-semibold text-white">Project Details</h3>
           </div>
 
           <form @submit.prevent="createProject" class="p-6">
@@ -102,24 +99,23 @@
                 <label for="projectLeader" class="block text-sm font-medium text-gray-400 mb-2">Project Leader</label>
                 <SelectWithIcon v-model="projectLeader" icon="user" placeholder="Select project leader" class="w-full"
                 :options="[
-    { label: 'Select your project leader', value: '' },
+    { label: 'Select the project leader', value: '' },
     ...departmentHead.map(leader => ({ label: leader.label, value: leader.value }))
   ]" />
               </div>
-
               <div>
-                <label for="status" class="block text-sm font-medium text-gray-400 mb-2">Status</label>
-                <SelectWithIcon v-model="status" icon="check-square" placeholder="Select status" class="w-full"
-                  :options="[
-                    { label: 'Select status', value: '' },
-                    { label: 'Inactive', value: 'inactive' },
-                    { label: 'Pending', value: 'pending' },
-                    { label: 'Active', value: 'active' }
-                  ]" />
+                <label for="priority" class="block text-sm font-medium text-gray-400 mb-2">Priority</label>
+                <SelectWithIcon v-model="priority" icon="flag" placeholder="Select priority" class="w-full" :options="[
+                  { label: 'Low', value: 1 },
+                  { label: 'Medium', value: 2 },
+                  { label: 'High', value: 3 },
+                  { label: 'Urgent', value: 4 }
+                ]" />
               </div>
+              
 
               <!-- Agrupar estos campos en una fila -->
-              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 col-span-1 md:col-span-2 lg:col-span-3">
+              <div class="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-3 gap-6 col-span-1 md:col-span-1 lg:col-span-3">
                 <div>
                   <label for="startDate" class="block text-sm font-medium text-gray-400 mb-2">Start Date</label>
                   <InputWithIcon v-model="startDate" icon="calendar" placeholder="Select start date" class="w-full"
@@ -138,15 +134,7 @@
                     type="number" />
                 </div>
 
-                <div>
-                  <label for="priority" class="block text-sm font-medium text-gray-400 mb-2">Priority</label>
-                  <SelectWithIcon v-model="priority" icon="flag" placeholder="Select priority" class="w-full" :options="[
-                    { label: 'Low', value: 1 },
-                    { label: 'Medium', value: 2 },
-                    { label: 'High', value: 3 },
-                    { label: 'Urgent', value: 4 }
-                  ]" />
-                </div>
+                
 
 
               </div>

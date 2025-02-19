@@ -1,6 +1,8 @@
 import { createApp, h } from 'vue'
 import { createInertiaApp } from '@inertiajs/vue3'
-
+import 'boxicons';
+import FloatingVue from 'floating-vue'
+import 'floating-vue/dist/style.css';
 //console.log(window.Inertia);
 
 createInertiaApp({
@@ -11,6 +13,7 @@ createInertiaApp({
   setup({ el, App, props, plugin }) {
     createApp({ render: () => h(App, props) })
       .use(plugin)
+      .use(FloatingVue)
       .mount(el)
   },
 })

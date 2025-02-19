@@ -45,8 +45,8 @@ class ProjectController extends Controller
         })->get(['id', 'name']);
     
         $statuses = Project::distinct()->pluck('status');
-    
-        return Inertia::render('ProjectManagement/Projects', [
+     
+        return Inertia::render('ProjectManagement/Project/Projects', [
             'projects' => $projects,
             'filters' => $filters,
             'user' => request()->user(),
@@ -56,21 +56,48 @@ class ProjectController extends Controller
         ]);
     }
 
-    public function show($id)
+    public function show($id, Request $request)
     {
-    
+        $searchMember = $request->query('searchMember');
+         
         $project = Project::with(['tasks', 'users'])->findOrFail($id);
         $project->load(['tasks.user']);
-        
-    if (!$project) {
-       
-        abort(404, 'Project not found');
+
+        $membersQuery = $project->users()->newQuery();  
+
+    if ($searchMember) {
+        $membersQuery->where('name', 'LIKE', "%$searchMember%");
     }
 
-        return Inertia::render('ProjectManagement/SingleProject', [
+    $members = $membersQuery->get();
+
+    if (!$project) { 
+        abort(404, 'Project not found');
+    }
+    
+    
+    $personalTasks = $project->tasks->filter(function ($task) {
+        return $task->user_id === auth()->id() && $task->status !== 'done';
+    });
+
+    // pending of change to all users FROM THE SAME DEPARTMENT
+    
+    $allUsers = User::whereNotIn('id', $members->pluck('id'))->get();
+
+    $totalCompletedTasks = $project->tasks->filter(function ($task) {
+        return $task->status === 'done';
+    })->count();
+
+
+        return Inertia::render('ProjectManagement/Project/SingleProject', [
             'project' => $project,
             'user' => request()->user(),
             'tasks' => $project->tasks,
+            'personalTasks' => $personalTasks,
+            'employees' => $members,
+            'searchQuery' => $request->input('searchMember', ''),
+            'allUsers' => $allUsers,
+            'tasksCompleted' => $totalCompletedTasks,
         ]);
     }
 
@@ -86,7 +113,7 @@ class ProjectController extends Controller
                 'label' => $user->name, 
             ];
         });
-        return Inertia::render('ProjectManagement/CreateProject', [
+        return Inertia::render('ProjectManagement/Project/CreateProject', [
             'users' => $users,
             'departmentHead' => $departmentHead,
             'user' => request()->user(),
@@ -122,11 +149,31 @@ class ProjectController extends Controller
             'is_public' => $request->is_public,
             'priority' => $request->priority,
             'description' => $request->description,
-            'attachments' => json_encode($request->attachments), // Asegúrate de manejar los archivos correctamente
+            'attachments' => json_encode($request->attachments), 
         ]);
 
 
         return redirect()->route('projects.index'); 
     }
+
+    public function storeMember(Request $request, $projectId)
+    {
+       
+        $user = $request->input('users');
+      
+        $usersId = array_map(function($user){
+            return $user['id'];
+        }, $request->input('users'));
+
+    
+        $project = Project::findOrFail($projectId); 
+    
+        
+        $project->users()->attach($usersId); 
+    
+      
+    }
+
+    
 
 }
