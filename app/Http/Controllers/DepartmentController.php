@@ -30,11 +30,14 @@ class DepartmentController extends Controller
         $department = Department::find($id);
         $search = request()->input('search', $search);
         $users = $department->users()->whereRaw('LOWER(name) like ?', ['%' . strtolower($search) . '%'])->orderBy('name', 'asc')->paginate(10);
+        $totalUsers = $department->users()->count();
+
 
         return Inertia::render('Users/SingleDepartment', [
             'user' => request()->user(),
             'department' => $department,
             'users' => $users->items(),
+            'totalUsers' => $totalUsers,
             'pagination' => $users,
             'department_managers' => $department->managers()->orderBy('name', 'asc')->get(),
             'projects' => $department->projects()->orderBy('name', 'asc')->get(),

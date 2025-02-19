@@ -23,6 +23,7 @@ const props = defineProps({
         required: true
     },
     pagination: Object,
+    totalUsers: Number
 });
 
 const filteredUsers = ref(props.users);
@@ -57,7 +58,7 @@ function changePage(page) {
             page = pagination.value.last_page;
         }
 
-        const query = new URLSearchParams(window.location.search).get('search') || ''; 
+        const query = new URLSearchParams(window.location.search).get('search') || '';
 
         router.get(`${url}?search=${query}&page=${page}`, {}, {
             preserveState: true,
@@ -67,7 +68,7 @@ function changePage(page) {
                 filteredUsers.value = page.props.users;
             }
         });
-        
+
     }, 300);
 }
 
@@ -123,23 +124,26 @@ function changePage(page) {
                 </ul>
                 <div class="flex justify-between items-center mt-4 align-self-end mt-auto">
                     <span class="text-gray-400">Page {{ pagination.current_page }} of {{ pagination.last_page }}</span>
-                    <div class="flex gap-2">
+                    <div class="flex gap-2 items-center">
                         <input type="number" v-model.number="pagination.current_page"
                             @input="changePage(pagination.current_page)"
                             class="w-16 text-center bg-gray-800 text-white rounded" :max="pagination.last_page"
                             :min="1" />
-                        <button :disabled="pagination.current_page <= 1"
-                            @click="changePage(pagination.current_page - 1)"
-                            :class="['px-4 py-2 rounded transition duration-300',
-                                pagination.current_page <= 1 ? 'bg-gray-700 text-gray-500 cursor-not-allowed' : 'bg-gray-800 text-white hover:bg-gray-700 cursor-pointer']">
-                            Previous
-                        </button>
-                        <button :disabled="pagination.current_page >= pagination.last_page"
-                            @click="changePage(pagination.current_page + 1)"
-                            :class="['px-4 py-2 rounded transition duration-300 ',
-                                pagination.current_page >= pagination.last_page ? 'bg-gray-700 text-gray-500 cursor-not-allowed' : 'bg-gray-800 text-white hover:bg-gray-700 cursor-pointer']">
-                            Next
-                        </button>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button :disabled="pagination.current_page <= 1"
+                                @click="changePage(pagination.current_page - 1)"
+                                :class="['px-4 py-2 rounded transition duration-300',
+                                    pagination.current_page <= 1 ? 'bg-gray-700 text-gray-500 cursor-not-allowed' : 'bg-gray-800 text-white hover:bg-gray-700 cursor-pointer']">
+                                Previous
+                            </button>
+                            <button :disabled="pagination.current_page >= pagination.last_page"
+                                @click="changePage(pagination.current_page + 1)"
+                                :class="['px-4 py-2 rounded transition duration-300 ',
+                                    pagination.current_page >= pagination.last_page ? 'bg-gray-700 text-gray-500 cursor-not-allowed' : 'bg-gray-800 text-white hover:bg-gray-700 cursor-pointer']">
+                                Next
+                            </button>
+                        </div>
+                        <span class="text-gray-400">Showing {{ filteredUsers.length }} of {{ props.totalUsers }}</span>
                     </div>
                 </div>
             </div>
@@ -154,7 +158,7 @@ function changePage(page) {
                     </li>
                     <li v-else v-for="project in projects" :key="project.id"
                         class="mt-2 hover:bg-secondary-light p-1 rounded transition duration-300 hover:cursor-pointer"
-                        @click="$inertia.visit(`/projects/${project.id}`)">
+                        @click="router.visit(`/projects/${project.id}`)">
 
                         <div class="flex items-center gap-4 p-2 bg-gray-900 rounded">
                             <div>
