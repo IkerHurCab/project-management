@@ -14,6 +14,10 @@ const props = defineProps({
         type: Array,
         required: true
     },
+    filteredAvailableUsers: {
+        type: Array,
+        required: true
+    },
     department_managers: {
         type: Array,
         required: true
@@ -27,25 +31,38 @@ const props = defineProps({
 });
 
 const filteredUsers = ref(props.users);
+const filteredAvailableUsers = ref(props.filteredAvailableUsers);
 const pagination = ref(props.pagination);
+const searchQuery = ref('');
+const searchAvailableUsersQuery = ref('');
+
+const showActions = ref(false);
 
 let timeout = null;
 const url = '/departments/' + props.department.id;
 
-function searchMembers(event) {
+function searchUsers(event, type) {
     clearTimeout(timeout);
     timeout = setTimeout(() => {
         const query = event.target.value.toLowerCase();
+        const search = type === 'members' ? query : searchQuery.value;
+        const searchAvailableUsers = type === 'available' ? query : searchAvailableUsersQuery.value;
 
-        router.get(`${url}?search=${query}&page=1`, {}, {
+        router.get(`${url}?search=${search}&searchAvailableUsers=${searchAvailableUsers}&page=1`, {}, {
             preserveState: true,
             preserveScroll: true,
             onSuccess: (page) => {
                 filteredUsers.value = page.props.users;
                 pagination.value = page.props.pagination;
+                filteredAvailableUsers.value = page.props.filteredAvailableUsers;
             }
         });
     }, 300);
+}
+
+
+function addUser(id) {
+    console.log(id);
 }
 
 
@@ -74,12 +91,24 @@ function changePage(page) {
 
 
 
+//modals
+
+const modalAddMember = ref(false);
+const modalKickMember = ref(false);
+
+
+
 
 </script>
 
 <template>
     <Layout :pageTitle="department.name" class="px-8">
-
+        <div class="flex justify-end items-center mt-2">
+            <div class="flex gap-2">
+                <h1 class="bg-white text-black py-2 px-4 rounded-lg mb-2 cursor-pointer transition duration-300 hover:bg-gray-300"
+                    @click="modalAddMember = true">Add member</h1>
+            </div>
+        </div>
         <div class="grid grid-cols-3 grid-rows-2 gap-4">
             <div class="col-span-2 rounded-2xl bg-gray-900 p-4 row-span-1">
                 <h1 class="text-lg">{{ department.description }}</h1>
@@ -95,32 +124,47 @@ function changePage(page) {
                     <box-icon name='user' color="white" class="w-5 h-5"></box-icon>
                     <h1 class="text-xl text-center">Members</h1>
                 </div>
-                <InputWithIcon icon="search" placeholder="Search members" class="h-10 w-full"
-                    @keyup.stop="searchMembers" />
+                <InputWithIcon v-model="searchQuery" icon="search" placeholder="Search members" class="h-10 w-full"
+                    @keyup.stop="searchUsers" />
                 <ul class="mt-4 max-h-152 overflow-y-auto custom-scrollbar">
-                    <li v-if="props.users.length === 0"
+                    <li v-if="filteredUsers.length === 0"
                         class="text-gray-400 flex items-center justify-center gap-2 overflow-hidden">
                         <box-icon name='error-circle' color="#9CA3AF"></box-icon>
                         No members found.
                     </li>
-                    <li v-else v-for="user in filteredUsers" :key="user.id"
-                        class="mt-2 hover:bg-gray-800 p-1 transition duration-300 hover:cursor-pointer">
-                        <div class="flex items-center gap-4">
-                            <div
-                                class="border border-gray-700 rounded-full relative w-10 h-10 flex items-center justify-center bg-gray-600">
-                                <span class="text-white text-lg font-bold">
-                                    {{ user.name.charAt(0).toUpperCase() }}
-                                </span>
-                                <div class="border border-gray-700 absolute w-2 h-2 rounded-full top-7 right-0" :class="{
-                                    'bg-yellow-500': user.status === 'away',
-                                    'bg-green-500': user.status === 'online',
-                                    'bg-gray-900': user.status === 'offline'
-                                }">
+                    <div v-else>
+                        <li v-for="user in filteredUsers" :key="user.id"
+                            class="mt-2 hover:bg-gray-800 p-1 transition duration-300 hover:cursor-pointer"
+                            @mouseover.stop="[showActions = true, hoveredUserId = user.id]"
+                            @mouseleave.stop="showActions = false">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-4">
+                                    <div
+                                        class="border border-gray-700 rounded-full relative w-10 h-10 flex items-center justify-center bg-gray-600">
+                                        <span class="text-white text-lg font-bold">
+                                            {{ user.name.charAt(0).toUpperCase() }}
+                                        </span>
+                                        <div class="border border-gray-700 absolute w-2 h-2 rounded-full top-7 right-0"
+                                            :class="{
+                                                'bg-yellow-500': user.status === 'away',
+                                                'bg-green-500': user.status === 'online',
+                                                'bg-gray-900': user.status === 'offline'
+                                            }">
+                                        </div>
+                                    </div>
+                                    <span class="text-sm sm:text-base">{{ user.name }}</span>
                                 </div>
+
+                                <transition name="fade">
+                                    <div v-if="showActions && user.id === hoveredUserId"
+                                    class="flex gap-2">
+                                        <box-icon name="door-open" color="red"
+                                        @click = "modalKickMember = true"></box-icon>
+                                    </div>
+                                </transition>
                             </div>
-                            <span class="text-sm sm:text-base">{{ user.name }}</span>
-                        </div>
-                    </li>
+                        </li>
+                    </div>
                 </ul>
                 <div class="flex justify-between items-center mt-4 align-self-end mt-auto">
                     <span class="text-gray-400">Page {{ pagination.current_page }} of {{ pagination.last_page }}</span>
@@ -192,6 +236,44 @@ function changePage(page) {
                 </ul>
             </div>
         </div>
+
+        <!--modals-->
+        <div v-if = "modalAddMember">
+            <div class="fixed inset-0 flex items-center justify-center bg-black/50" @click="modalAddMember = false">
+                <div class="bg-gray-800 p-8 rounded-lg shadow-lg w-1/3" @click.stop>
+                    <h2 class="text-xl font-bold mb-4">Add Member</h2>
+                    <p class="mb-4">Select the members you want to add</p>
+                    <InputWithIcon v-model="searchAvailableUsersQuery" icon="search" placeholder="Search available members" class="h-10 w-full" @keyup.stop="searchUsers" />
+                    <ul class="my-4 max-h-52 overflow-y-auto custom-scrollbar">
+                        <li v-if="filteredAvailableUsers.length === 0" class="text-gray-400 flex items-center justify-center gap-2 overflow-hidden">
+                            <box-icon name='error-circle' color="#9CA3AF"></box-icon>
+                            No members found.
+                        </li>
+                        <div v-else>
+                            <li v-for="user in filteredAvailableUsers" :key="user.id" class="mt-2 hover:bg-gray-700 p-1 transition duration-300 hover:cursor-pointer"
+                            @click="addUser(user.id)">
+                                <div class="flex items-center gap-4">
+                                    <div class="border border-gray-700 rounded-full relative w-10 h-10 flex items-center justify-center bg-gray-600">
+                                        <span class="text-white text-lg font-bold">{{ user.name.charAt(0).toUpperCase() }}</span>
+                                    </div>
+                                    <span class="text-sm sm:text-base">{{ user.name }}</span>
+                                </div>
+                            </li>
+                        </div>
+                    </ul>
+                    <div class="grid grid-cols-2 gap-4">
+                        <button @click="modalAddMember = false"
+                            class="bg-red-500 text-white px-4 py-2 rounded hover:cursor-pointer hover:bg-red-600">Close</button>
+                        <button @click="addMember"
+                            class="bg-gray-600 hover:cursor-pointer hover:bg-gray-700 text-white px-4 py-2 rounded">Add</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div v-if = "modalKickMember">
+            
+        </div>
+
     </Layout>
 </template>
 
@@ -222,5 +304,13 @@ input[type="number"]::-webkit-inner-spin-button {
 
 input[type="number"] {
     -moz-appearance: textfield;
+}
+
+.fade-enter-active, .fade-leave-active {
+    transition: opacity 0.3s;
+}
+
+.fade-enter-from, .fade-leave-to {
+    opacity: 0;
 }
 </style>

@@ -4,19 +4,50 @@ import InputWithIcon from '@/Components/InputWithIcon.vue';
 
 import { ref } from 'vue';
 import { usePage } from '@inertiajs/vue3';
+import { router } from '@inertiajs/vue3';
 
 const isIconRotated = ref(false);
 const isIconRotated2 = ref(false);
 
 const user_departments = ref(usePage().props.user_departments);
 const other_departments = ref(usePage().props.other_departments);
+const projects_count = ref(usePage().props.projects_count);
 
-function searchMyDepartments() {
+//modals
+const modalCreateDepartment = ref(false);
 
+
+
+
+let timeout = null;
+
+function searchMyDepartments(event) {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => {
+        const query = event.target.value.toLowerCase();
+        router.get(`/departments?searchMyDepartments=${query}`, {}, {
+            preserveState: true,
+            preserveScroll: true,
+            onSuccess: (page) => {
+                user_departments.value = page.props.user_departments;
+            }
+        });
+    }, 300);
 }
 
-function searchOtherDepartments() {
-    console.log('Searching other departments...');
+
+function searchOtherDepartments(event) {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => {
+        const query = event.target.value.toLowerCase();
+        router.get(`/departments?searchOtherDepartments=${query}`, {}, {
+            preserveState: true,
+            preserveScroll: true,
+            onSuccess: (page) => {
+                other_departments.value = page.props.other_departments;
+            }
+        });
+    }, 300);
 }
 
 function singleDepartment(departmentId) {
@@ -38,11 +69,8 @@ const isPopupVisible = ref(false);
             <InputWithIcon icon="search" placeholder="Search departments" @input.stop="searchMyDepartments"
                 class="focus:border-white" />
             <div class="flex gap-2">
-                <h1 class="bg-gray-900 py-2 px-4 rounded-lg mb-2 cursor-pointer flex items-center gap-2 hover:bg-gray-700 transition duration-300"
-                    @mouseover="isIconRotated = true" @mouseleave="isIconRotated = false">
-                    <box-icon :class="{'rotate-180': isIconRotated, 'transition duration-300': true}" name='filter' color="white"></box-icon> Filter
-                </h1>
-                <h1 class="bg-white text-black py-2 px-4 rounded-lg mb-2 cursor-pointer transition duration-300">Add department</h1>
+                <h1 class="bg-white text-black py-2 px-4 rounded-lg mb-2 cursor-pointer transition duration-300"
+                    @click="modalCreateDepartment = true">Create department</h1>
             </div>
         </div>
 
@@ -57,13 +85,19 @@ const isPopupVisible = ref(false);
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="department in user_departments" :key="department.id"
+                    <tr v-if="user_departments.length === 0"
+                    class="border-b border-gray-900 bg-gray-950">
+                        <td class="p-4" colspan="4">No departments found.</td>
+                    </tr>
+                    <tr v-else v-for="department in user_departments" :key="department.id"
                         @click="singleDepartment(department.id)"
                         class="hover:bg-gray-900 transition duration-300 hover:cursor-pointer border-b border-gray-900 bg-gray-950">
                         <td class="p-4">{{ department.name }}</td>
                         <td class="p-4">{{ department.description }}</td>
                         <td class="p-4">{{ department.users_count }}</td>
-                        <td class="p-4"></td>
+                        <td class="p-4">
+                            {{ projects_count[department.name] }}
+                        </td>
                     </tr>
                 </tbody>
             </table>
@@ -72,13 +106,6 @@ const isPopupVisible = ref(false);
         <div class="flex justify-between items-center mt-2">
             <InputWithIcon icon="search" placeholder="Search departments" @input.stop="searchOtherDepartments"
                 class="focus:border-white focus:ring-white" />
-            <div class="flex items-center gap-2">
-                <h1 class="bg-gray-900  py-2 px-4 rounded-lg mb-2 cursor-pointer flex items-center gap-2 hover:bg-gray-700 transtion duration-300"
-                @mouseover="isIconRotated2 = true" @mouseleave="isIconRotated2 = false">
-                    <box-icon :class="{'rotate-180': isIconRotated2, 'transition duration-300': true}" name='filter' color="white"></box-icon> Filter
-                </h1>
-                <h1 class="bg-white text-black py-2 px-4 rounded-lg mb-2 cursor-pointer transition duration-300 hover:bg-gray-300">Add department</h1>
-            </div>
         </div>
         <div class="overflow-x-auto rounded-lg mt-4">
             <table class="w-full">
@@ -91,12 +118,18 @@ const isPopupVisible = ref(false);
                     </tr>
                 </thead>
                 <tbody class="bg-gray-950 ">
-                    <tr v-for="department in other_departments" :key="department.id" @click="isPopupVisible = true"
+                    <tr v-if="other_departments.length === 0"
+                    class="border-b border-gray-900 bg-gray-950">
+                        <td class="p-4" colspan="4">No departments found.</td>
+                    </tr>
+                    <tr v-else v-for="department in other_departments" :key="department.id" @click="isPopupVisible = true"
                         class="hover:bg-gray-900 transition duration-300 hover:cursor-pointer border-b border-gray-900">
                         <td class="p-4">{{ department.name }}</td>
                         <td class="p-4">{{ department.description }}</td>
                         <td class="p-4">{{ department.users_count }}</td>
-                        <td></td>
+                        <td class="p-4">
+                            <span class="text-red-500">?</span>
+                        </td>
                     </tr>
                 </tbody>
             </table>
@@ -113,6 +146,23 @@ const isPopupVisible = ref(false);
                         <button @click.stop="requestAccess"
                             class="bg-gray-600 hover:cursor-pointer hover:bg-gray-700 text-white px-4 py-2 rounded">Request
                             Access</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div v-if="modalCreateDepartment">
+            <div v-if="modalCreateDepartment"
+                class="fixed inset-0 flex items-center justify-center bg-black/50 transition duration-300"
+                @click.stop="modalCreateDepartment = false" @esc.ctrl="modalCreateDepartment = false">
+                <div class="bg-gray-800 p-8 rounded-lg shadow-lg w-1/3" @click.stop="modalCreateDepartment = true">
+                    <h2 class="text-xl font-bold mb-4">Create Department</h2>
+                    <p class="mb-4">Fill in the details to create a new department.</p>
+                    <div class="grid grid-cols-2 gap-4">
+                        <button @click.stop="modalCreateDepartment = false"
+                            class="bg-red-500 text-white px-4 py-2 rounded hover:cursor-pointer hover:bg-red-600">Close</button>
+                        <button @click.stop="requestAccess"
+                            class="bg-gray-600 hover:cursor-pointer hover:bg-gray-700 text-white px-4 py-2 rounded">Create</button>
                     </div>
                 </div>
             </div>

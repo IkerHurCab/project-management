@@ -3,6 +3,7 @@
 namespace App\Models\ProjectManagement;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Users\Department;
 
 class Project extends Model
 {
