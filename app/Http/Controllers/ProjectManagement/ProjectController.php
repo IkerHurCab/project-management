@@ -7,9 +7,11 @@ use App\Http\Controllers\Controller;
 use Inertia\Inertia;
 use App\Models\ProjectManagement\Project;
 use App\Models\ProjectManagement\Task;
+use App\Models\ProjectManagement\ProjectDocumentation;
 use App\Models\User;
 use Spatie\Permission\Models\Role;
 use Inertia\Response;
+
 
 
 class ProjectController extends Controller
@@ -58,6 +60,7 @@ class ProjectController extends Controller
 
     public function show($id, Request $request)
     {
+    
         $searchMember = $request->query('searchMember');
          
         $project = Project::with(['tasks', 'users'])->findOrFail($id);
@@ -88,17 +91,29 @@ class ProjectController extends Controller
         return $task->status === 'done';
     })->count();
 
+    $documentation = ProjectDocumentation::where('project_id', $id)->get();
 
-        return Inertia::render('ProjectManagement/Project/SingleProject', [
-            'project' => $project,
-            'user' => request()->user(),
-            'tasks' => $project->tasks,
-            'personalTasks' => $personalTasks,
-            'employees' => $members,
-            'searchQuery' => $request->input('searchMember', ''),
-            'allUsers' => $allUsers,
-            'tasksCompleted' => $totalCompletedTasks,
-        ]);
+    $activeTab = $request->session()->get('activeTab', '');
+    $openSingleDoc = $request->session()->get('openSingleDoc', false);
+    $createDoc = $request->session()->get('createDoc', false);
+
+
+
+    return Inertia::render('ProjectManagement/Project/SingleProject', [
+        'project' => $project,
+        'user' => request()->user(),
+        'tasks' => $project->tasks,
+        'personalTasks' => $personalTasks,
+        'employees' => $members,
+        'searchQuery' => $request->input('searchMember', ''),
+        'allUsers' => $allUsers,
+        'tasksCompleted' => $totalCompletedTasks,
+        'documentations' => $documentation,
+        'activeTab' => $activeTab,
+        'openSingleDoc' => $openSingleDoc,  // Pasando el valor a Vue
+        'createDoc' => $createDoc, 
+ 
+    ]);
     }
 
     public function create()

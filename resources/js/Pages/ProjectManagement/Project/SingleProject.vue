@@ -9,12 +9,17 @@
   import InputWithIcon from '@/Components/InputWithIcon.vue';
   import CreateTaskModal from '@/Pages/ProjectManagement/Task/CreateTaskModal.vue';
   import AddMemberModal from '@/Pages/ProjectManagement/Project/AddMemberModal.vue';
+  import ProjectDocumentation from '@/Pages/ProjectManagement/Project/ProjectDocumentation.vue';
+ 
+  
 
 
 
   import TaskList from '@/Pages/ProjectManagement/Task/TaskList.vue';
   import 'boxicons';
 
+
+  
   const props = defineProps({
     tasksCompleted: {
       type: Number,
@@ -45,12 +50,21 @@
     personalTasks: {
       type: Array,
     },
+    documentations: {
+      type: Array,
+    },
+    activeTab: {
+      type: String,
+    },
+    openSingleDoc: {
+      type: Boolean
+    },
 
   });
+  
  
   const taskCount = computed(() => props.tasks.length);
 
-  console.log(props.tasks)
 
   const formatDate = (date) => {
     return new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
@@ -62,7 +76,7 @@
   })
 
  
-  const activeTab = ref('overview');
+  const activeTab = ref(props.activeTab || 'overview');
   const chartOptions = computed(() => ({
     chart: {
       type: 'donut',
@@ -188,8 +202,11 @@
 
 
   const isCreateTaskModalOpen = ref(false);
+ 
   const isModalOpen = ref(false);
   const allMembers = ref([]);
+ 
+ 
 
   const openCreateTaskModal = () => {
     isCreateTaskModalOpen.value = true;
@@ -388,13 +405,13 @@
             </div>
           </div>
 
-          <div v-if="activeTab === 'documentation'">
-            <ProjectDocumentation :project /> 
+          <div v-if="activeTab === 'documentation'" class="flex justify-center w-full flex-col rounded-lg overflow-auto">
+           <ProjectDocumentation :project="project" :createDoc="createDoc" :openSingleDoc="openSingleDoc"  :documentations="documentations"/> 
           </div>
         </div>
 
         <!-- Right Sidebar -->
-        <div class="w-96 bg-gray-950  right-0 border-l border-gray-700 overflow-y-auto">
+        <div class="w-[20%] bg-gray-950  right-0 border-l border-gray-700 overflow-y-auto">
           <div class="p-6 space-y-8">
             <div>
               <h3 class="text-lg font-semibold text-white mb-4">Project Progress</h3>
@@ -458,6 +475,6 @@
       @add-members="handleAddMembers" />
     <CreateTaskModal :is-open="isCreateTaskModalOpen" :project-id="project.id" :employees="employees"
       @close="closeCreateTaskModal" />
-
+     
   </Layout>
 </template>

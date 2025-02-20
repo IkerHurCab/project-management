@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();  // ID auto incrementable
             $table->foreignId('project_id')->constrained('project')->onDelete('cascade');  // Relación con la tabla project
             $table->string('title');  // Título de la documentación
+            $table->text('summary');  // Título de la documentación
             $table->text('content');  // Contenido en Markdown
             $table->foreignId('created_by')->constrained('users')->onDelete('cascade');  // Usuario que creó la documentación
             $table->timestamps();  // created_at, updated_at

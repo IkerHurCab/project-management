@@ -8,6 +8,7 @@ use App\Http\Controllers\HeaderController;
 use App\Http\Controllers\ProjectManagement\TaskController;
 use App\Http\Controllers\ProjectManagement\TaskLogController;
 use App\Http\Controllers\ProjectManagement\CommentController;
+use App\Http\Controllers\ProjectManagement\ProjectDocumentationController;
 
 
 
@@ -38,6 +39,13 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('projects/{projectId}/search-member', [ProjectController::class, 'searchMember'])->name('projects.search-member');
     Route::post('projects/{projectId}/new-members', [ProjectController::class, 'storeMember'])->name('projects.new-member');
 
+    Route::post('projects/{projectId}/documentation', [ProjectDocumentationController::class, 'store'])->name('documentation.store');;
+    Route::put('projects/{projectId}/documentation/{documentationId}', [ProjectDocumentationController::class, 'update'])->name('documentation.update');
+    Route::delete('/projects/{projectId}/documentation/{documentId}', [ProjectDocumentationController::class, 'destroy']);
+
+    
+  
+    
     Route::post('projects/{projectId}/tasks/{taskId}/update-status', [TaskController::class, 'updateStatus'])->name('tasks.update-status');
     Route::post('projects/{projectId}/tasks/', [TaskController::class, 'store'])->name('tasks.store');
     Route::get('projects/{projectId}/task/{taskId}', [TaskController::class, 'show'])->name('tasks.show');
@@ -46,6 +54,8 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::post('projects/{projectId}/task/{taskId}/comment', [CommentController::class, 'store'])->name('comment.store');
 
+  
+    
     Route::get('logout', function () {
         Auth::logout();
         return redirect()->route('login');

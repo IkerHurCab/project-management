@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\ProjectManagement;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -16,12 +16,13 @@ class ProjectDocumentation extends Model
     protected $fillable = [
         'project_id',
         'title',
+        'summary',
         'content',
         'created_by',
         'is_public',
     ];
 
-    // Definimos la relación con el modelo Project (uno a muchos)
+   
     public function project()
     {
         return $this->belongsTo(Project::class);
