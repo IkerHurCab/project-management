@@ -25,9 +25,12 @@ Route::group(['middleware' => 'auth'], function () {
         return Inertia::render('ProjectManagement/Projects');
     })->name('projects');
     Route::get('/departments', [DepartmentController::class, 'show'])->name('departments');
+    Route::post('/departments', [DepartmentController::class, 'store'])->name('departments.store');
     
     Route::get('/departments/{id}', [DepartmentController::class, 'showSingle'])->name('departments.showSingle')
     ->middleware(CheckDepartmentAccess::class);
+
+    Route::post('/departments/{id}/addUser', [DepartmentController::class, 'addUser']);
 });
 
 Route::middleware(['guest'])->group(function () {

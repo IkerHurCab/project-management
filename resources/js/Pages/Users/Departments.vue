@@ -6,18 +6,36 @@ import { ref } from 'vue';
 import { usePage } from '@inertiajs/vue3';
 import { router } from '@inertiajs/vue3';
 
-const isIconRotated = ref(false);
-const isIconRotated2 = ref(false);
-
 const user_departments = ref(usePage().props.user_departments);
 const other_departments = ref(usePage().props.other_departments);
 const projects_count = ref(usePage().props.projects_count);
+const users = ref(usePage().props.users);
 
 //modals
 const modalCreateDepartment = ref(false);
 
+//v-models
+const newDepartmentName = ref('');
+const newDepartmentDescription = ref('');
+const departmentHead = ref();
 
-
+//funciones
+function createDepartment(){
+    router.post('/departments', {
+        name: newDepartmentName.value,
+        description: newDepartmentDescription.value,
+        department_head: departmentHead.value,
+        preserveState: true,
+        preserveScroll: true,
+    }, {
+        onSuccess: (page) => {
+            user_departments.value = page.props.user_departments;
+            modalCreateDepartment.value = false;
+            newDepartmentName.value = '';
+            newDepartmentDescription.value = '';
+        }
+    });
+}
 
 let timeout = null;
 
@@ -34,7 +52,6 @@ function searchMyDepartments(event) {
         });
     }, 300);
 }
-
 
 function searchOtherDepartments(event) {
     clearTimeout(timeout);
@@ -85,8 +102,7 @@ const isPopupVisible = ref(false);
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-if="user_departments.length === 0"
-                    class="border-b border-gray-900 bg-gray-950">
+                    <tr v-if="user_departments.length === 0" class="border-b border-gray-900 bg-gray-950">
                         <td class="p-4" colspan="4">No departments found.</td>
                     </tr>
                     <tr v-else v-for="department in user_departments" :key="department.id"
@@ -118,11 +134,11 @@ const isPopupVisible = ref(false);
                     </tr>
                 </thead>
                 <tbody class="bg-gray-950 ">
-                    <tr v-if="other_departments.length === 0"
-                    class="border-b border-gray-900 bg-gray-950">
+                    <tr v-if="other_departments.length === 0" class="border-b border-gray-900 bg-gray-950">
                         <td class="p-4" colspan="4">No departments found.</td>
                     </tr>
-                    <tr v-else v-for="department in other_departments" :key="department.id" @click="isPopupVisible = true"
+                    <tr v-else v-for="department in other_departments" :key="department.id"
+                        @click="isPopupVisible = true"
                         class="hover:bg-gray-900 transition duration-300 hover:cursor-pointer border-b border-gray-900">
                         <td class="p-4">{{ department.name }}</td>
                         <td class="p-4">{{ department.description }}</td>
@@ -158,10 +174,25 @@ const isPopupVisible = ref(false);
                 <div class="bg-gray-800 p-8 rounded-lg shadow-lg w-1/3" @click.stop="modalCreateDepartment = true">
                     <h2 class="text-xl font-bold mb-4">Create Department</h2>
                     <p class="mb-4">Fill in the details to create a new department.</p>
+                    <div class="mb-4">
+                        <label for="name" class="block text-sm font-medium text-gray-300">Name</label>
+                        <input v-model="newDepartmentName" id="name" type="text" placeholder="Department name" class="mt-1 p-1 block w-full rounded-md border-gray-700 bg-gray-700 text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
+                    </div>
+                    <div class="mb-4">
+                        <label for="description" class="block text-sm font-medium text-gray-300">Description</label>
+                        <textarea v-model="newDepartmentDescription" id="description" rows="3" placeholder="Department description" class="mt-1 p-1 block w-full rounded-md border-gray-700 bg-gray-700 text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500"></textarea>
+                    </div>
+                    <div class="mb-4">
+                        <label for="department_head" class="block text-sm font-medium text-gray-300">Department Head</label>
+                        <select v-model="departmentHead" id="department_head" class="mt-1 p-1 block w-full rounded-md border-gray-700 bg-gray-700 text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                            <option disabled value="">Select a department head</option>
+                            <option v-for="user in users" :key="user.id" :value="user.id">{{ user.name }}</option>
+                        </select>
+                    </div>
                     <div class="grid grid-cols-2 gap-4">
                         <button @click.stop="modalCreateDepartment = false"
                             class="bg-red-500 text-white px-4 py-2 rounded hover:cursor-pointer hover:bg-red-600">Close</button>
-                        <button @click.stop="requestAccess"
+                        <button @click.stop="createDepartment"
                             class="bg-gray-600 hover:cursor-pointer hover:bg-gray-700 text-white px-4 py-2 rounded">Create</button>
                     </div>
                 </div>

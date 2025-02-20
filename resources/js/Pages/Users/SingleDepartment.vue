@@ -35,6 +35,7 @@ const filteredAvailableUsers = ref(props.filteredAvailableUsers);
 const pagination = ref(props.pagination);
 const searchQuery = ref('');
 const searchAvailableUsersQuery = ref('');
+const selectedUsers = ref([]);
 
 const showActions = ref(false);
 
@@ -44,7 +45,6 @@ const url = '/departments/' + props.department.id;
 function searchUsers(event, type) {
     clearTimeout(timeout);
     timeout = setTimeout(() => {
-        const query = event.target.value.toLowerCase();
         const search = type === 'members' ? query : searchQuery.value;
         const searchAvailableUsers = type === 'available' ? query : searchAvailableUsersQuery.value;
 
@@ -53,18 +53,55 @@ function searchUsers(event, type) {
             preserveScroll: true,
             onSuccess: (page) => {
                 filteredUsers.value = page.props.users;
-                pagination.value = page.props.pagination;
+                pagination.value.current_page = 1;
                 filteredAvailableUsers.value = page.props.filteredAvailableUsers;
+                filteredAvailableUsers.value = filteredAvailableUsers.value.filter(user => !selectedUsers.value.some(selectedUser => selectedUser.id === user.id));
             }
         });
     }, 300);
+
 }
 
 
-function addUser(id) {
-    console.log(id);
+function addUser(user) {
+    selectedUsers.value.push(user);
+    const index = filteredAvailableUsers.value.findIndex(u => u.id === user.id);
+    if (index !== -1) {
+        filteredAvailableUsers.value.splice(index, 1);
+    }
 }
 
+function addMembers(members) {
+        members.forEach(member => {
+            router.post(`${url}/addUser`, { user_id: member.id }, {
+            preserveState: true,
+            preserveScroll: true,
+            onSuccess: (page) => {
+                closeAddMemberModal();
+            }
+        });
+        });
+    
+}
+
+function removeSelectedUser(user) {
+    const index = selectedUsers.value.findIndex(u => u.id === user.id);
+    if (index !== -1) {
+        selectedUsers.value.splice(index, 1);
+        filteredAvailableUsers.value.push(user);
+    }
+}
+
+function closeAddMemberModal(){
+    selectedUsers.value.forEach(user => {
+        filteredAvailableUsers.value.push(user);
+    });
+    selectedUsers.value = [];
+    modalAddMember.value = false;
+    searchAvailableUsersQuery.value = '';
+
+    searchUsers();
+}
 
 
 
@@ -156,10 +193,9 @@ const modalKickMember = ref(false);
                                 </div>
 
                                 <transition name="fade">
-                                    <div v-if="showActions && user.id === hoveredUserId"
-                                    class="flex gap-2">
+                                    <div v-if="showActions && user.id === hoveredUserId" class="flex gap-2">
                                         <box-icon name="door-open" color="red"
-                                        @click = "modalKickMember = true"></box-icon>
+                                            @click="modalKickMember = true"></box-icon>
                                     </div>
                                 </transition>
                             </div>
@@ -238,23 +274,46 @@ const modalKickMember = ref(false);
         </div>
 
         <!--modals-->
-        <div v-if = "modalAddMember">
-            <div class="fixed inset-0 flex items-center justify-center bg-black/50" @click="modalAddMember = false">
-                <div class="bg-gray-800 p-8 rounded-lg shadow-lg w-1/3" @click.stop>
+        <div v-if="modalAddMember">
+            <div class="fixed inset-0 flex items-center justify-center bg-black/50" @click="closeAddMemberModal">
+                <div class="bg-gray-800 p-8 rounded-lg shadow-lg w-2/3" @click.stop>
                     <h2 class="text-xl font-bold mb-4">Add Member</h2>
                     <p class="mb-4">Select the members you want to add</p>
-                    <InputWithIcon v-model="searchAvailableUsersQuery" icon="search" placeholder="Search available members" class="h-10 w-full" @keyup.stop="searchUsers" />
+
+                    <div class="flex gap-4 flex-wrap items-center mb-4 ">
+                        <div v-for="user in selectedUsers" :key="user.id"
+                            class="flex  items-center gap-1 bg-gray-700 p-1 rounded-full min-w-fit">
+
+                            <div
+                                class="border border-gray-700 rounded-full h-7 w-7 flex items-center justify-center bg-gray-600">
+                                <span class="text-white text-sm font-bold">{{ user.name.charAt(0).toUpperCase()
+                                    }}</span>
+                            </div>
+                            <span class="text-xs sm:text-sm">{{ user.name }}</span>
+                            <box-icon name="x" color="white" size="sm" class="cursor-pointer"
+                                @click="removeSelectedUser(user)"></box-icon>
+
+                        </div>
+                    </div>
+
+                    <InputWithIcon v-model="searchAvailableUsersQuery" icon="search"
+                        placeholder="Search available members" class="h-10 w-full" @keyup.stop="searchUsers" />
+
                     <ul class="my-4 max-h-52 overflow-y-auto custom-scrollbar">
-                        <li v-if="filteredAvailableUsers.length === 0" class="text-gray-400 flex items-center justify-center gap-2 overflow-hidden">
+                        <li v-if="filteredAvailableUsers.length === 0"
+                            class="text-gray-400 flex items-center justify-center gap-2 overflow-hidden">
                             <box-icon name='error-circle' color="#9CA3AF"></box-icon>
                             No members found.
                         </li>
                         <div v-else>
-                            <li v-for="user in filteredAvailableUsers" :key="user.id" class="mt-2 hover:bg-gray-700 p-1 transition duration-300 hover:cursor-pointer"
-                            @click="addUser(user.id)">
+                            <li v-for="user in filteredAvailableUsers" :key="user.id"
+                                class="mt-2 hover:bg-gray-700 p-1 transition duration-300 hover:cursor-pointer"
+                                @click="addUser(user)">
                                 <div class="flex items-center gap-4">
-                                    <div class="border border-gray-700 rounded-full relative w-10 h-10 flex items-center justify-center bg-gray-600">
-                                        <span class="text-white text-lg font-bold">{{ user.name.charAt(0).toUpperCase() }}</span>
+                                    <div
+                                        class="border border-gray-700 rounded-full relative w-10 h-10 flex items-center justify-center bg-gray-600">
+                                        <span class="text-white text-lg font-bold">{{ user.name.charAt(0).toUpperCase()
+                                            }}</span>
                                     </div>
                                     <span class="text-sm sm:text-base">{{ user.name }}</span>
                                 </div>
@@ -262,16 +321,16 @@ const modalKickMember = ref(false);
                         </div>
                     </ul>
                     <div class="grid grid-cols-2 gap-4">
-                        <button @click="modalAddMember = false"
+                        <button @click="closeAddMemberModal"
                             class="bg-red-500 text-white px-4 py-2 rounded hover:cursor-pointer hover:bg-red-600">Close</button>
-                        <button @click="addMember"
+                        <button @click="addMembers(selectedUsers)"
                             class="bg-gray-600 hover:cursor-pointer hover:bg-gray-700 text-white px-4 py-2 rounded">Add</button>
                     </div>
                 </div>
             </div>
         </div>
-        <div v-if = "modalKickMember">
-            
+        <div v-if="modalKickMember">
+
         </div>
 
     </Layout>
@@ -306,11 +365,13 @@ input[type="number"] {
     -moz-appearance: textfield;
 }
 
-.fade-enter-active, .fade-leave-active {
+.fade-enter-active,
+.fade-leave-active {
     transition: opacity 0.3s;
 }
 
-.fade-enter-from, .fade-leave-to {
+.fade-enter-from,
+.fade-leave-to {
     opacity: 0;
 }
 </style>

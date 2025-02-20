@@ -1,5 +1,7 @@
 import { createApp, h } from 'vue'
 import { createInertiaApp } from '@inertiajs/vue3'
+import { router } from '@inertiajs/vue3'
+
 
 createInertiaApp({
   resolve: name => {
@@ -12,3 +14,17 @@ createInertiaApp({
       .mount(el)
   },
 })
+
+const style = document.createElement('style')
+style.textContent = `
+  #nprogress { 
+    display: none; 
+    pointer-events: none;
+  }
+  #nprogress .bar, 
+  #nprogress .spinner,
+  #nprogress .peg {
+    display: none;
+  }
+`
+document.head.appendChild(style)
