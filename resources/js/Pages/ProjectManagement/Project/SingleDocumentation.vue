@@ -1,58 +1,59 @@
-<script>
-  import Markdown from 'vue3-markdown-it';
-  import 'highlight.js/styles/monokai.css';
-  
-  export default {
-    components: {
-      Markdown
-    },
-    data() {
-      return {
-        source: '# __Hello World!__'
-      }
+<script setup>
+  import { defineProps } from 'vue';
+  import Markdown from 'vue3-markdown-it';  
+  import hljs from 'highlight.js';  
+
+  import 'highlight.js/styles/github.css'; 
+
+
+  const props = defineProps({
+    selectedDocumentation: {
+      type: Object,
+      required: true,
     }
-  }
-  </script>
+  });
+
+  const source = props.selectedDocumentation.content;
+
+
+  const options = {
+    highlight: (str, lang) => {
+      if (lang && hljs.getLanguage(lang)) {
+        try {
+          return hljs.highlight(str, { language: lang }).value;
+        } catch (err) {
+          console.error(err);
+        }
+      }
+      return '';
+    }
+  };
+
+ 
+</script>
+
 <template>
   <div>
-    <Markdown class="prose " :source="source" />
-    <h1>h1</h1>
-    <h2>h2</h2>
+    <Markdown :source="source" :options="options" class="prose max-w-5xl" />
   </div>
 </template>
-<style scoped>
-  .markdown-content {
-    padding: 1rem;
-    line-height: 1.6;
-  }
-  
-  .markdown-content h1 {
-    font-size: 2rem;
-    font-weight: bold;
-    color: #222;
-  }
-  
-  .markdown-content h2 {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: #444;
-  }
-  
-  .markdown-content ul {
-    list-style-type: disc;
-    margin-left: 2rem;
-  }
-  
-  .markdown-content code {
-    background-color: #f4f4f4;
-    padding: 0.2rem 0.5rem;
-    border-radius: 4px;
-  }
-  
-  .markdown-content a {
-    color: blue;
-    text-decoration: underline;
-  }
-  </style>
-  
 
+<style scoped>
+ 
+  .prose * {
+    color: #ffffff;
+  }
+
+
+  pre {
+    background-color: #282c34;  
+    padding: 16px;
+    border-radius: 8px;
+    overflow-x: auto;
+  }
+
+  
+  code {
+    font-family: 'Courier New', Courier, monospace;
+  }
+</style>

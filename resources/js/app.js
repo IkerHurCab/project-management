@@ -1,8 +1,15 @@
 import { createApp, h } from 'vue'
-import { createInertiaApp } from '@inertiajs/vue3'
+import { createInertiaApp, router } from '@inertiajs/vue3'
 import 'boxicons';
 import FloatingVue from 'floating-vue'
 import 'floating-vue/dist/style.css';
+import NProgress from 'nprogress';
+import 'nprogress/nprogress.css';
+import VueHighlightJS from 'vue3-highlightjs'
+
+
+
+router.on('start', () => NProgress.done());
 
 
 createInertiaApp({
@@ -14,6 +21,7 @@ createInertiaApp({
     createApp({ render: () => h(App, props) })
       .use(plugin)
       .use(FloatingVue)
+      .use(VueHighlightJS)
       .mount(el)
   }
 })

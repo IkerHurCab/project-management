@@ -10,12 +10,16 @@
   import CreateTaskModal from '@/Pages/ProjectManagement/Task/CreateTaskModal.vue';
   import AddMemberModal from '@/Pages/ProjectManagement/Project/AddMemberModal.vue';
   import ProjectDocumentation from '@/Pages/ProjectManagement/Project/ProjectDocumentation.vue';
+ 
+  
 
 
 
   import TaskList from '@/Pages/ProjectManagement/Task/TaskList.vue';
   import 'boxicons';
 
+
+  
   const props = defineProps({
     tasksCompleted: {
       type: Number,
@@ -46,12 +50,21 @@
     personalTasks: {
       type: Array,
     },
+    documentations: {
+      type: Array,
+    },
+    activeTab: {
+      type: String,
+    },
+    openSingleDoc: {
+      type: Boolean
+    },
 
   });
+  
  
   const taskCount = computed(() => props.tasks.length);
 
-  console.log(props.tasks)
 
   const formatDate = (date) => {
     return new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
@@ -63,7 +76,7 @@
   })
 
  
-  const activeTab = ref('overview');
+  const activeTab = ref(props.activeTab || 'overview');
   const chartOptions = computed(() => ({
     chart: {
       type: 'donut',
@@ -189,8 +202,11 @@
 
 
   const isCreateTaskModalOpen = ref(false);
+ 
   const isModalOpen = ref(false);
   const allMembers = ref([]);
+ 
+ 
 
   const openCreateTaskModal = () => {
     isCreateTaskModalOpen.value = true;
@@ -228,7 +244,6 @@
             <h1 class="text-xl font-semibold text-white">{{ project.name }}</h1>
           </div>
           <div class="flex items-center space-x-4">
-            <StandardButton @click="openCreateDocumentationModal">+ Add Documentation</StandardButton>
             <StandardButton @click="openCreateTaskModal">+ Create Task</StandardButton>
           </div>
         </div>
@@ -391,7 +406,7 @@
           </div>
 
           <div v-if="activeTab === 'documentation'" class="flex justify-center w-full flex-col rounded-lg overflow-auto">
-           <ProjectDocumentation /> 
+           <ProjectDocumentation :project="project" :createDoc="createDoc" :openSingleDoc="openSingleDoc"  :documentations="documentations"/> 
           </div>
         </div>
 
@@ -460,6 +475,6 @@
       @add-members="handleAddMembers" />
     <CreateTaskModal :is-open="isCreateTaskModalOpen" :project-id="project.id" :employees="employees"
       @close="closeCreateTaskModal" />
-
+     
   </Layout>
 </template>

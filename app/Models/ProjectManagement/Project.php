@@ -28,4 +28,10 @@ class Project extends Model
         return $this->belongsTo(User::class, 'project_leader_id');
     }
 
+    public function documentation()
+    {
+        return $this->hasMany(ProjectDocumentation::class);
+
+    }
+
 }
