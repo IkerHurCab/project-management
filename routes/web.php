@@ -9,6 +9,8 @@ use App\Http\Controllers\ProjectManagement\TaskController;
 use App\Http\Controllers\ProjectManagement\TaskLogController;
 use App\Http\Controllers\ProjectManagement\CommentController;
 use App\Http\Controllers\ProjectManagement\ProjectDocumentationController;
+use App\Http\Controllers\DepartmentController;
+use App\Http\Middleware\CheckDepartmentAccess;
 
 
 
@@ -42,6 +44,14 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('projects/{projectId}/documentation', [ProjectDocumentationController::class, 'store'])->name('documentation.store');;
     Route::put('projects/{projectId}/documentation/{documentationId}', [ProjectDocumentationController::class, 'update'])->name('documentation.update');
     Route::delete('/projects/{projectId}/documentation/{documentId}', [ProjectDocumentationController::class, 'destroy']);
+
+    Route::get('/departments', [DepartmentController::class, 'show'])->name('departments');
+    Route::post('/departments', [DepartmentController::class, 'store'])->name('departments.store');
+    
+    Route::get('/departments/{id}', [DepartmentController::class, 'showSingle'])->name('departments.showSingle')
+    ->middleware(CheckDepartmentAccess::class);
+
+    Route::post('/departments/{id}/addUser', [DepartmentController::class, 'addUser']);
 
     
   

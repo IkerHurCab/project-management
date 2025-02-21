@@ -7,6 +7,11 @@ const projects = () => {
   window.location.href = '/projects';
 };
 
+const departments = () => {
+  window.location.href = '/departments';
+};
+
+
 // Función para cerrar sesión
 const logout = () => {
   window.location.href = '/logout';
@@ -18,6 +23,7 @@ const buttons = [
   { name: 'file', action: projects }, // Aseguramos que el botón de "Projects" tenga acción
   { name: 'message-square' },
   { name: 'calendar' },
+  { name: 'buildings', action: departments },
   { name: 'time-five' }
 ];
 
