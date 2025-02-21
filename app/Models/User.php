@@ -58,11 +58,23 @@ class User extends Authenticatable
         return $this->roles->pluck('name')->contains($role);
     }
     public function projects()
-{
-    return $this->belongsToMany(Project::class);
-}
+    {
+        return $this->belongsToMany(Project::class);
+    }
+
+    public function organizations() {
+        return $this->belongsToMany(Organization::class);
+    }
     public function comments()
     {
         return $this->hasMany(Comment::class);
     }
+
+    public function currentOrganization()
+    {
+        return $this->belongsToMany(Organization::class, 'organization_user')
+                    ->wherePivot('is_current', true);
+    }
+    
+
 }
