@@ -10,6 +10,7 @@
   import CreateTaskModal from '@/Pages/ProjectManagement/Task/CreateTaskModal.vue';
   import AddMemberModal from '@/Pages/ProjectManagement/Project/AddMemberModal.vue';
   import ProjectDocumentation from '@/Pages/ProjectManagement/Project/ProjectDocumentation.vue';
+  import EditProjectModal from '@/Pages/ProjectManagement/Project/EditProjectModal.vue';
  
   
 
@@ -202,11 +203,21 @@
 
 
   const isCreateTaskModalOpen = ref(false);
- 
+  const isEditProjectModalOpen = ref(false);
   const isModalOpen = ref(false);
   const allMembers = ref([]);
  
- 
+  const openEditProjectModal = () => {
+    console.log(isEditProjectModalOpen.value)
+    isEditProjectModalOpen.value = true;
+console.log(isEditProjectModalOpen.value)
+    
+  
+  }
+  const closeEditProjectModal = () => {
+    isEditProjectModalOpen.value = false;
+
+  }
 
   const openCreateTaskModal = () => {
     isCreateTaskModalOpen.value = true;
@@ -475,6 +486,7 @@
       @add-members="handleAddMembers" />
     <CreateTaskModal :is-open="isCreateTaskModalOpen" :project-id="project.id" :employees="employees"
       @close="closeCreateTaskModal" />
+    <EditProjectModal :is-open="isEditProjectModalOpen" :project="project" @close="closeEditProjectModal" />
      
   </Layout>
 </template>
