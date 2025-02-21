@@ -31,6 +31,7 @@
     const description = ref('');
     const attachments = ref([]);
     const isPublic = ref(false);
+    const showDeleteModal = ref(false);
     
     
     watchEffect(() => {
@@ -71,6 +72,21 @@
       // Close the modal after creating the project
       emit('close');
     };
+
+    const openDeleteModal = () => {
+  showDeleteModal.value = true;
+  console.log(showDeleteModal.value)
+};
+
+const closeDeleteModal = () => {
+  showDeleteModal.value = false;
+};
+
+const deleteProject = () => {
+  router.delete(`/projects/${props.project.id}`);
+  closeDeleteModal();
+
+};
     </script>
     
     <template>
@@ -78,9 +94,14 @@
         <div class="bg-gray-950 rounded-lg w-full max-w-6xl h-auto border border-gray-700 shadow-lg">
           <div class="border-b border-gray-700 px-6 py-4 flex justify-between items-center bg-gray-950 rounded-t-lg">
             <h2 class="text-2xl font-semibold text-white">Edit Project</h2>
-            <button @click="emit('close')" class="text-gray-400 cursor-pointer hover:text-white transition-colors">
-              <box-icon name='x' color='currentColor'></box-icon>
-            </button>
+            <div class="flex items-center space-x-4">
+              <button @click="openDeleteModal" class="text-red-500 cursor-pointer hover:text-red-400 transition-colors">
+                <box-icon name='trash' type='solid' color='currentColor'></box-icon>
+              </button>
+              <button @click="emit('close')" class="text-gray-400 cursor-pointer hover:text-white transition-colors">
+                <box-icon name='x' color='currentColor'></box-icon>
+              </button>
+            </div>
           </div>
           <form @submit.prevent="createProject" class="p-6 space-y-6">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -162,6 +183,20 @@
               </div>
             </div>
           </form>
+        </div>
+        <div v-if="showDeleteModal" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+          <div class="bg-gray-950 rounded-lg w-full max-w-md p-6 border border-gray-700 shadow-lg">
+            <h3 class="text-xl font-semibold text-white mb-4">Are you sure you want to delete this project?</h3>
+            <p class="text-gray-400 mb-6">This action cannot be undone.</p>
+            <div class="flex justify-end space-x-4">
+              <StandardButton @click="closeDeleteModal" class="bg-gray-600 hover:bg-gray-500 transition-colors">
+                Cancel
+              </StandardButton>
+              <StandardButton @click="deleteProject" class="bg-red-600 hover:bg-red-500 transition-colors">
+                Delete
+              </StandardButton>
+            </div>
+          </div>
         </div>
       </div>
     </template>

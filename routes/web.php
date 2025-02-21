@@ -36,13 +36,15 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('projects', [ProjectController::class, 'index'])->name('projects.index');
     Route::get('projects/{projects}',  [ProjectController::class, 'show'])->name('projects.show');  
     Route::put('projects/{projectId}', [ProjectController::class, 'update'])->name('project.update');
+    Route::delete('projects/{projectId}', [ProjectController::class, 'destroy'])->name('project.destroy');
+    
     Route::post('projects', [ProjectController::class, 'store'])->name('projects.store');
     Route::get('projects/{projectId}/search-member', [ProjectController::class, 'searchMember'])->name('projects.search-member');
     Route::post('projects/{projectId}/new-members', [ProjectController::class, 'storeMember'])->name('projects.new-member');
 
     Route::post('projects/{projectId}/documentation', [ProjectDocumentationController::class, 'store'])->name('documentation.store');;
     Route::put('projects/{projectId}/documentation/{documentationId}', [ProjectDocumentationController::class, 'update'])->name('documentation.update');
-    Route::delete('/projects/{projectId}/documentation/{documentId}', [ProjectDocumentationController::class, 'destroy']);
+    Route::delete('/projects/{projectId}/documentation/{documentId}', [ProjectDocumentationController::class, 'docoumentation.destroy']);
 
     
   
