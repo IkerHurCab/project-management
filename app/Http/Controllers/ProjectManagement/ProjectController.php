@@ -110,7 +110,7 @@ class ProjectController extends Controller
         'tasksCompleted' => $totalCompletedTasks,
         'documentations' => $documentation,
         'activeTab' => $activeTab,
-        'openSingleDoc' => $openSingleDoc,  // Pasando el valor a Vue
+        'openSingleDoc' => $openSingleDoc,  
         'createDoc' => $createDoc, 
  
     ]);
@@ -188,6 +188,47 @@ class ProjectController extends Controller
     
       
     }
+
+    public function update(Request $request, $projectId){
+
+        $project = Project::find($projectId);
+        
+        if (!$project) {
+            return response()->json(['error' => 'Proyecto no encontrado'], 404);
+        }
+
+        $project->update([
+            'name' => $request['projectName'],
+            'company' => $request['company'],
+            'projectLeader' => $request['projectLeader'],
+            'priority' => $request['priority'],
+            'start_date' => $request['startDate'],
+            'end_date' => $request['endDate'],
+            'assigned_hours' => $request['assignedHours'],
+            'description' => $request['description'],
+            'attachments' => $request['attachments'],
+            'is_public' => $request['isPublic'],
+        ]);
+
+    }
+
+    public function destroy($projectId)
+{
+    // Buscar el proyecto
+    $project = Project::find($projectId);
+
+    // Verificar si el proyecto existe
+    if (!$project) {
+        return redirect()->route('projects.index')->with('error', 'Proyecto no encontrado');
+    }
+
+    // Eliminar el proyecto
+    $project->delete();
+
+    // Redirigir con mensaje de éxito
+    return redirect()->route('projects.index')->with('success', 'Proyecto eliminado con éxito');
+}
+
 
     
 
