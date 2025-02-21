@@ -50,9 +50,12 @@ Route::group(['middleware' => 'auth'], function () {
   
     
     Route::post('projects/{projectId}/tasks/{taskId}/update-status', [TaskController::class, 'updateStatus'])->name('tasks.update-status');
+    
     Route::post('projects/{projectId}/tasks/', [TaskController::class, 'store'])->name('tasks.store');
     Route::get('projects/{projectId}/task/{taskId}', [TaskController::class, 'show'])->name('tasks.show');
     Route::post('projects/{projectId}/task/{taskId}', [TaskController::class, 'update'])->name('tasks.update');
+    Route::delete('projects/{projectId}/task/{taskId}', [TaskController::class, 'destroy'])->name('tasks.destroy');
+
     Route::post('projects/{projectId}/task/{taskId}/task-log', [TaskLogController::class, 'store'])->name('task-log.store');
 
     Route::post('projects/{projectId}/task/{taskId}/comment', [CommentController::class, 'store'])->name('comment.store');

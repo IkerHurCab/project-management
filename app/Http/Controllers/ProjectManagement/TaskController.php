@@ -47,7 +47,7 @@ class TaskController extends Controller
     {
        
       
-        
+ 
         $task = Task::find($taskId);
 
         if ($request->hasFile('attachments')) {
@@ -86,6 +86,18 @@ class TaskController extends Controller
 
             $task->attachments = json_encode($currentAttachments);   
             $task->save();
+
+        } else {
+
+            $task->update([
+                'name' => $request['name'],
+                'description' => $request['description'],
+                'estimated_hours' => $request['estimated_hours'],
+                'priority' => $request['priority'],
+                'status' => $request['status'],
+                'start_date' => $request['start_date'],
+                'end_date' => $request['end_date'],
+            ]);
 
         }
        
@@ -144,6 +156,21 @@ class TaskController extends Controller
 
 
     }
+
+    public function destroy($projectId, $taskId)
+{
+    $task = Task::find($taskId);
+    
+    if (!$task) {
+        return redirect()->route('projects.show', ['id' => $projectId])->with('error', 'Task not found');
+    }
+
+    $task->delete();
+
+    return redirect()->route('projects.show', ['projects' => $projectId]);
+
+}
+
 
 
 

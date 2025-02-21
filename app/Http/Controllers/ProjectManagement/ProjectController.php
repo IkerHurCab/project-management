@@ -214,7 +214,7 @@ class ProjectController extends Controller
 
     public function destroy($projectId)
 {
-    // Buscar el proyecto
+    
     $project = Project::find($projectId);
 
     // Verificar si el proyecto existe

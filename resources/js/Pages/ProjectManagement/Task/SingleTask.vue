@@ -400,6 +400,7 @@ function getRandomColor(index) {
     <EditTaskModal 
       :is-open="isEditTaskModalOpen"
       :task="task"
+      :project="project"
       @close="closeEditTaskModal"
       @update="updateTask"
     />
