@@ -25,3 +25,17 @@ createInertiaApp({
       .mount(el)
   }
 })
+
+const style = document.createElement('style')
+style.textContent = `
+  #nprogress { 
+    display: none; 
+    pointer-events: none;
+  }
+  #nprogress .bar, 
+  #nprogress .spinner,
+  #nprogress .peg {
+    display: none;
+  }
+`
+document.head.appendChild(style)

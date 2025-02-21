@@ -4,6 +4,7 @@ namespace App\Models\ProjectManagement;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Models\ProjectManagement\Task;
+use App\Models\Users\Department;
 use App\Models\User;
 
 class Project extends Model
@@ -32,6 +33,11 @@ class Project extends Model
     {
         return $this->hasMany(ProjectDocumentation::class);
 
+    }
+
+    public function departments()
+    {
+        return $this->belongsToMany(Department::class, 'department_project', 'project_id', 'department_id');
     }
 
 }
