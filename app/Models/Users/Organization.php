@@ -1,9 +1,12 @@
 <?php
 
-namespace App\Models;
+namespace App\Models\Users;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Models\Users\Department;
+
+
 
 class Organization extends Model
 {
@@ -12,6 +15,9 @@ class Organization extends Model
      *
      * @var list<string>
      */
+
+    protected $table = 'organization';
+
     protected $fillable = [
         'name',
         'description',
@@ -31,4 +37,10 @@ class Organization extends Model
     {
         return $this->belongsToMany(User::class);
     }
+
+    public function departments()
+    {
+        return $this->hasMany(Department::class, 'organization_id');
+    }
+    
 }

@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
+use App\Models\Users\Organization;
 
 
 class User extends Authenticatable
@@ -73,7 +74,7 @@ class User extends Authenticatable
     public function currentOrganization()
     {
         return $this->belongsToMany(Organization::class, 'organization_user')
-                    ->wherePivot('is_current', true);
+                    ->wherePivot('is_current', 't');
     }
     
 

@@ -21,9 +21,12 @@ class DepartmentController extends Controller
             return [$department->name => $department->projects_count];
         });
 
-        $userDepartmentsQuery = Department::withCount('users')->whereHas('users', function($query) {
+        $userDepartmentsQuery = Department::withCount('users')
+        ->where('organization_id', request()->user()->currentOrganization()->first()->id)
+        ->whereHas('users', function ($query) {
             $query->where('users.id', request()->user()->id);
         });
+    
 
         if ($searchMyDepartments) {
             $userDepartmentsQuery->whereRaw('LOWER(name) like ?', ['%' . strtolower($searchMyDepartments) . '%']);
@@ -31,9 +34,12 @@ class DepartmentController extends Controller
 
         $userDepartments = $userDepartmentsQuery->get();
 
-        $otherDepartmentsQuery = Department::withCount('users')->whereDoesntHave('users', function($query) {
+        $otherDepartmentsQuery = Department::withCount('users')
+        ->where('organization_id', request()->user()->currentOrganization()->first()->id)
+        ->whereDoesntHave('users', function ($query) {
             $query->where('users.id', request()->user()->id);
         });
+    
 
         if ($searchOtherDepartments) {
             $otherDepartmentsQuery->whereRaw('LOWER(name) like ?', ['%' . strtolower($searchOtherDepartments) . '%']);

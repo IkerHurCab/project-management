@@ -5,6 +5,8 @@ namespace App\Models\Users;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\ProjectManagement\Project;
+use App\Models\Users\Organization;
+
 use App\Models\User;
 
 class Department extends Model
@@ -27,6 +29,11 @@ class Department extends Model
     public function projects()
     {
         return $this->belongsToMany(Project::class, 'department_project', 'department_id', 'project_id');
+    }
+
+    public function organization()
+    {
+        return $this->belongsTo(Organization::class, 'organization_id');
     }
     
 }

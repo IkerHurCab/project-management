@@ -16,12 +16,20 @@ class CheckDepartmentAccess
         if (!is_numeric($departmentId)) {
             return redirect()->route('departments');
         }
+
         $user = Auth::user();
+        $currentOrg = $user->currentOrganization()->first();
+
+        if (!$currentOrg) {
+            return redirect()->route('departments');
+        }
 
         $hasAccess = Department::where('id', $departmentId)
-            ->whereHas('users', function($query) use ($user) {
+            ->where('organization_id', $currentOrg->id) // Filtra por la organización actual del usuario
+            ->whereHas('users', function ($query) use ($user) {
                 $query->where('users.id', $user->id);
-            })->exists();
+            })
+            ->exists();
 
         if (!$hasAccess) {
             return redirect()->route('departments');
