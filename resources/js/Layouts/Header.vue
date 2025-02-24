@@ -68,8 +68,9 @@ export default {
 
     computed: {
         user() {
-            return usePage().props.user;
+            return usePage().props.auth?.user || null;
         },
+
         statusColor() {
             return {
                 'bg-green-500': this.user.status === 'online',

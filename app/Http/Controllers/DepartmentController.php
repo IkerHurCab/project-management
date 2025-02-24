@@ -41,7 +41,6 @@ class DepartmentController extends Controller
 
         $otherDepartments = $otherDepartmentsQuery->get();
         return Inertia::render('Users/Departments', [
-            'user' => request()->user(),
             'user_departments' => $userDepartments,
             'users' => User::all(),
             'other_departments' => $otherDepartments,
@@ -90,7 +89,6 @@ class DepartmentController extends Controller
             })->get();
 
         return Inertia::render('Users/Departments', [
-            'user' => $request->user(),
             'users' => User::all(),
             'user_departments' => $userDepartments,
             'other_departments' => $otherDepartments,
@@ -117,7 +115,6 @@ class DepartmentController extends Controller
             ->get();
     
         return Inertia::render('Users/SingleDepartment', [
-            'user' => request()->user(),
             'department' => $department,
             'users' => $users->items(),
             'totalUsers' => $department->users()->count(),
@@ -148,7 +145,6 @@ class DepartmentController extends Controller
             ->get();
 
         return Inertia::render('Users/SingleDepartment', [
-            'user' => request()->user(),
             'department' => $department,
             'users' => $users->items(),
             'totalUsers' => $department->users()->count(),
