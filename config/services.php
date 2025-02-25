@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    'deepseek' => [
+        'secret' => env('DEEPSEEK_API_KEY'),
+        'endpoint' => env('DEEPSEEK_API_ENDPOINT')
+    ]
+
 ];

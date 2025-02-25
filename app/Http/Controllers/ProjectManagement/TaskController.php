@@ -7,10 +7,18 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use App\Models\ProjectManagement\Task;
+use App\Models\ProjectManagement\Project;
+use Illuminate\Support\Facades\Http;
+use Gemini\Laravel\Facades\Gemini;
+use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
+
+
+
 
 class TaskController extends Controller
 {
-
+    
     public function show(Request $request, $projectId, $taskId)
     {
         
@@ -171,7 +179,73 @@ class TaskController extends Controller
 
 }
 
+public function getPendingTasksByProject($projectId)
+    {
+  
+        $tasks = Task::where('project_id', $projectId)
+        ->where('status', 'to_do')
+        ->get();
+
+$tasksList = $tasks->map(function($task) {
+return [
+   'name' => $task->name,
+   'priority' => $task->priority,
+   'start_date' => Carbon::parse($task->start_date),  
+   'end_date' => Carbon::parse($task->end_date),     
+   'description' => $task->description,
+];
+})->sortBy([
+['priority', 'asc'], 
+['start_date', 'asc'],
+['end_date', 'asc'],   
+]);
+
+
+    $tasksList = $tasksList->map(function($task) {
+        return $task['name'] . ' (Priority: ' . $task['priority'] . ', Start: ' . $task['start_date']->format('Y-m-d') . ', End: ' . $task['end_date']->format('Y-m-d') . ', Description: ' . $task['description'] . ')';
+    })->implode(', ');
+   
+        try {
+           
+            $result = Gemini::geminiPro()->generateContent("Here is a list of pending tasks: $tasksList. Please categorize each task according to its priority: 'Urgent', 'High', 'Medium', or 'Low'. 
+            For each task, provide the title followed by the priority label and a brief explanation of why it was classified in that category. Each task should be presented in the following format, with each task on a new line:
+            
+            - Task Title -> Priority Label: Explanation.
+            
+            For example:
+            - Organize Workspace -> Urgent: This task has a high priority due to its impact on productivity.
+            - Research New Technologies -> High: This task is important but not as urgent.
+            
+            Please provide the list of tasks as shown above.
+ 
+            ");
+            $text = $result->text();
+            $recommendationsArray = explode("\n", $recommendationsText);
+            $recomendationsArray =  array_filter($recommendationsArray, function($line){
+                return !empty(trim($line));
+            });
+
+            $recomendationsArray = array_values($recommendationsArray);
+            dd($recommendationsArray);
+        } catch (\Exception $e) {
+            
+            $text = 'Error connecting to AI';
+        }
+        $project = Project::find($projectId);
+        $activeTab = 'tasks';
+        $recommendationData = $text;
+        
+        return redirect()->route('projects.show', ['projects' => $projectId])
+        ->with([
+            'activeTab' => $activeTab,
+            'recommendationData' => $recommendationData,
+        ]);
+       
+        
+    }
+
 
 
 
 }
+    

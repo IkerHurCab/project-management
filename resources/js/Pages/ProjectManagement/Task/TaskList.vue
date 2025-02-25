@@ -1,8 +1,9 @@
 <script setup>
-import { ref, defineProps, defineEmits, watch } from 'vue';
+import { ref, defineProps, defineEmits, watch, onMounted } from 'vue';
 import TaskCard from './TaskCard.vue';
 import { VueDraggableNext } from 'vue-draggable-next';
 import { router } from '@inertiajs/vue3';
+import TaskPrioritization from './TaskPrioritization.vue'; // Add this impo
 
 const props = defineProps({
   tasksByStatus: {
@@ -14,6 +15,8 @@ const props = defineProps({
     required: true
   }
 });
+const loading = ref(false);
+const recommendations = ref([]);
 
 
 
@@ -92,6 +95,7 @@ const getStatusColor = (status) => {
         <TaskCard :task="task" />
       </div>
     </VueDraggableNext>
+  
   </div>
-
+  
 </template>

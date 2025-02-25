@@ -70,7 +70,9 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::post('projects/{projectId}/task/{taskId}/comment', [CommentController::class, 'store'])->name('comment.store');
 
-  
+    //AI Integration
+
+    Route::get('projects/{projectId}/task-priority', [TaskController::class, 'getPendingTasksByProject'])->name('task.priority-recommendation');
     
     Route::get('logout', function () {
         Auth::logout();

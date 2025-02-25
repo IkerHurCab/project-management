@@ -96,7 +96,8 @@ class ProjectController extends Controller
     $activeTab = $request->session()->get('activeTab', '');
     $openSingleDoc = $request->session()->get('openSingleDoc', false);
     $createDoc = $request->session()->get('createDoc', false);
-
+    
+    $recommendationData = $request->session()->get('recommendationData');
 
 
     return Inertia::render('ProjectManagement/Project/SingleProject', [
@@ -112,7 +113,7 @@ class ProjectController extends Controller
         'activeTab' => $activeTab,
         'openSingleDoc' => $openSingleDoc,  
         'createDoc' => $createDoc, 
- 
+        'recommendationData' => $recommendationData,
     ]);
     }
 

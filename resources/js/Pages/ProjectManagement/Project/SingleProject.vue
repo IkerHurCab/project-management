@@ -11,6 +11,7 @@
   import AddMemberModal from '@/Pages/ProjectManagement/Project/AddMemberModal.vue';
   import ProjectDocumentation from '@/Pages/ProjectManagement/Project/ProjectDocumentation.vue';
   import EditProjectModal from '@/Pages/ProjectManagement/Project/EditProjectModal.vue';
+  import TaskPrioritization from '@/Pages/ProjectManagement/Task/TaskPrioritization.vue';
  
   
 
@@ -60,10 +61,13 @@
     openSingleDoc: {
       type: Boolean
     },
+    recommendationData: {
+      type: String
+    }
 
   });
   
- 
+
   const taskCount = computed(() => props.tasks.length);
 
 
@@ -262,7 +266,7 @@ console.log(isEditProjectModalOpen.value)
 
       <div class="bg-gray-950 px-6 py-2 border-b border-gray-700">
         <div class="flex space-x-6">
-          <button v-for="tab in ['Overview', 'Tasks', 'Documentation', 'Analytics', 'Files']" :key="tab"
+          <button v-for="tab in ['Overview', 'Tasks', 'Documentation']" :key="tab"
             @click="activeTab = tab.toLowerCase()" :class="[
               'px-4 py-2 text-sm cursor-pointer font-medium rounded-md transition-colors',
               activeTab === tab.toLowerCase()
@@ -278,9 +282,11 @@ console.log(isEditProjectModalOpen.value)
       <div class="flex min-h-[80vh]">
         <!-- Left Panel -->
         <div class="flex-1 p-6 overflow-auto">
-          <div v-if="activeTab === 'tasks'" class="grid grid-cols-4 gap-6 ">
-            <!-- Task Columns -->
+          <div v-if="activeTab === 'tasks'" >
+            <div class="grid grid-cols-4 gap-6 ">
             <TaskList ref="taskContainer" :projectId="project.id" :tasksByStatus="tasksByStatus" />
+          </div>
+            <TaskPrioritization :projectId="project.id" :recommendations="recommendationData" />
           </div>
 
           <div v-if="activeTab === 'overview'" class="grid grid-cols-3  gap-6">
