@@ -62,7 +62,7 @@
       type: Boolean
     },
     recommendationData: {
-      type: String
+      type: Array
     }
 
   });

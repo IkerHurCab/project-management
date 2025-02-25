@@ -1,60 +1,36 @@
 <script setup>
   import { ref } from 'vue';
   import { router } from '@inertiajs/vue3';
-  import StandardButton from '@/Components/StandardButton.vue'
-  
+  import StandardButton from '@/Components/StandardButton.vue';
+
   const props = defineProps({
     projectId: {
       type: Number,
       required: true
     },
     recommendations: {
-      type: String, // Asumimos que es un string de recomendaciones
-      default: ''
+      type: Array, // Asumimos que es un array de recomendaciones
+      default: () => []
     }
   });
 
-  // Estado local
-  const loading = ref(false);  // Ahora `loading` es solo local al componente
-  const recommendations = ref(props.recommendations);  // Inicializa con el valor recibido por props
+  const loading = ref(false);
 
-  const updatePriorities = async () => {
+  const loadPriorityAssistant = async () => {
     loading.value = true;
 
     try {
-      const response = await router.post(`/api/projects/${props.projectId}/update-priorities`);
-      // Asumiendo que la respuesta actualiza las prioridades, puedes manejar la respuesta si es necesario
+      // Haces el GET para cargar las recomendaciones
+      const response = await router.get(`/projects/${props.projectId}/task-priority`);
+      recommendations.value = response.data.recommendations || [];
     } catch (error) {
-      console.error('Error updating priorities:', error);
+      console.error('Error loading task priority recommendations:', error);
     } finally {
       loading.value = false;
     }
   };
 
-  const loadPriorityAssistant = async () => {
-    loading.value = true; // Muestra el mensaje de "loading" al empezar a cargar
-
-    try {
-      // Haces el GET para cargar las recomendaciones
-      const response = await router.get(`/projects/${props.projectId}/task-priority`);
-      // Aquí esperas que la respuesta te pase un string con las recomendaciones
-      recommendations.value = response.data.recommendations || ''; // Asumimos que el servidor pasa recommendations como string
-    } catch (error) {
-      console.error('Error loading task priority recommendations:', error);
-    } finally {
-      loading.value = false; // Deja de mostrar el mensaje de "loading" después de recibir las recomendaciones
-    }
-  };
-
-  const getStatusColor = (status) => {
-    const colors = {
-      to_do: 'bg-blue-600',
-      in_progress: 'bg-yellow-600',
-      review: 'bg-purple-600',
-      done: 'bg-green-600'
-    };
-    return colors[status] || 'bg-gray-600';
-  };
+  const recommendations = ref(props.recommendations);
 </script>
 
 <template>
@@ -70,7 +46,7 @@
     </div>
     <div class="p-8">
       <!-- Mostrar el botón solo si no hay recomendaciones y no se está cargando -->
-      <div v-if="!recommendations && !loading" class="flex justify-center items-center">
+      <div v-if="!loading" class="flex justify-center items-center">
         <StandardButton @click="loadPriorityAssistant">Load task priority recommendations</StandardButton>
       </div>
 
@@ -80,8 +56,12 @@
       </div>
 
       <!-- Mostrar las recomendaciones solo si ya fueron cargadas -->
-      <div v-if="recommendations && !loading">
-        <p class="text-white">{{ recommendations }}</p>
+      <div v-if=" !loading">
+        <ul class="text-white">
+          <li v-for="(task, index) in recommendations" :key="index">
+            {{ task }}
+          </li>
+        </ul>
       </div>
     </div>
   </div>

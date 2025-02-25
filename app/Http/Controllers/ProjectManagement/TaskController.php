@@ -205,7 +205,7 @@ return [
         return $task['name'] . ' (Priority: ' . $task['priority'] . ', Start: ' . $task['start_date']->format('Y-m-d') . ', End: ' . $task['end_date']->format('Y-m-d') . ', Description: ' . $task['description'] . ')';
     })->implode(', ');
    
-        try {
+
            
             $result = Gemini::geminiPro()->generateContent("Here is a list of pending tasks: $tasksList. Please categorize each task according to its priority: 'Urgent', 'High', 'Medium', or 'Low'. 
             For each task, provide the title followed by the priority label and a brief explanation of why it was classified in that category. Each task should be presented in the following format, with each task on a new line:
@@ -220,17 +220,15 @@ return [
  
             ");
             $text = $result->text();
-            $recommendationsArray = explode("\n", $recommendationsText);
+            $recommendationsArray = explode("\n", $text);
+            
             $recomendationsArray =  array_filter($recommendationsArray, function($line){
                 return !empty(trim($line));
             });
 
             $recomendationsArray = array_values($recommendationsArray);
-            dd($recommendationsArray);
-        } catch (\Exception $e) {
-            
-            $text = 'Error connecting to AI';
-        }
+           
+  
         $project = Project::find($projectId);
         $activeTab = 'tasks';
         $recommendationData = $text;
@@ -238,7 +236,7 @@ return [
         return redirect()->route('projects.show', ['projects' => $projectId])
         ->with([
             'activeTab' => $activeTab,
-            'recommendationData' => $recommendationData,
+            'recommendationData' => $recommendationsArray,
         ]);
        
         
