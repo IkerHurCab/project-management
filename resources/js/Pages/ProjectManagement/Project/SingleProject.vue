@@ -79,7 +79,7 @@
 
   const activeTab = ref(props.activeTab || 'overview');
   
-
+ 
   const tasksByStatus = computed(() => {
     if (!Array.isArray(props.tasks)) {
       return {
@@ -90,7 +90,7 @@
       };
     }
     return {
-      to_do: props.tasks.filter(task => task.status === 'To'),
+      to_do: props.tasks.filter(task => task.status === 'to_do'),
       in_progress: props.tasks.filter(task => task.status === 'in_progress'),
       review: props.tasks.filter(task => task.status === 'review'),
       done: props.tasks.filter(task => task.status === 'done')
@@ -211,10 +211,10 @@
   }));
 });
 const statusColors = {
-  'to_do': '#FF6B6B',
-  'in_progress': '#4ECDC4',
-  'review': '#FFA500',
-  'done': '#45B649'
+  'to_do': '#155DFC',
+  'in_progress': '#D08700',
+  'review': '#9810FA',
+  'done': '#00A63E'
 };
 
 const chartOptions = computed(() => ({

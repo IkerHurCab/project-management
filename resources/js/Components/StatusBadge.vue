@@ -13,8 +13,8 @@ const statusConfig = computed(() => {
   const configs = {
     pending: {
       text: 'Pending',
-      bgColor: 'bg-yellow-500',
-      textColor: 'text-yellow-900'
+      bgColor: 'bg-yellow-600',
+      textColor: 'text-white'
     },
     to_do: {
       text: 'To Do',
