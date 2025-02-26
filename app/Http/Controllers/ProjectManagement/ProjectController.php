@@ -18,36 +18,49 @@ class ProjectController extends Controller
 {
     public function index(Request $request)
     {
-        $filters = $request->only(['search', 'status', 'user', 'dateRange']);
+        $filters = $request->only(['search', 'status', 'user', 'dateRange', 'my_projects']);
+$currentUser = $request->user();
+$projects = Project::with('leader:id,name', 'users:id,name')
+    ->when($filters['search'] ?? null, function ($query, $search) {
+        $query->where('name', 'ILIKE', "%{$search}%");
+    })
+    ->when($filters['status'] ?? null, function ($query, $status) {
+        $query->where('status', $status);
+    })
+    ->when($filters['user'] ?? null, function ($query, $userName) {
+        $query->whereHas('leader', function ($query) use ($userName) {
+            $query->where('name', 'ILIKE', "%{$userName}%");
+        });
+    })
+    ->when($filters['dateRange'] ?? null, function ($query, $dateRange) {
+        if (!empty($dateRange['start'])) {
+            $query->whereDate('start_date', '>=', $dateRange['start']);
+        }
+        if (!empty($dateRange['end'])) {
+            $query->whereDate('end_date', '<=', $dateRange['end']);
+        }
+    })
     
-        $projects = Project::with('leader:id,name')
-            ->when($filters['search'] ?? null, function ($query, $search) {
-                $query->where('name', 'ILIKE', "%{$search}%");
-            })
-            ->when($filters['status'] ?? null, function ($query, $status) {
-                $query->where('status', $status);
-            })
-            ->when($filters['user'] ?? null, function ($query, $userName) {
-                $query->whereHas('leader', function ($query) use ($userName) {
-                    $query->where('name', 'ILIKE', "%{$userName}%");
-                });
-            })
-            ->when($filters['dateRange'] ?? null, function ($query, $dateRange) {
-                if (!empty($dateRange['start'])) {
-                    $query->where('start_date', '>=', $dateRange['start']);
-                }
-                if (!empty($dateRange['end'])) {
-                    $query->where('end_date', '<=', $dateRange['end']);
-                }
-            })
-            ->get();
+    
+    ->when($filters['my_projects'] ?? null, function ($query) use ($currentUser) {
+        // Solo incluir proyectos en los que el usuario actual está involucrado
+        $query->whereHas('users', function ($query) use ($currentUser) {
+            $query->where('user_id', $currentUser->id);
+        });
+    })
+    ->get();
+
+
+     
     
         $departmentHeads = User::whereHas('roles', function ($query) {
             $query->where('name', 'department_head');
         })->get(['id', 'name']);
     
         $statuses = Project::distinct()->pluck('status');
-     
+        
+      
+
         return Inertia::render('ProjectManagement/Project/Projects', [
             'projects' => $projects,
             'filters' => $filters,
@@ -105,6 +118,11 @@ class ProjectController extends Controller
         $tasks = $project->tasks()->with('user')->where('user_id', $user->id)->get();
     }
 
+    $projectLeaderId = $project->project_leader_id;
+
+    $isProjectLeader = ($projectLeaderId === $user->id);
+
+
 
     return Inertia::render('ProjectManagement/Project/SingleProject', [
         'project' => $project,
@@ -119,7 +137,7 @@ class ProjectController extends Controller
         'activeTab' => $activeTab,
         'openSingleDoc' => $openSingleDoc,  
         'createDoc' => $createDoc, 
- 
+        'isProjectLeader' => $isProjectLeader,
     ]);
     }
 

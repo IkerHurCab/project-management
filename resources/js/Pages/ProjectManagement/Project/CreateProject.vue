@@ -45,7 +45,7 @@
   const projectName = ref('');
   const company = ref('');
   const projectLeader = ref('');
-  const startDate = ref('');
+  const startDate = ref(getCurrentDate());
   const endDate = ref('');
   const assignedHours = ref('');
   const status = ref('');
@@ -54,11 +54,15 @@
   const isPublic = ref(false);
   const attachments = ref([]);
 
+  function getCurrentDate() {
 
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0'); // Meses en JS empiezan desde 0, sumamos 1
+    const day = String(today.getDate()).padStart(2, '0'); // Aseguramos que el día tenga 2 dígitos
+    return `${year}-${month}-${day}`;
 
-  const assignTask = () => {
-    // Lógica para asignar la tarea
-  };
+  }
 
   const handleFileUpload = (event) => {
     attachments.value = Array.from(event.target.files);
@@ -148,20 +152,7 @@
                   placeholder="Enter project description"></textarea>
               </div>
               <div class="col-span-1 md:col-span-2 lg:col-span-3">
-                <label for="attachments" class="block text-sm font-medium text-gray-400 mb-2">Attachments</label>
-                <div class="flex items-center justify-center w-full">
-                  <label for="dropzone-file"
-                    class="flex flex-col items-center justify-center w-full h-40 border-2 border-gray-600 border-dashed rounded-lg cursor-pointer bg-gray-900 hover:bg-gray-800">
-                    <div class="flex flex-col items-center justify-center pt-5 pb-6">
-                      <box-icon name="upload" class="w-8 h-8 mb-3 text-gray-400"></box-icon>
-                      <p class="mb-2 text-sm text-gray-400"><span class="font-semibold">Click to upload</span> or drag
-                        and
-                        drop</p>
-                      <p class="text-xs text-gray-500">SVG, PNG, JPG or GIF (MAX. 800x400px)</p>
-                    </div>
-                    <input id="dropzone-file" type="file" class="hidden" multiple @change="handleFileUpload" />
-                  </label>
-                </div>
+                
                 <div v-if="attachments.length > 0" class="mt-2">
                   <p class="text-sm text-gray-400">{{ attachments.length }} file(s) selected</p>
                 </div>
