@@ -62,6 +62,9 @@
     },
     isProjectLeader: {
       type: Boolean
+    },
+    isUserInProject: {
+      type: Boolean
     }
 
   });
@@ -337,15 +340,19 @@ const series = computed(() => chartData.value.map(item => item.count));
 
       <div class="bg-gray-950 px-6 py-2 border-b border-gray-700">
         <div class="flex space-x-6">
-          <button v-for="tab in ['Overview', 'Tasks', 'Documentation']" :key="tab"
-            @click="activeTab = tab.toLowerCase()" :class="[
-              'px-4 py-2 text-sm cursor-pointer font-medium rounded-md transition-colors',
-              activeTab === tab.toLowerCase()
-                ? 'bg-blue-500 text-white'
-                : 'text-gray-400 hover:text-white'
-            ]">
-            {{ tab }}
-          </button>
+          <button v-for="tab in ['Overview', 'Tasks', 'Documentation']" 
+        :key="tab"
+        v-show="tab !== 'Tasks' || isUserInProject" 
+        @click="activeTab = tab.toLowerCase()" 
+        :class="[
+            'px-4 py-2 text-sm cursor-pointer font-medium rounded-md transition-colors',
+            activeTab === tab.toLowerCase()
+            ? 'bg-blue-500 text-white'
+            : 'text-gray-400 hover:text-white'
+        ]">
+    {{ tab }}
+</button>
+
         </div>
       </div>
 
@@ -353,7 +360,7 @@ const series = computed(() => chartData.value.map(item => item.count));
       <div class="flex min-h-[80vh]">
         <!-- Left Panel -->
         <div class="flex-1 p-6 overflow-auto">
-          <div v-if="activeTab === 'tasks'" class="grid grid-cols-4 gap-6 ">
+          <div v-if="activeTab === 'tasks' && isUserInProject" class="grid grid-cols-4 gap-6 ">
             <!-- Task Columns -->
             <TaskList ref="taskContainer" :projectId="project.id" :tasksByStatus="tasksByStatus" />
           </div>
@@ -446,7 +453,7 @@ const series = computed(() => chartData.value.map(item => item.count));
             </div>
 
 
-            <div class="col-span-3 bg-gray-950 rounded-lg overflow-hidden border border-gray-700 ">
+            <div v-if="isUserInProject" class="col-span-3 bg-gray-950 rounded-lg overflow-hidden border border-gray-700 ">
               <div class="border-b border-gray-700 px-6 py-4">
                 <h2 class="text-2xl font-semibold text-white ">Your Tasks</h2>
               </div>
@@ -510,7 +517,7 @@ const series = computed(() => chartData.value.map(item => item.count));
 
           <div v-if="activeTab === 'documentation'"
             class="flex justify-center w-full flex-col rounded-lg overflow-auto">
-            <ProjectDocumentation :project="project" :createDoc="createDoc" :openSingleDoc="openSingleDoc"
+            <ProjectDocumentation :isUserInProject="isUserInProject" :project="project" :createDoc="createDoc" :openSingleDoc="openSingleDoc"
               :documentations="documentations" />
           </div>
         </div>

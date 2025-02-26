@@ -50,7 +50,9 @@ $projects = Project::with('leader:id,name', 'users:id,name')
     })
     ->get();
 
+    $isAdminOrDepartmentHead = $currentUser->hasRole('admin') || $currentUser->hasRole('department_head');
 
+  
      
     
         $departmentHeads = User::whereHas('roles', function ($query) {
@@ -68,6 +70,7 @@ $projects = Project::with('leader:id,name', 'users:id,name')
             'projectsUrl' => route('projects.index'),
             'departmentHeads' => $departmentHeads,
             'statuses' => $statuses,
+            'isAdminOrDepartmentHead' => $isAdminOrDepartmentHead
         ]);
     }
 
@@ -122,8 +125,9 @@ $projects = Project::with('leader:id,name', 'users:id,name')
 
     $isProjectLeader = ($projectLeaderId === $user->id);
 
-
-
+    $isUserInProject = $project->users->contains('id', $user->id);
+    
+   
     return Inertia::render('ProjectManagement/Project/SingleProject', [
         'project' => $project,
         'user' => $user,
@@ -138,6 +142,8 @@ $projects = Project::with('leader:id,name', 'users:id,name')
         'openSingleDoc' => $openSingleDoc,  
         'createDoc' => $createDoc, 
         'isProjectLeader' => $isProjectLeader,
+        'isUserInProject' => $isUserInProject,
+        'isAdminOrDepartmentHead' => $isAdminOrDepartmentHead
     ]);
     }
 

@@ -16,6 +16,7 @@
     departmentHeads: Array,
     statuses: Array,
     user: Object,
+    isAdminOrDepartmentHead: Boolean
   });
   
   const searchQuery = ref('');
@@ -161,7 +162,7 @@
               </button>
               <FilterModal :departmentHeads="departmentHeads" v-if="isFilterModalOpen" @close="closeFilterModal"
                 @update:filters="updateFilters" :initial-filters="activeFilters" class="absolute top-full mt-2 left-[] z-50" />
-              <StandardButton @click="router.get(`/projects/create`)">New Project</StandardButton>
+              <StandardButton v-if="isAdminOrDepartmentHead" @click="router.get(`/projects/create`)">New Project</StandardButton>
             </div>
           </div>
   
