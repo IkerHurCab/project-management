@@ -7,6 +7,7 @@ import { usePage } from '@inertiajs/vue3';
 
 const user = computed(() => usePage().props.auth?.user);
 const currentOrganization = computed(() => usePage().props.auth?.current_organization);
+console.log(currentOrganization);
 const userOrganizations = computed(() => usePage().props.auth?.user_organizations);
 
 const organizationInitials = computed(() => {
@@ -31,9 +32,17 @@ const logout = () => {
   window.location.href = '/logout';
 };
 
+const dashboard = () => {
+  window.location.href = '/';
+}
+
+const addOrg = () => {
+  window.location.href = '/organizations/create';
+}
+
 // Botones de navegación
 const buttons = [
-  { name: 'dashboard', type: 'solid' },
+  { name: 'dashboard', type: 'solid', action: dashboard },
   { name: 'file', action: projects },
   { name: 'message-square' },
   { name: 'calendar' },
@@ -59,11 +68,11 @@ const bottomLineStyle = createLineStyle(activeBottomIndex);
 
 <template>
   <div class="fixed top-0 left-0 h-full w-16 flex flex-col justify-between py-4 bg-black text-white">
-
-  <!-- Logo de la organización -->
-  <div class="flex justify-center cursor-pointer" @click="isPopupOpen = true">
+    {{ console.log(currentOrganization) }}
+    <!-- Logo de la organización -->
+    <div class="flex justify-center cursor-pointer" @click="isPopupOpen = true">
       <template v-if="currentOrganization?.organization_logo">
-        <img :src="currentOrganization.organization_logo" alt="Org"
+        <img :src="`/storage/${currentOrganization.organization_logo}`" alt="Org"
           class="w-12 h-12 rounded object-cover" />
       </template>
       <template v-else>
@@ -97,18 +106,29 @@ const bottomLineStyle = createLineStyle(activeBottomIndex);
     </div>
   </div>
 
-  <div v-if="isPopupOpen" class="fixed inset-0 bg-black/50 flex items-center justify-center">
+  <div v-if="isPopupOpen" class="fixed inset-0 bg-black/50 flex items-center justify-center z-10">
     <div class="bg-gray-800 p-4 rounded-lg shadow-lg w-80">
       <h2 class="text-lg font-semibold mb-4 text-center">Selecciona una organización</h2>
       <div class="space-y-2">
-        <div v-for="org in userOrganizations" :key="org.id"
-          class="flex items-center p-2 rounded-lg cursor-pointer hover:bg-gray-600 transition"
-          @click="changeOrganization(org.id)">
-          <img v-if="org.organization_logo" :src="org.organization_logo" alt="Org Logo" class="w-10 h-10 rounded-full object-cover">
-          <div v-else class="w-10 h-10 flex items-center justify-center rounded bg-gray-700 text-white font-bold">
-            {{ org.name.split(' ').map(word => word[0]).join('').toUpperCase() }}
+        <div class="max-h-96 overflow-y-auto">
+          <div v-for="org in userOrganizations" :key="org.id"
+            class="flex items-center p-2 rounded-lg cursor-pointer hover:bg-gray-600 transition"
+            @click="changeOrganization(org.id)">
+            <img v-if="org.organization_logo" :src="`/storage/${org.organization_logo}`" alt="Org Logo"
+              class="w-10 h-10 rounded-lg object-cover">
+
+
+            <div v-else class="w-10 h-10 flex items-center justify-center rounded bg-gray-700 text-white font-bold">
+              {{org.name.split(' ').map(word => word[0]).join('').toUpperCase()}}
+            </div>
+            <span class="ml-3">{{ org.name }}</span>
           </div>
-          <span class="ml-3">{{ org.name }}</span>
+        </div>
+        <hr>
+        <div class="flex items-center justify-center gap-2 hover:bg-gray-700 p-2 rounded-full cursor-pointer"
+          @click="addOrg">
+          <box-icon name='plus' color="white"></box-icon>
+          <h1>Añadir organización</h1>
         </div>
       </div>
       <button @click="isPopupOpen = false" class="mt-4 w-full bg-red-500 text-white py-2 rounded-lg hover:bg-red-600">

@@ -25,7 +25,7 @@ class CheckDepartmentAccess
         }
 
         $hasAccess = Department::where('id', $departmentId)
-            ->where('organization_id', $currentOrg->id) // Filtra por la organización actual del usuario
+            ->where('organization_id', $currentOrg->id)
             ->whereHas('users', function ($query) use ($user) {
                 $query->where('users.id', $user->id);
             })

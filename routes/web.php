@@ -10,7 +10,9 @@ use App\Http\Controllers\ProjectManagement\TaskLogController;
 use App\Http\Controllers\ProjectManagement\CommentController;
 use App\Http\Controllers\ProjectManagement\ProjectDocumentationController;
 use App\Http\Controllers\DepartmentController;
+use App\Http\Controllers\Users\OrganizationController;
 use App\Http\Middleware\CheckDepartmentAccess;
+use App\Models\User;
 
 
 
@@ -33,6 +35,10 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/projects', function () {
         return Inertia::render('ProjectManagement/Projects');
     })->name('projects');
+
+    Route::get('/organizations/create', [OrganizationController::class, 'openCreateMenu'])->name('organizations.create.show');
+    Route::post('/organizations/create', [OrganizationController::class, 'create'])->name('organizations.create');
+
     Route::get('/projects/create', [ProjectController::class, 'create'])->name('projects.create');
     
     Route::get('projects', [ProjectController::class, 'index'])->name('projects.index');

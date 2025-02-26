@@ -21,6 +21,7 @@
         "@tailwindcss/vite": "^4.0.0",
         "apexcharts": "^4.4.0",
         "boxicons": "^2.1.4",
+        "cropperjs": "^1.6.2",
         "floating-vue": "^5.2.2",
         "highlight.js": "^11.11.1",
         "install": "^0.13.0",
