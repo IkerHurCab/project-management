@@ -78,55 +78,7 @@
 
 
   const activeTab = ref(props.activeTab || 'overview');
-  const chartOptions = computed(() => ({
-    chart: {
-      type: 'donut',
-      background: 'transparent'
-    },
-    colors: ['#6366F1', '#22D3EE', '#F59E0B', '#EF4444'],
-    plotOptions: {
-      donut: {
-        size: '85%',
-        background: 'transparent',
-        labels: {
-          show: true,
-          total: {
-            show: true,
-            label: 'Total Hours',
-            color: '#E5E7EB',
-            fontSize: '16px',
-            fontFamily: 'Inter, sans-serif'
-          }
-        }
-      }
-    },
-    legend: {
-      position: 'bottom',
-      labels: {
-        colors: '#E5E7EB'
-      },
-      markers: {
-        width: 8,
-        height: 8,
-        radius: 12
-      }
-    },
-    theme: {
-      mode: 'dark'
-    }
-  }));
-
-  const series = computed(() => {
-    const completed = props.tasks
-      .filter(task => task.status === 'completed')
-      .reduce((sum, task) => sum + task.estimated_hours, 0);
-
-    const inProgress = props.tasks
-      .filter(task => task.status === 'in_progress')
-      .reduce((sum, task) => sum + task.estimated_hours, 0);
-
-    return [completed, inProgress];
-  });
+  
 
   const tasksByStatus = computed(() => {
     if (!Array.isArray(props.tasks)) {
@@ -138,7 +90,7 @@
       };
     }
     return {
-      to_do: props.tasks.filter(task => task.status === 'to_do'),
+      to_do: props.tasks.filter(task => task.status === 'To'),
       in_progress: props.tasks.filter(task => task.status === 'in_progress'),
       review: props.tasks.filter(task => task.status === 'review'),
       done: props.tasks.filter(task => task.status === 'done')
@@ -238,6 +190,126 @@
   const handleAddMembers = (newEmployees) => {
     router.post(`/projects/${props.project.id}/new-members`, { users: newEmployees });
   };
+
+  const chartData = computed(() => {
+  const statusCounts = {
+    'to_do': 0,
+    'in_progress': 0,
+    'review': 0,
+    'done': 0
+  };
+
+  props.tasks.forEach(task => {
+    if (statusCounts.hasOwnProperty(task.status)) {
+      statusCounts[task.status]++;
+    }
+  });
+
+  return Object.entries(statusCounts).map(([status, count]) => ({
+    status,
+    count
+  }));
+});
+const statusColors = {
+  'to_do': '#FF6B6B',
+  'in_progress': '#4ECDC4',
+  'review': '#FFA500',
+  'done': '#45B649'
+};
+
+const chartOptions = computed(() => ({
+  chart: {
+    type: 'donut',
+    background: 'transparent'
+  },
+  colors: Object.values(statusColors),
+  labels: Object.keys(statusColors),
+  plotOptions: {
+    pie: {
+      donut: {
+        size: '70%',
+        labels: {
+          show: true,
+          name: {
+            show: true,
+            fontSize: '22px',
+            fontFamily: 'Helvetica, Arial, sans-serif',
+            fontWeight: 600,
+            color: '#fff',
+            offsetY: -10
+          },
+          value: {
+            show: true,
+            fontSize: '16px',
+            fontFamily: 'Helvetica, Arial, sans-serif',
+            fontWeight: 400,
+            color: '#fff',
+            offsetY: 16
+          },
+          total: {
+            show: true,
+            showAlways: false,
+            label: 'Total Tasks',
+            fontSize: '22px',
+            fontFamily: 'Helvetica, Arial, sans-serif',
+            fontWeight: 600,
+            color: '#fff'
+          }
+        }
+      }
+    }
+  },
+  dataLabels: {
+    enabled: false
+  },
+  legend: {
+    show: true,
+    position: 'bottom',
+    horizontalAlign: 'center',
+    floating: false,
+    fontSize: '14px',
+    fontFamily: 'Helvetica, Arial, sans-serif',
+    fontWeight: 400,
+    labels: {
+      colors: '#fff'
+    },
+    markers: {
+      width: 12,
+      height: 12,
+      strokeWidth: 0,
+      strokeColor: '#fff',
+      fillColors: Object.values(statusColors)
+    },
+    itemMargin: {
+      horizontal: 5,
+      vertical: 5
+    }
+  },
+  responsive: [{
+    breakpoint: 480,
+    options: {
+      chart: {
+        width: 200
+      },
+      legend: {
+        position: 'bottom'
+      }
+    }
+  }],
+  tooltip: {
+    enabled: true,
+    theme: 'dark',
+    y: {
+      formatter: function(value) {
+        return value + " tasks";
+      }
+    }
+  }
+}));
+
+const series = computed(() => chartData.value.map(item => item.count));
+
+
 
 </script>
 
@@ -358,10 +430,15 @@
             <!-- Hours Chart -->
             <div class="col-span-1 bg-gray-950 rounded-lg overflow-hidden border border-gray-700">
               <div class="border-b border-gray-700 px-6 py-4">
-                <h2 class="text-xl font-bold text-white">Hours Overview</h2>
+                <h2 class="text-xl font-bold text-white">Tasks Overview</h2>
               </div>
               <div class="p-6">
-                <VueApexCharts type="donut" height="300" :options="chartOptions" :series="series" />
+                <VueApexCharts
+      type="donut"
+      height="350"
+      :options="chartOptions"
+      :series="series"
+    />
               </div>
             </div>
 
@@ -378,8 +455,8 @@
                         <th class="p-4 font-semibold text-gray-400">Task Name</th>
                         <th class="p-4 font-semibold text-gray-400">Description</th>
                         <th class="p-4 font-semibold text-gray-400">Priority</th>
-                        <th class="p-4 font-semibold text-gray-400">Start Date</th>
-                        <th class="p-4 font-semibold text-gray-400">End Date</th>
+                        <th class="p-4 font-semibold text-gray-400 w-30">Start Date</th>
+                        <th class="p-4 font-semibold text-gray-400 w-30">End Date</th>
                         <th class="p-4 font-semibold text-gray-400">Completed Hours</th>
                         <th class="p-4 font-semibold text-gray-400 w-30">Status</th>
                       </tr>
@@ -393,23 +470,28 @@
 
 
                       <tr v-for="task in tasks" :key="task.id"
-                        @click="router.get(`/projects/${project.id}/task/${task.id}`)"
-                        class="bg-gray-950 border-b border-gray-700 text-left cursor-pointer hover:bg-gray-900">
-                        <td class="p-4 text-gray-400">{{ task.name }}</td>
-                        <td class="p-4 text-gray-400">{{ task.description }}</td>
-                        <div class="flex p-4 justify-center items-center">
-                          <div
-                            :class="`w-3 h-3  flex flex-row rounded-full ${getPriorityColor(task.priority)} mr-2`">
-                          </div>
-                          <span class="text-lg text-white font-light">{{ getPriorityLabel(task.priority) }}</span>
-                        </div>
-                        <td class="p-4 text-gray-400">{{ task.start_date }}</td>
-                        <td class="p-4 text-gray-400">{{ task.end_date }}</td>
-                        <td class="p-4  text-gray-400">{{ task.completed_hours || 0 }} h</td>
-                        <td class="p-4 text-gray-400">
-                          <StatusBadge :status="task.status" />
-                        </td>
-                      </tr>
+    @click="router.get(`/projects/${project.id}/task/${task.id}`)"
+    class="bg-gray-950 border-b border-gray-700 text-left cursor-pointer hover:bg-gray-900">
+  <td class="p-4 text-gray-400">{{ task.name }}</td>
+  <td class="p-4 text-gray-400">{{ task.description }}</td>
+
+  <!-- Aquí envuelves el contenido en un <td> -->
+  <td class="p-4">
+    <div class="flex justify-center items-center">
+      <div :class="`w-3 h-3 flex flex-row rounded-full ${getPriorityColor(task.priority)} mr-2`"></div>
+      <span class="text-lg text-white font-light">{{ getPriorityLabel(task.priority) }}</span>
+    </div>
+  </td>
+
+  <td class="p-4 text-gray-400">{{ task.start_date }}</td>
+  <td class="p-4 text-gray-400">{{ task.end_date }}</td>
+  <td class="p-4 text-gray-400">{{ task.completed_hours || 0 }} h</td>
+  <td class="p-4 text-gray-400">
+    <StatusBadge :status="task.status || {}" />
+  </td>
+  
+</tr>
+
 
 
 
