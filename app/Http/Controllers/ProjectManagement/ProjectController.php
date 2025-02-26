@@ -63,7 +63,7 @@ class ProjectController extends Controller
     
         $searchMember = $request->query('searchMember');
          
-        $project = Project::with(['tasks', 'users'])->findOrFail($id);
+        $project = Project::with(['tasks', 'users', 'leader'])->findOrFail($id);
         $project->load(['tasks.user']);
 
         $membersQuery = $project->users()->newQuery();  
@@ -97,12 +97,19 @@ class ProjectController extends Controller
     $openSingleDoc = $request->session()->get('openSingleDoc', false);
     $createDoc = $request->session()->get('createDoc', false);
 
+    $user = request()->user();
+
+    if($user->id === $project->project_leader_id) {
+        $tasks = $project->tasks;
+    } else {
+        $tasks = $project->tasks()->where('user_id', $user->id)->get();
+    }
 
 
     return Inertia::render('ProjectManagement/Project/SingleProject', [
         'project' => $project,
-        'user' => request()->user(),
-        'tasks' => $project->tasks,
+        'user' => $user,
+        'tasks' => $tasks,
         'personalTasks' => $personalTasks,
         'employees' => $members,
         'searchQuery' => $request->input('searchMember', ''),

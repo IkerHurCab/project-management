@@ -18,8 +18,8 @@ const statusConfig = computed(() => {
     },
     to_do: {
       text: 'To Do',
-      bgColor: 'bg-yellow-500',
-      textColor: 'text-yellow-900'
+      bgColor: 'bg-blue-500',
+      textColor: 'text-white-900'
     },
     in_progress: {
       text: 'In Progress',
@@ -43,8 +43,8 @@ const statusConfig = computed(() => {
     },
     review: {
       text: 'Review',
-      bgColor: 'bg-orange-500',
-      textColor: 'text-orange-900'
+      bgColor: 'bg-purple-800',
+      textColor: 'text-white-900'
     }
   };
 

@@ -326,11 +326,28 @@ function getRandomColor(index) {
               </div>
               <div class="p-6">
                 <ul class="space-y-2">
+                  <p v-if="relatedTasks.length === 0" class="text-gray-500 flex h-full items-center justify-center">
+                    There are no related Tasks in this Project
+                  </p>
                   <li v-for="relatedTask in relatedTasks" :key="relatedTask.id" class="flex items-center justify-between">
-                    <a @click="redirectToRelatedTask(relatedTask)" class="text-blue-400 hover:text-blue-300 cursor-pointer">
-                      {{ relatedTask.name }}
+                    <!-- Tarea completada -->
+                    <a v-if="relatedTask.status === 'done'" @click="redirectToRelatedTask(relatedTask)" class="text-blue-400 hover:text-blue-300 cursor-pointer">
+                      {{ relatedTask.name }} - <span class="text-green-500">Done</span>
                     </a>
-                    
+                    <a v-if="relatedTask.status === 'review'" @click="redirectToRelatedTask(relatedTask)" class="text-blue-400 hover:text-blue-300 cursor-pointer">
+                      {{ relatedTask.name }} - <span class="text-purple-500">Review</span>
+                    </a>
+                
+                    <!-- Tarea en progreso -->
+                    <a v-else-if="relatedTask.status === 'in_progress'" @click="redirectToRelatedTask(relatedTask)" class="text-blue-400 hover:text-blue-300 cursor-pointer">
+                      {{ relatedTask.name }} - <span class="text-yellow-500">In Progress</span>
+                    </a>
+                
+                    <a v-else-if="relatedTask.status === 'to_do'" @click="redirectToRelatedTask(relatedTask)" class="text-blue-400 hover:text-blue-300 cursor-pointer">
+                      {{ relatedTask.name }} - <span class="text-blue-500">To Do</span>
+                    </a>
+                
+                   
                   </li>
                 </ul>
               </div>

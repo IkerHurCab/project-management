@@ -386,12 +386,12 @@ console.log(isEditProjectModalOpen.value)
                     <tbody>
 
                       <!-- Si no hay tareas pendientes -->
-                      <tr v-if="personalTasks.length === 0" class="border-b border-gray-900 bg-gray-950">
+                      <tr v-if="tasks.length === 0" class="border-b border-gray-900 bg-gray-950">
                         <td colspan="7" class="p-4 text-center text-gray-400">There are no pending tasks</td>
                       </tr>
 
 
-                      <tr v-for="task in personalTasks" :key="task.id"
+                      <tr v-for="task in tasks" :key="task.id"
                         @click="router.get(`/projects/${project.id}/task/${task.id}`)"
                         class="bg-gray-950 border-b border-gray-700 text-left cursor-pointer hover:bg-gray-900">
                         <td class="p-4 text-gray-400">{{ task.name }}</td>
