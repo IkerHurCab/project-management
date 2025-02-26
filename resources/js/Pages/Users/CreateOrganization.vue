@@ -20,28 +20,43 @@ const showCropperModal = ref(false);
 
 const onFileChange = (event) => {
     const file = event.target.files[0];
+    
     if (file) {
         const reader = new FileReader();
+
         reader.onload = (e) => {
-            previewLogo.value = e.target.result;
-            showCropperModal.value = true;
-            setTimeout(() => {
-                if (imageElement.value) {
-                    cropper.value = new Cropper(imageElement.value, {
-                        aspectRatio: 1,
-                        viewMode: 1,
-                        autoCropArea: 1,
-                        movable: false,
-                        zoomable: false,
-                        scalable: false,
-                        rotatable: true,
-                    });
+            const img = new Image();
+            img.src = e.target.result;
+
+            img.onload = () => {
+                if (img.width < 250 || img.height < 250) {
+                    alert("The image must be at least 250x250 pixels.");
+                    return;
                 }
-            }, 100);
+
+                previewLogo.value = e.target.result;
+                showCropperModal.value = true;
+
+                setTimeout(() => {
+                    if (imageElement.value) {
+                        cropper.value = new Cropper(imageElement.value, {
+                            aspectRatio: 1,
+                            viewMode: 1,
+                            autoCropArea: 1,
+                            movable: false,
+                            zoomable: false,
+                            scalable: false,
+                            rotatable: true, // ✅ Ahora se activa correctamente
+                        });
+                    }
+                }, 100);
+            };
         };
+
         reader.readAsDataURL(file);
     }
 };
+
 
 const cropImage = () => {
     if (cropper.value) {
@@ -174,7 +189,7 @@ const createOrganization = () => {
                 <div class="flex justify-between">
                     <button @click="showCropperModal = false"
                         class="bg-red-500 text-white px-4 py-2 rounded">Cancel</button>
-                    <div class="flex justify-between mb-4">
+                    <div class="flex justify-between mb-4 px-2 gap-2">
                         <button @click="rotateImage(-90)" class="bg-gray-700 text-white px-4 py-2 rounded">↩ Rotate
                             Left</button>
                         <button @click="rotateImage(90)" class="bg-gray-700 text-white px-4 py-2 rounded">↪ Rotate

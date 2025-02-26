@@ -1,7 +1,7 @@
 <script setup>
 import { ref, computed } from 'vue';
 import NavButton from '../Components/NavButton.vue';
-import { usePage } from '@inertiajs/vue3';
+import { usePage, router } from '@inertiajs/vue3';
 
 
 
@@ -39,6 +39,19 @@ const dashboard = () => {
 const addOrg = () => {
   window.location.href = '/organizations/create';
 }
+
+
+const changeOrganization = (id) => {
+    router.post('/change-organization', { organization_id: id }, {
+        onSuccess: () => {
+            isPopupOpen.value = false;
+            window.location.href = '/';
+        },
+        onError: (errors) => {
+            console.error('Error al cambiar de organización:', errors);
+        }
+    });
+};
 
 // Botones de navegación
 const buttons = [

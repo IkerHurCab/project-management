@@ -38,6 +38,7 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::get('/organizations/create', [OrganizationController::class, 'openCreateMenu'])->name('organizations.create.show');
     Route::post('/organizations/create', [OrganizationController::class, 'create'])->name('organizations.create');
+    Route::post('/change-organization', [OrganizationController::class, 'changeOrganization'])->middleware('auth');
 
     Route::get('/projects/create', [ProjectController::class, 'create'])->name('projects.create');
     

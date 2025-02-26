@@ -20,17 +20,28 @@ class OrganizationController extends Controller
     {
         $user = Auth::user();
         $organization = Organization::find($request->organization_id);
-
+    
         if ($organization && $user->organizations->contains($organization)) {
-            // Actualiza la organización actual
-            $user->organizations()->updateExistingPivot($organization->id, ['is_current' => true]);
-            
-            // Desmarcar las demás
-            $user->organizations()->where('id', '!=', $organization->id)
+            // Desmarcar todas las organizaciones actuales del usuario
+            DB::table('organization_user')
+                ->where('user_id', $user->id)
                 ->update(['is_current' => false]);
+    
+            // Marcar la nueva organización como actual
+            DB::table('organization_user')
+                ->where('user_id', $user->id)
+                ->where('organization_id', $organization->id)
+                ->update(['is_current' => true]);
+    
+            return redirect()->back()->with([
+                'success' => 'Organización cambiada correctamente',
+                'auth' => [
+                    'current_organization' => $organization
+                ]
+            ]);
         }
-
-        return redirect()->back();
+    
+        return redirect()->back()->withErrors(['error' => 'No tienes acceso a esta organización']);
     }
 
     public function openCreateMenu(){
@@ -42,7 +53,6 @@ class OrganizationController extends Controller
 
     public function create(Request $request)
     {
-        // Validación de los datos
         $validatedData = $request->validate([
             'name' => 'required|string|max:20',
             'description' => 'required|string|max:100',
@@ -50,14 +60,13 @@ class OrganizationController extends Controller
             'organization_logo' => 'nullable|image|mimes:jpeg,png,jpg,gif',
         ]);
 
-        // Manejo del logo si se ha subido
         $logoPath = null;
         if ($request->hasFile('organization_logo')) {
-            $logoPath = $request->file('organization_logo');//->store('logos', 'public');
+            $logoPath = $request->file('organization_logo');
             $image = ImageManager::imagick()->read($logoPath);
-            $image->resize(150, 150);
-            $image = (string) $image->toPng();
-            $filename = 'logos/' . uniqid() . '.png';
+            $image->resize(250, 250);
+            $image = (string) $image->toWebp();
+            $filename = 'logos/' . uniqid() . '.webp';
             Storage::disk('public')->put($filename, $image);
             $logoPath = $filename;
         }
