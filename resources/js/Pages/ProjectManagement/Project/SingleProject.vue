@@ -11,8 +11,8 @@
   import AddMemberModal from '@/Pages/ProjectManagement/Project/AddMemberModal.vue';
   import ProjectDocumentation from '@/Pages/ProjectManagement/Project/ProjectDocumentation.vue';
   import EditProjectModal from '@/Pages/ProjectManagement/Project/EditProjectModal.vue';
- 
-  
+
+
 
 
 
@@ -20,7 +20,7 @@
   import 'boxicons';
 
 
-  
+
   const props = defineProps({
     tasksCompleted: {
       type: Number,
@@ -62,8 +62,8 @@
     },
 
   });
-  
- 
+
+
   const taskCount = computed(() => props.tasks.length);
 
 
@@ -76,7 +76,7 @@
     return Math.round((props.project.completed_tasks / props.project.total_tasks) * 100)
   })
 
- 
+
   const activeTab = ref(props.activeTab || 'overview');
   const chartOptions = computed(() => ({
     chart: {
@@ -157,7 +157,7 @@
       .sort((a, b) => new Date(a.end_date) - new Date(b.end_date))
       .slice(0, 3)
   );
-    
+
 
 
   const leader = computed(() => {
@@ -206,13 +206,13 @@
   const isEditProjectModalOpen = ref(false);
   const isModalOpen = ref(false);
   const allMembers = ref([]);
- 
+
   const openEditProjectModal = () => {
     console.log(isEditProjectModalOpen.value)
     isEditProjectModalOpen.value = true;
-console.log(isEditProjectModalOpen.value)
-    
-  
+    console.log(isEditProjectModalOpen.value)
+
+
   }
   const closeEditProjectModal = () => {
     isEditProjectModalOpen.value = false;
@@ -376,6 +376,7 @@ console.log(isEditProjectModalOpen.value)
                     <thead>
                       <tr class="bg-gray-800 text-left">
                         <th class="p-4 font-semibold text-gray-400">Task Name</th>
+                        <th class="p-4 font-semibold text-gray-400">Description</th>
                         <th class="p-4 font-semibold text-gray-400">Priority</th>
                         <th class="p-4 font-semibold text-gray-400">Start Date</th>
                         <th class="p-4 font-semibold text-gray-400">End Date</th>
@@ -396,6 +397,12 @@ console.log(isEditProjectModalOpen.value)
                         class="bg-gray-950 border-b border-gray-700 text-left cursor-pointer hover:bg-gray-900">
                         <td class="p-4 text-gray-400">{{ task.name }}</td>
                         <td class="p-4 text-gray-400">{{ task.description }}</td>
+                        <div class="flex p-4 justify-center items-center">
+                          <div
+                            :class="`w-3 h-3  flex flex-row rounded-full ${getPriorityColor(task.priority)} mr-2`">
+                          </div>
+                          <span class="text-lg text-white font-light">{{ getPriorityLabel(task.priority) }}</span>
+                        </div>
                         <td class="p-4 text-gray-400">{{ task.start_date }}</td>
                         <td class="p-4 text-gray-400">{{ task.end_date }}</td>
                         <td class="p-4  text-gray-400">{{ task.completed_hours || 0 }} h</td>
@@ -416,8 +423,10 @@ console.log(isEditProjectModalOpen.value)
             </div>
           </div>
 
-          <div v-if="activeTab === 'documentation'" class="flex justify-center w-full flex-col rounded-lg overflow-auto">
-           <ProjectDocumentation :project="project" :createDoc="createDoc" :openSingleDoc="openSingleDoc"  :documentations="documentations"/> 
+          <div v-if="activeTab === 'documentation'"
+            class="flex justify-center w-full flex-col rounded-lg overflow-auto">
+            <ProjectDocumentation :project="project" :createDoc="createDoc" :openSingleDoc="openSingleDoc"
+              :documentations="documentations" />
           </div>
         </div>
 
@@ -487,6 +496,6 @@ console.log(isEditProjectModalOpen.value)
     <CreateTaskModal :is-open="isCreateTaskModalOpen" :project-id="project.id" :employees="employees"
       @close="closeCreateTaskModal" />
     <EditProjectModal :is-open="isEditProjectModalOpen" :project="project" @close="closeEditProjectModal" />
-     
+
   </Layout>
 </template>
