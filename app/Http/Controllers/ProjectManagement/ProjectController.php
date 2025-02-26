@@ -100,9 +100,9 @@ class ProjectController extends Controller
     $user = request()->user();
 
     if($user->id === $project->project_leader_id) {
-        $tasks = $project->tasks;
+        $tasks = $project->tasks()->with('user')->get();  // Carga las tareas y los usuarios asociados
     } else {
-        $tasks = $project->tasks()->where('user_id', $user->id)->get();
+        $tasks = $project->tasks()->with('user')->where('user_id', $user->id)->get();
     }
 
 

@@ -262,7 +262,7 @@
 
       <div class="bg-gray-950 px-6 py-2 border-b border-gray-700">
         <div class="flex space-x-6">
-          <button v-for="tab in ['Overview', 'Tasks', 'Documentation', 'Analytics', 'Files']" :key="tab"
+          <button v-for="tab in ['Overview', 'Tasks', 'Documentation']" :key="tab"
             @click="activeTab = tab.toLowerCase()" :class="[
               'px-4 py-2 text-sm cursor-pointer font-medium rounded-md transition-colors',
               activeTab === tab.toLowerCase()
@@ -381,7 +381,7 @@
                         <th class="p-4 font-semibold text-gray-400">Start Date</th>
                         <th class="p-4 font-semibold text-gray-400">End Date</th>
                         <th class="p-4 font-semibold text-gray-400">Completed Hours</th>
-                        <th class="p-4 font-semibold text-gray-400">Status</th>
+                        <th class="p-4 font-semibold text-gray-400 w-30">Status</th>
                       </tr>
                     </thead>
                     <tbody>
