@@ -24,6 +24,9 @@
     },
     createDoc: {
       type: Boolean
+    },
+    isUserInProject: {
+      type: Boolean
     }
   });
 
@@ -94,7 +97,7 @@
           class="flex-grow"
           type="text" 
         />
-        <StandardButton 
+        <StandardButton  v-if="isUserInProject"
           @click="createDoc = true; openSingleDoc = true" 
           
           class="py-2">

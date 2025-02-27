@@ -11,25 +11,39 @@
   
   const priorityColor = computed(() => {
     const colors = {
-      1: 'bg-red-500',
+      4: 'bg-red-500',
+      3: 'bg-yellow-600',
       2: 'bg-yellow-500',
-      3: 'bg-green-500'
+      1: 'bg-green-500',
     };
     return colors[props.task.priority] || 'bg-gray-500';
   });
   
   const priorityLabel = computed(() => {
     const labels = {
-      1: 'High',
+      4: 'Urgent',
+      3: 'High',
       2: 'Medium',
-      3: 'Low'
+      1: 'Low'
     };
     return labels[props.task.priority] || 'Unknown';
   });
   
   const getInitials = (name) => {
+  // Verificar si el nombre existe
+  if (!name) return '';  
 
-  };
+  // Dividir el nombre por espacios para obtener las palabras
+  const nameParts = name.split(' ');
+
+  // Tomar la primera letra de cada palabra y convertirla en mayúsculas
+  const initials = nameParts.map(part => part.charAt(0).toUpperCase()).join('');
+
+  // Limitar a un máximo de 2 iniciales
+  return initials.substring(0, 2);  // Devuelve las primeras 2 letras
+};
+
+
   </script>
 
 <template>
@@ -56,7 +70,7 @@
       </div>
       <div class="flex items-center space-x-2">
         <div class="w-8 h-8 bg-indigo-600 rounded-full flex items-center justify-center text-white text-sm font-medium">
-          {{ getInitials(task.assigned_to) }}
+         {{ getInitials(task.user.name)}}
         </div>
         <span class="text-gray-300 text-sm hidden md:inline">{{ task.assigned_to }}</span>
       </div>

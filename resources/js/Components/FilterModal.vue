@@ -11,7 +11,8 @@ const isHoveringSecondary = ref(false);
 const selectedFilters = ref({
   dateRange: { start: '', end: '' },
   status: '',
-  user: ''
+  user: '',
+  myProjects: false,
 });
 
 const activeFilterTags = ref([]);
@@ -19,7 +20,8 @@ const activeFilterTags = ref([]);
 const menuItems = [
   { id: 'dates', icon: 'calendar', label: 'Date Range', value: 'dateRange' },
   { id: 'status', icon: 'check-square', label: 'Status', value: 'status' },
-  { id: 'user', icon: 'user', label: 'User', value: 'user' }
+  { id: 'user', icon: 'user', label: 'User', value: 'user' },
+  { id: 'my_projects', icon: 'folder', label: 'My Projects', value: 'myProjects' }
 ];
 
 const props = defineProps({
@@ -69,6 +71,13 @@ const updateFilterTags = () => {
       label: `User: ${selectedFilters.value.user.name}`
     });
   }
+  if (selectedFilters.value.myProjects) {
+    activeFilterTags.value.push({
+      type: 'myProjects',
+      label: 'My Projects'
+    });
+   
+  }
 };
 
 const removeFilter = (filterType) => {
@@ -84,8 +93,13 @@ const closeModal = () => {
   emit('close');
   activeMenu.value = '';
 };
+const toggleMyProjects = () => {
+  selectedFilters.value.myProjects = !selectedFilters.value.myProjects;
+  updateFilters();
+};
 
 watch(activeFilterTags, (newTags) => {
+  console.log(activeFilterTags.value)
   emit('update:filterTags', newTags);
 }, { deep: true });
 </script>
@@ -103,7 +117,7 @@ watch(activeFilterTags, (newTags) => {
       <!-- Menú secundario (a la izquierda, condicional) -->
       <div v-if="activeMenu" class="w-64 p-4 bg-gray-800 rounded-l-lg" @mouseenter="isHoveringSecondary = true">
         <h3 class="text-lg font-semibold text-white mb-4">{{ activeMenu }}</h3>
-        <div v-if="activeMenu === 'dates'" class="space-y-4">
+        <div v-if="activeMenu === 'dateRange'" class="space-y-4">
           <div>
             <label class="block text-sm text-gray-400 mb-1">Start Date</label>
             <input v-model="selectedFilters.dateRange.start" type="date"
@@ -133,18 +147,20 @@ watch(activeFilterTags, (newTags) => {
             {{ user.name }}
           </button>
         </div>
+        
       </div>
 
       <!-- Menú principal -->
       <div class="w-64 bg-gray-900">
         <div class="">
-          <button v-for="item in menuItems" :key="item.id"  @click="showMenu(item.id)"
-            
+          <button v-for="item in menuItems" :key="item.id" 
+            @click="item.value === 'myProjects' ? toggleMyProjects() : showMenu(item.value)"
             class="w-full cursor-pointer flex items-center justify-between px-5 py-3 hover:bg-gray-800 text-white">
             <div class="flex items-center gap-x-2">
               <box-icon :name="item.icon" color='#ffffff'></box-icon>
               <span>{{ item.label }}</span>
             </div>
+            <box-icon v-if="item.value === 'myProjects' && selectedFilters.myProjects" name="check" color="#4CAF50"></box-icon>
           </button>
         </div>
       </div>

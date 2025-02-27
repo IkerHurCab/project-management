@@ -28,8 +28,13 @@ class TaskController extends Controller
         }   
         $taskLogs = $task->logs()->orderBy('log_date')->get();
     
+        $userId = $task->user_id;
+        $relatedTasks = $task->project->tasks()
+    ->where('user_id', $userId)  // Filtra por el usuario asignado
+    ->where('id', '!=', $task->id)  // Excluye la tarea actual de los resultados
+    ->limit(3)  // Limita el número de tareas relacionadas
+    ->get();
 
-        $relatedTasks = $task->project->tasks()->limit(3)->get();
 
         return Inertia::render('ProjectManagement/Task/SingleTask', [
             'project' => $task->project,

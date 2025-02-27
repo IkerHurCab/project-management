@@ -1,5 +1,5 @@
 <script setup>
-    import { ref } from 'vue';
+    import { ref, onMounted } from 'vue';
     import { useForm, router } from '@inertiajs/vue3';
     import StandardButton from '@/Components/StandardButton.vue';
     import SelectWithIcon from '@/Components/SelectWithIcon.vue'
@@ -12,7 +12,9 @@
     });
     
     const emit = defineEmits(['close']);
-    
+    onMounted(() => {
+      form.start_date = getCurrentDate();
+    })
     const form = useForm({
       name: '',
       description: '',
@@ -57,6 +59,17 @@
     }
   });
 };
+
+
+function getCurrentDate() {
+
+const today = new Date();
+const year = today.getFullYear();
+const month = String(today.getMonth() + 1).padStart(2, '0'); // Meses en JS empiezan desde 0, sumamos 1
+const day = String(today.getDate()).padStart(2, '0'); // Aseguramos que el día tenga 2 dígitos
+return `${year}-${month}-${day}`;
+
+}
 
     </script>
     

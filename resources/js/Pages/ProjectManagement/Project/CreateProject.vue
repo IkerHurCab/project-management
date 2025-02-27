@@ -24,7 +24,7 @@
       status: 'in_progress',
       description: description.value,
       priority: priority.value,
-      is_public: !isPublic.value,
+      is_public: !is_private.value,
       attachments: attachments.value, // Asegúrate de enviar los archivos correctamente (o manejarlos en el servidor)
     };
 
@@ -45,20 +45,24 @@
   const projectName = ref('');
   const company = ref('');
   const projectLeader = ref('');
-  const startDate = ref('');
+  const startDate = ref(getCurrentDate());
   const endDate = ref('');
   const assignedHours = ref('');
   const status = ref('');
   const description = ref('');
   const priority = ref(1);
-  const isPublic = ref(false);
+  const is_private = ref(false);
   const attachments = ref([]);
 
+  function getCurrentDate() {
 
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0'); // Meses en JS empiezan desde 0, sumamos 1
+    const day = String(today.getDate()).padStart(2, '0'); // Aseguramos que el día tenga 2 dígitos
+    return `${year}-${month}-${day}`;
 
-  const assignTask = () => {
-    // Lógica para asignar la tarea
-  };
+  }
 
   const handleFileUpload = (event) => {
     attachments.value = Array.from(event.target.files);
@@ -148,20 +152,7 @@
                   placeholder="Enter project description"></textarea>
               </div>
               <div class="col-span-1 md:col-span-2 lg:col-span-3">
-                <label for="attachments" class="block text-sm font-medium text-gray-400 mb-2">Attachments</label>
-                <div class="flex items-center justify-center w-full">
-                  <label for="dropzone-file"
-                    class="flex flex-col items-center justify-center w-full h-40 border-2 border-gray-600 border-dashed rounded-lg cursor-pointer bg-gray-900 hover:bg-gray-800">
-                    <div class="flex flex-col items-center justify-center pt-5 pb-6">
-                      <box-icon name="upload" class="w-8 h-8 mb-3 text-gray-400"></box-icon>
-                      <p class="mb-2 text-sm text-gray-400"><span class="font-semibold">Click to upload</span> or drag
-                        and
-                        drop</p>
-                      <p class="text-xs text-gray-500">SVG, PNG, JPG or GIF (MAX. 800x400px)</p>
-                    </div>
-                    <input id="dropzone-file" type="file" class="hidden" multiple @change="handleFileUpload" />
-                  </label>
-                </div>
+                
                 <div v-if="attachments.length > 0" class="mt-2">
                   <p class="text-sm text-gray-400">{{ attachments.length }} file(s) selected</p>
                 </div>
@@ -170,25 +161,27 @@
 
             <div class="flex justify-end space-x-4 mt-8">
               <div class="flex items-center justify-center">
-                <div class="flex items-center justify-between w-full">
-
+                <div class="flex items-center">
                   <label class="flex items-center space-x-3 cursor-pointer group">
+                    <div class="flex items-center space-x-1">
+                      <box-icon  name='lock-alt' color="#99A1AF" ></box-icon>
+                      <span class="text-sm mt-1 text-gray-400 group-hover:text-gray-300 transition-colors duration-200 ease-in-out">
+                        Private
+                      </span>
+                    </div>
                     <div class="relative">
-                      <input type="checkbox" class="sr-only" />
+                      <input type="checkbox" v-model="is_private" class="sr-only" />
                       <div
                         class="w-5 h-5 bg-gray-700 border-2 border-gray-600 rounded-md transition-all duration-200 ease-in-out group-hover:border-gray-500">
                         <svg
                           class="w-3 h-3 text-blue-500 opacity-0 transition-opacity duration-200 ease-in-out absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
-                          :class="{ 'opacity-100': isPublic }" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          :class="{ 'opacity-100': is_private }" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
                         </svg>
                       </div>
                     </div>
-                    <span
-                      class="text-sm text-gray-400 group-hover:text-gray-300 transition-colors duration-200 ease-in-out">Make
-                      project Private</span>
+                    
                   </label>
-
                 </div>
               </div>
               <StandardButton type="submit" class="bg-blue-600 hover:bg-blue-700">

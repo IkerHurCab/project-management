@@ -30,7 +30,7 @@
     const assignedHours = ref('');
     const description = ref('');
     const attachments = ref([]);
-    const isPublic = ref(false);
+    const isPrivate = ref(false);
     const showDeleteModal = ref(false);
     
     
@@ -44,16 +44,16 @@
         endDate.value = props.project.end_date || '';
         assignedHours.value = props.project.assigned_hours || '';
         description.value = props.project.description || '';
-        isPublic.value = props.project.is_public || false;
+        isPrivate.value = !props.project.is_public;
       }
     });
-    
+  
     const handleFileUpload = (event) => {
       attachments.value = Array.from(event.target.files);
     };
     
     const createProject = () => {
-      // Implement project creation logic here
+      console.log(props.project);
       const data =  {
         projectName: projectName.value,
         company: company.value,
@@ -64,7 +64,7 @@
         assignedHours: assignedHours.value,
         description: description.value,
         attachments: attachments.value,
-        isPublic: isPublic.value
+        isPublic: !isPrivate.value
       };
 
       router.put(`/projects/${props.project.id}` , data);
@@ -117,8 +117,12 @@ const deleteProject = () => {
     
               <div>
                 <label for="projectLeader" class="block text-sm font-medium text-gray-400 mb-2">Project Leader</label>
-                <SelectWithIcon v-model="projectLeader" icon="user" placeholder="Select project leader" class="w-full"/>
-              </div>
+                <SelectWithIcon v-model="projectLeader" icon="user" placeholder="Select project leader" class="w-full"
+                :options="[
+    { label: 'Select the project leader', value: '' },
+    ...departmentHead.map(leader => ({ label: leader.label, value: leader.value }))
+  ]" />
+  </div>  
     
               <div>
                 <label for="priority" class="block text-sm font-medium text-gray-400 mb-2">Priority</label>
@@ -155,22 +159,27 @@ const deleteProject = () => {
             </div>
     
             <div class="flex justify-between items-center mt-8">
-              <div class="flex items-center">
-                <label class="flex items-center space-x-3 cursor-pointer group">
+              <div class="flex items-center ">  
+            
+                <label class="flex space-x-3 items-center cursor-pointer group">
+                  <div class="flex items-center space-x-1">
+                  <box-icon  name='lock-alt' color="#99A1AF" ></box-icon>
+                  <span class="text-sm mt-1 text-gray-400 group-hover:text-gray-300 transition-colors duration-200 ease-in-out">
+                    Private
+                  </span>
+                </div>
                   <div class="relative">
-                    <input type="checkbox" v-model="isPublic" class="sr-only" />
+                    <input type="checkbox" v-model="isPrivate" class="sr-only" />
                     <div
                       class="w-5 h-5 bg-gray-700 border-2 border-gray-600 rounded-md transition-all duration-200 ease-in-out group-hover:border-gray-500">
                       <svg
                         class="w-3 h-3 text-blue-500 opacity-0 transition-opacity duration-200 ease-in-out absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
-                        :class="{ 'opacity-100': isPublic }" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        :class="{ 'opacity-100': isPrivate }" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
                       </svg>
                     </div>
                   </div>
-                  <span class="text-sm text-gray-400 group-hover:text-gray-300 transition-colors duration-200 ease-in-out">
-                    Make project Private
-                  </span>
+                   
                 </label>
               </div>
               <div class="flex space-x-3">
