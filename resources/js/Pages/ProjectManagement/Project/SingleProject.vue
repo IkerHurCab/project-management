@@ -333,7 +333,7 @@ const series = computed(() => chartData.value.map(item => item.count));
             <h1 class="text-xl font-semibold text-white">{{ project.name }}</h1>
           </div>
           <div class="flex items-center space-x-4">
-            <StandardButton v-if="isProjectLeader" @click="openCreateTaskModal">+ Create Task</StandardButton>
+            <StandardButton v-if="isProjectLeader && isUserInProject" @click="openCreateTaskModal">+ Create Task</StandardButton>
           </div>
         </div>
       </div>
@@ -370,7 +370,7 @@ const series = computed(() => chartData.value.map(item => item.count));
             <div class="col-span-2 bg-gray-950 rounded-lg overflow-hidden border border-gray-700">
               <div class="border-b border-gray-700 px-6 py-4 flex justify-between items-center">
                 <h2 class="text-2xl font-semibold text-white">Project Details</h2>
-                <StandardButton v-if="isProjectLeader" @click="openEditProjectModal" size="sm" class="">Edit Project</StandardButton>
+                <StandardButton v-if="isProjectLeader && isUserInProject" @click="openEditProjectModal" size="sm" class="">Edit Project</StandardButton>
               </div>
               <div class="p-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -552,7 +552,7 @@ const series = computed(() => chartData.value.map(item => item.count));
             <div>
               <div class="flex justify-between items-center">
                 <h3 class="text-lg font-semibold text-white mb-4">Team Members</h3>
-                <StandardButton v-if="isProjectLeader" @click="openModal" class="h-7 w-7 mb-4 flex items-center justify-center">
+                <StandardButton v-if="isProjectLeader && isUserInProject" @click="openModal" class="h-7 w-7 mb-4 flex items-center justify-center">
                   +
                 </StandardButton>
               </div>

@@ -50,7 +50,7 @@ $projects = Project::with('leader:id,name', 'users:id,name')
     })
     ->get();
 
-    $isAdminOrDepartmentHead = $currentUser->hasRole('admin') || $currentUser->hasRole('department_head');
+        $isAdminOrDepartmentHead = $currentUser->hasRole('admin') || $currentUser->hasRole('department_head');
 
   
      
@@ -125,7 +125,7 @@ $projects = Project::with('leader:id,name', 'users:id,name')
 
     $isProjectLeader = ($projectLeaderId === $user->id);
 
-    $isUserInProject = $project->users->contains('id', $user->id);
+    $isUserInProject = $project->users->contains('id', $user->id) || $isProjectLeader;
     
    
     return Inertia::render('ProjectManagement/Project/SingleProject', [
@@ -143,7 +143,6 @@ $projects = Project::with('leader:id,name', 'users:id,name')
         'createDoc' => $createDoc, 
         'isProjectLeader' => $isProjectLeader,
         'isUserInProject' => $isUserInProject,
-        'isAdminOrDepartmentHead' => $isAdminOrDepartmentHead
     ]);
     }
 
