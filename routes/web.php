@@ -8,6 +8,7 @@ use App\Http\Controllers\HeaderController;
 use App\Http\Controllers\ProjectManagement\TaskController;
 use App\Http\Controllers\ProjectManagement\TaskLogController;
 use App\Http\Controllers\ProjectManagement\CommentController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProjectManagement\ProjectDocumentationController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Middleware\CheckDepartmentAccess;
@@ -15,11 +16,7 @@ use App\Http\Middleware\CheckDepartmentAccess;
 
 
 Route::middleware(['auth'])->group(function () {
-    Route::get('/', function () {
-        return Inertia::render('Home', [
-            'user' => request()->user(),
-        ]);
-    })->name('home');
+   
     Route::post('/update-status', [HeaderController::class, 'changeStatus']);
 
 });
@@ -27,12 +24,11 @@ Route::middleware(['auth'])->group(function () {
 
 
 Route::group(['middleware' => 'auth'], function () {
-    Route::get('/dashboard', function () {
-        return Inertia::render('Dashboard');
-    })->name('dashboard');
-    Route::get('/projects', function () {
-        return Inertia::render('ProjectManagement/Projects');
-    })->name('projects');
+   
+
+
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
     Route::get('/projects/create', [ProjectController::class, 'create'])->name('projects.create');
     
     Route::get('projects', [ProjectController::class, 'index'])->name('projects.index');

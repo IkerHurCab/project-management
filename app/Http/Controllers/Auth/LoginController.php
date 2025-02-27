@@ -35,7 +35,7 @@ class LoginController extends Controller
             'password' => $request->password
         ])) {
             $request->session()->regenerate();
-            return redirect()->route('home');
+            return redirect()->route('dashboard');
         }
         
       
