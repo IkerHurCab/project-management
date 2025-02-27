@@ -117,7 +117,11 @@ const deleteProject = () => {
     
               <div>
                 <label for="projectLeader" class="block text-sm font-medium text-gray-400 mb-2">Project Leader</label>
-                <SelectWithIcon v-model="projectLeader" icon="user" placeholder="Select project leader" class="w-full"/>
+                <SelectWithIcon v-model="projectLeader" icon="user" placeholder="Select project leader" class="w-full"
+                :options="[
+    { label: 'Select the project leader', value: '' },
+    ...departmentHead.map(leader => ({ label: leader.label, value: leader.value }))
+  ]" />
               </div>
     
               <div>

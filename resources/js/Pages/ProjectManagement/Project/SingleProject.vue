@@ -11,6 +11,7 @@
   import AddMemberModal from '@/Pages/ProjectManagement/Project/AddMemberModal.vue';
   import ProjectDocumentation from '@/Pages/ProjectManagement/Project/ProjectDocumentation.vue';
   import EditProjectModal from '@/Pages/ProjectManagement/Project/EditProjectModal.vue';
+  import DeleteMemberModal from '@/Pages/ProjectManagement/Project/DeleteMemberModal.vue';
 
 
 
@@ -65,7 +66,10 @@
     },
     isUserInProject: {
       type: Boolean
-    }
+    },
+    departmentHead: {
+      type: Array
+    },
 
   });
 
@@ -84,6 +88,8 @@
 
 
   const activeTab = ref(props.activeTab || 'overview');
+  const memberToDelete = ref(null);
+  
   
  
   const tasksByStatus = computed(() => {
@@ -162,15 +168,23 @@
 
   const isCreateTaskModalOpen = ref(false);
   const isEditProjectModalOpen = ref(false);
+  const isDeleteMemberModalOpen = ref(false);
   const isModalOpen = ref(false);
   const allMembers = ref([]);
 
+  const openDeleteMemberModal = (member) => {
+  memberToDelete.value = member;
+  isDeleteMemberModalOpen.value = true;
+};
+
+
+  const closeDeleteMemberModal = () => {
+    isDeleteMemberModalOpen.value = false;
+  }
+
+
   const openEditProjectModal = () => {
-    console.log(isEditProjectModalOpen.value)
     isEditProjectModalOpen.value = true;
-    console.log(isEditProjectModalOpen.value)
-
-
   }
   const closeEditProjectModal = () => {
     isEditProjectModalOpen.value = false;
@@ -562,18 +576,27 @@ const series = computed(() => chartData.value.map(item => item.count));
                   <InputWithIcon icon="search" v-model="searchQuery" placeholder="Search members..." class="h-10 w-full"
                     type="text" />
                 </div>
-                <div class="overflow-y-auto max-h-70 scrollbar">
-                  <div v-for="employee in employees" :key="employee.id"
-                    class="flex cursor-pointer items-center justify-between p-2 hover:bg-gray-700 rounded-lg transition-colors">
-                    <div class="flex items-center space-x-3">
-                      <div class="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center text-white">
-                        {{ employee.name.charAt(0) }}
-                      </div>
-                      <span class="text-white">{{ employee.name }}</span>
-                    </div>
-                    <span class="text-gray-400 text-sm">{{ employee.role }}</span>
-                  </div>
-                </div>
+               <div class="overflow-y-auto max-h-70 scrollbar">
+  <div v-for="employee in employees" :key="employee.id"
+    class="flex cursor-pointer items-center justify-between p-2 hover:bg-gray-700 rounded-lg transition-colors group">
+    
+    <div class="flex items-center space-x-3">
+      <div class="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center text-white">
+        {{ employee.name.charAt(0) }}
+      </div>
+      <span class="text-white">{{ employee.name }}</span>
+    </div>
+
+    <div class="flex items-center space-x-3">
+    
+      
+      <button @click="openDeleteMemberModal(employee)" class=" text-red-500 cursor-pointer opacity-0 group-hover:opacity-100 mt-1 transition-opacity duration-300">
+        <box-icon name='x' color='#ff0000' class="hover:text-red-700" ></box-icon>
+      </button>
+    </div>
+  </div>
+</div>
+
               </div>
             </div>
 
@@ -587,7 +610,8 @@ const series = computed(() => chartData.value.map(item => item.count));
       @add-members="handleAddMembers" />
     <CreateTaskModal :is-open="isCreateTaskModalOpen" :project-id="project.id" :employees="employees"
       @close="closeCreateTaskModal" />
-    <EditProjectModal :is-open="isEditProjectModalOpen" :project="project" @close="closeEditProjectModal" />
+    <EditProjectModal :is-open="isEditProjectModalOpen" :project="project" :departmentHead="departmentHead" @close="closeEditProjectModal" />
+    <DeleteMemberModal :is-open="isDeleteMemberModalOpen" :memberToDelete="memberToDelete" :project="project" @close="closeDeleteMemberModal" />
 
   </Layout>
 </template>

@@ -127,7 +127,16 @@ $projects = Project::with('leader:id,name', 'users:id,name')
 
     $isUserInProject = $project->users->contains('id', $user->id) || $isProjectLeader;
     
-   
+    $departmentHead = User::role('department_head')
+    ->select('id', 'name')
+    ->get()
+    ->map(function ($user) {
+        return [
+            'value' => $user->id, 
+            'label' => $user->name, 
+        ];
+    });
+  
     return Inertia::render('ProjectManagement/Project/SingleProject', [
         'project' => $project,
         'user' => $user,
@@ -143,6 +152,7 @@ $projects = Project::with('leader:id,name', 'users:id,name')
         'createDoc' => $createDoc, 
         'isProjectLeader' => $isProjectLeader,
         'isUserInProject' => $isUserInProject,
+        'departmentHead' => $departmentHead
     ]);
     }
 
@@ -225,12 +235,13 @@ $projects = Project::with('leader:id,name', 'users:id,name')
         
         if (!$project) {
             return response()->json(['error' => 'Proyecto no encontrado'], 404);
-        }
-
+        }  
+    
+      
         $project->update([
             'name' => $request['projectName'],
             'company' => $request['company'],
-            'projectLeader' => $request['projectLeader'],
+            'project_leader_id' => $request['projectLeader'],
             'priority' => $request['priority'],
             'start_date' => $request['startDate'],
             'end_date' => $request['endDate'],
@@ -259,7 +270,12 @@ $projects = Project::with('leader:id,name', 'users:id,name')
     return redirect()->route('projects.index')->with('success', 'Proyecto eliminado con éxito');
 }
 
+    public function removeMember(Project $project, User $user)
+    {
+        $project->users()->detach($user->id);
 
+        return redirect()->back()->with('success', 'Member removed successfully.');    
+    }
     
 
 }

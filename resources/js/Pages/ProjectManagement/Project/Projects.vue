@@ -132,7 +132,7 @@
   };
   
   const isUserInProject = (project) => {
-    return project.users && project.users.some(user => user.id === props.user.id);
+    return project.users && project.users.some(user => user.id === props.user.id) || project.project_leader_id === props.user.id;
   };
   </script>
   
@@ -187,7 +187,7 @@
   
                 <tr v-for="project in projects" :key="project.id"
                   :class="{
-                    'bg-green-950 hover:bg-green-900': isUserInProject(project),
+                    'bg-green-950 hover:bg-green-900': isUserInProject(project) ,
                     'bg-gray-950 hover:bg-gray-900': !isUserInProject(project),
                     'border-b border-gray-900': true,
                     'transition duration-200': true,
