@@ -140,7 +140,7 @@ $projects = Project::with('leader:id,name', 'users:id,name')
             'label' => $user->name, 
         ];
     });
-  
+
     return Inertia::render('ProjectManagement/Project/SingleProject', [
         'project' => $project,
         'user' => $user,
@@ -196,7 +196,7 @@ $projects = Project::with('leader:id,name', 'users:id,name')
             'description' => 'nullable|string',
             'attachments' => 'nullable|array',
         ]);
-        
+      
         $project = Project::create([
             'name' => $request->name,
             'company' => $request->company,
@@ -240,8 +240,9 @@ $projects = Project::with('leader:id,name', 'users:id,name')
         if (!$project) {
             return response()->json(['error' => 'Proyecto no encontrado'], 404);
         }  
-    
-      
+        
+ 
+
         $project->update([
             'name' => $request['projectName'],
             'company' => $request['company'],
