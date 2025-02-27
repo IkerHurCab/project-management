@@ -40,15 +40,19 @@ $projects = Project::with('leader:id,name', 'users:id,name')
             $query->whereDate('end_date', '<=', $dateRange['end']);
         }
     })
-    
-    
     ->when($filters['my_projects'] ?? null, function ($query) use ($currentUser) {
-        // Solo incluir proyectos en los que el usuario actual está involucrado
-        $query->whereHas('users', function ($query) use ($currentUser) {
-            $query->where('user_id', $currentUser->id);
+        $query->where(function ($query) use ($currentUser) {
+            // Condición para verificar si el usuario está en la relación 'users' o si es el líder del proyecto
+            $query->whereHas('users', function ($query) use ($currentUser) {
+                $query->where('user_id', $currentUser->id);
+            })
+            ->orWhere('project_leader_id', $currentUser->id);
         });
     })
     ->get();
+
+
+    
 
         $isAdminOrDepartmentHead = $currentUser->hasRole('admin') || $currentUser->hasRole('department_head');
 
@@ -192,7 +196,7 @@ $projects = Project::with('leader:id,name', 'users:id,name')
             'description' => 'nullable|string',
             'attachments' => 'nullable|array',
         ]);
-     
+        
         $project = Project::create([
             'name' => $request->name,
             'company' => $request->company,

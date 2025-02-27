@@ -24,7 +24,6 @@
       status: 'in_progress',
       description: description.value,
       priority: priority.value,
-      is_public: !isPublic.value,
       attachments: attachments.value, // Asegúrate de enviar los archivos correctamente (o manejarlos en el servidor)
     };
 
@@ -51,7 +50,6 @@
   const status = ref('');
   const description = ref('');
   const priority = ref(1);
-  const isPublic = ref(false);
   const attachments = ref([]);
 
   function getCurrentDate() {
@@ -160,28 +158,7 @@
             </div>
 
             <div class="flex justify-end space-x-4 mt-8">
-              <div class="flex items-center justify-center">
-                <div class="flex items-center justify-between w-full">
-
-                  <label class="flex items-center space-x-3 cursor-pointer group">
-                    <div class="relative">
-                      <input type="checkbox" class="sr-only" />
-                      <div
-                        class="w-5 h-5 bg-gray-700 border-2 border-gray-600 rounded-md transition-all duration-200 ease-in-out group-hover:border-gray-500">
-                        <svg
-                          class="w-3 h-3 text-blue-500 opacity-0 transition-opacity duration-200 ease-in-out absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
-                          :class="{ 'opacity-100': isPublic }" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
-                        </svg>
-                      </div>
-                    </div>
-                    <span
-                      class="text-sm text-gray-400 group-hover:text-gray-300 transition-colors duration-200 ease-in-out">Make
-                      project Private</span>
-                  </label>
-
-                </div>
-              </div>
+              
               <StandardButton type="submit" class="bg-blue-600 hover:bg-blue-700">
                 Create Project
 

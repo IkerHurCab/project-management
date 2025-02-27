@@ -178,6 +178,7 @@
                   <th class="p-4 font-semibold text-gray-400">End Date</th>
                   <th class="p-4 font-semibold text-gray-400">Assigned Hours</th>
                   <th class="p-4 font-semibold text-gray-400">Status</th>
+                 
                 </tr>
               </thead>
               <tbody>
