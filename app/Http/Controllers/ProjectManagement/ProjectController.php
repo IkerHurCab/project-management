@@ -19,58 +19,57 @@ class ProjectController extends Controller
     public function index(Request $request)
     {
         $filters = $request->only(['search', 'status', 'user', 'dateRange', 'my_projects']);
-$currentUser = $request->user();
-$projects = Project::with('leader:id,name', 'users:id,name')
-    ->when($filters['search'] ?? null, function ($query, $search) {
-        $query->where('name', 'ILIKE', "%{$search}%");
-    })
-    ->when($filters['status'] ?? null, function ($query, $status) {
-        $query->where('status', $status);
-    })
-    ->when($filters['user'] ?? null, function ($query, $userName) {
-        $query->whereHas('leader', function ($query) use ($userName) {
-            $query->where('name', 'ILIKE', "%{$userName}%");
-        });
-    })
-    ->when($filters['dateRange'] ?? null, function ($query, $dateRange) {
-        if (!empty($dateRange['start'])) {
-            $query->whereDate('start_date', '>=', $dateRange['start']);
-        }
-        if (!empty($dateRange['end'])) {
-            $query->whereDate('end_date', '<=', $dateRange['end']);
-        }
-    })
-    ->when($filters['my_projects'] ?? null, function ($query) use ($currentUser) {
-        $query->where(function ($query) use ($currentUser) {
-            // Condición para verificar si el usuario está en la relación 'users' o si es el líder del proyecto
-            $query->whereHas('users', function ($query) use ($currentUser) {
-                $query->where('user_id', $currentUser->id);
-            })
-            ->orWhere('project_leader_id', $currentUser->id);
-        });
-    })
-    ->get();
-
-
+        $currentUser = $request->user();
     
-
+        $projects = Project::with('leader:id,name', 'users:id,name')
+            ->when($filters['search'] ?? null, function ($query, $search) {
+                $query->where('name', 'ILIKE', "%{$search}%");
+            })
+            ->when($filters['status'] ?? null, function ($query, $status) {
+                $query->where('status', $status);
+            })
+            ->when($filters['user'] ?? null, function ($query, $userName) {
+                $query->whereHas('leader', function ($query) use ($userName) {
+                    $query->where('name', 'ILIKE', "%{$userName}%");
+                });
+            })
+            ->when($filters['dateRange'] ?? null, function ($query, $dateRange) {
+                if (!empty($dateRange['start'])) {
+                    $query->whereDate('start_date', '>=', $dateRange['start']);
+                }
+                if (!empty($dateRange['end'])) {
+                    $query->whereDate('end_date', '<=', $dateRange['end']);
+                }
+            })
+            ->when($filters['my_projects'] ?? null, function ($query) use ($currentUser) {
+                $query->where(function ($query) use ($currentUser) {
+                    $query->whereHas('users', function ($query) use ($currentUser) {
+                        $query->where('user_id', $currentUser->id);
+                    })
+                    ->orWhere('project_leader_id', $currentUser->id);
+                });
+            })
+            ->where(function ($query) use ($currentUser) {
+                $query->where('is_public', true)
+                    ->orWhereHas('users', function ($query) use ($currentUser) {
+                        $query->where('user_id', $currentUser->id);
+                    })
+                    ->orWhere('project_leader_id', $currentUser->id);
+            })
+            ->get();
+    
         $isAdminOrDepartmentHead = $currentUser->hasRole('admin') || $currentUser->hasRole('department_head');
-
-  
-     
     
         $departmentHeads = User::whereHas('roles', function ($query) {
             $query->where('name', 'department_head');
         })->get(['id', 'name']);
     
         $statuses = Project::distinct()->pluck('status');
-        
-      
-
+    
         return Inertia::render('ProjectManagement/Project/Projects', [
             'projects' => $projects,
             'filters' => $filters,
-            'user' => request()->user(),
+            'user' => $currentUser,
             'projectsUrl' => route('projects.index'),
             'departmentHeads' => $departmentHeads,
             'statuses' => $statuses,
