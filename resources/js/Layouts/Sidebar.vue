@@ -63,7 +63,7 @@ const changeOrganization = (id) => {
 const buttons = [
   { name: 'home-alt', action: home},
   { name: 'dashboard', type: 'solid', action: dashboard },
-  { name: 'file', action: projects },
+  { name: 'folder', action: projects }, // Aseguramos que el botón de "Projects" tenga acción
   { name: 'message-square' },
   { name: 'calendar' },
   { name: 'book-bookmark', action: departments },

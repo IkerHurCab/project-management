@@ -11,6 +11,7 @@ use App\Models\Users\Organization;
 use App\Models\ProjectManagement\Project;
 use App\Models\ProjectManagement\Comment;
 use App\Models\Role;
+use App\Models\Users\Department;
 
 
 class User extends Authenticatable
@@ -70,6 +71,14 @@ class User extends Authenticatable
     public function organizations() {
         return $this->belongsToMany(Organization::class);
     }
+
+
+// En el modelo User
+public function departments()
+{
+    return $this->belongsToMany(Department::class, 'user_department' );
+}
+
     public function comments()
     {
         return $this->hasMany(Comment::class);
@@ -82,4 +91,5 @@ class User extends Authenticatable
     }
     
 
+    
 }
