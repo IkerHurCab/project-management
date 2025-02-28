@@ -20,7 +20,7 @@ const newDepartmentDescription = ref('');
 const departmentHead = ref();
 
 //funciones
-function createDepartment(){
+function createDepartment() {
     router.post('/departments', {
         name: newDepartmentName.value,
         description: newDepartmentDescription.value,
@@ -176,15 +176,20 @@ const isPopupVisible = ref(false);
                     <p class="mb-4">Fill in the details to create a new department.</p>
                     <div class="mb-4">
                         <label for="name" class="block text-sm font-medium text-gray-300">Name</label>
-                        <input v-model="newDepartmentName" id="name" type="text" placeholder="Department name" class="mt-1 p-1 block w-full rounded-md border-gray-700 bg-gray-700 text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
+                        <input v-model="newDepartmentName" id="name" type="text" placeholder="Department name"
+                            class="mt-1 p-1 block w-full rounded-md border-gray-700 bg-gray-700 text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
                     </div>
                     <div class="mb-4">
                         <label for="description" class="block text-sm font-medium text-gray-300">Description</label>
-                        <textarea v-model="newDepartmentDescription" id="description" rows="3" placeholder="Department description" class="mt-1 p-1 block w-full rounded-md border-gray-700 bg-gray-700 text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500"></textarea>
+                        <textarea v-model="newDepartmentDescription" id="description" rows="3"
+                            placeholder="Department description"
+                            class="mt-1 p-1 block w-full rounded-md border-gray-700 bg-gray-700 text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500"></textarea>
                     </div>
                     <div class="mb-4">
-                        <label for="department_head" class="block text-sm font-medium text-gray-300">Department Head</label>
-                        <select v-model="departmentHead" id="department_head" class="mt-1 p-1 block w-full rounded-md border-gray-700 bg-gray-700 text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                        <label for="department_head" class="block text-sm font-medium text-gray-300">Department
+                            Head</label>
+                        <select v-model="departmentHead" id="department_head"
+                            class="mt-1 p-1 block w-full rounded-md border-gray-700 bg-gray-700 text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                             <option disabled value="">Select a department head</option>
                             <option v-for="user in users" :key="user.id" :value="user.id">{{ user.name }}</option>
                         </select>

@@ -36,6 +36,10 @@ const dashboard = () => {
   window.location.href = '/';
 }
 
+const home = () => {
+  window.location.href = '/home';
+}
+
 const addOrg = () => {
   window.location.href = '/organizations/create';
 }
@@ -45,7 +49,6 @@ const changeOrganization = (id) => {
     router.post('/change-organization', { organization_id: id }, {
         onSuccess: () => {
             isPopupOpen.value = false;
-            window.location.href = '/';
         },
         onError: (errors) => {
             console.error('Error al cambiar de organización:', errors);
@@ -55,11 +58,12 @@ const changeOrganization = (id) => {
 
 // Botones de navegación
 const buttons = [
+  { name: 'home-alt', action: home},
   { name: 'dashboard', type: 'solid', action: dashboard },
   { name: 'file', action: projects },
   { name: 'message-square' },
   { name: 'calendar' },
-  { name: 'buildings', action: departments },
+  { name: 'book-bookmark', action: departments },
   { name: 'time-five' }
 ];
 
@@ -81,7 +85,6 @@ const bottomLineStyle = createLineStyle(activeBottomIndex);
 
 <template>
   <div class="fixed top-0 left-0 h-full w-16 flex flex-col justify-between py-4 bg-black text-white">
-    {{ console.log(currentOrganization) }}
     <!-- Logo de la organización -->
     <div class="flex justify-center cursor-pointer" @click="isPopupOpen = true">
       <template v-if="currentOrganization?.organization_logo">
@@ -121,7 +124,7 @@ const bottomLineStyle = createLineStyle(activeBottomIndex);
 
   <div v-if="isPopupOpen" class="fixed inset-0 bg-black/50 flex items-center justify-center z-10">
     <div class="bg-gray-800 p-4 rounded-lg shadow-lg w-80">
-      <h2 class="text-lg font-semibold mb-4 text-center">Selecciona una organización</h2>
+      <h2 class="text-lg font-semibold mb-4 text-center">Select an organization</h2>
       <div class="space-y-2">
         <div class="max-h-96 overflow-y-auto">
           <div v-for="org in userOrganizations" :key="org.id"
@@ -141,11 +144,11 @@ const bottomLineStyle = createLineStyle(activeBottomIndex);
         <div class="flex items-center justify-center gap-2 hover:bg-gray-700 p-2 rounded-full cursor-pointer"
           @click="addOrg">
           <box-icon name='plus' color="white"></box-icon>
-          <h1>Añadir organización</h1>
+          <h1>Add new organization</h1>
         </div>
       </div>
       <button @click="isPopupOpen = false" class="mt-4 w-full bg-red-500 text-white py-2 rounded-lg hover:bg-red-600">
-        Cerrar
+        Close
       </button>
     </div>
   </div>

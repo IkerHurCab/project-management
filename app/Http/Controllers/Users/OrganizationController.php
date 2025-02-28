@@ -33,7 +33,7 @@ class OrganizationController extends Controller
                 ->where('organization_id', $organization->id)
                 ->update(['is_current' => true]);
     
-            return redirect()->back()->with([
+            return redirect()->route('home')->with([
                 'success' => 'Organización cambiada correctamente',
                 'auth' => [
                     'current_organization' => $organization
@@ -51,16 +51,24 @@ class OrganizationController extends Controller
         ]);
     }
 
+    public function openEditMenu(){
+        return Inertia::render('Users/EditOrganization', [
+
+        ]);
+    }
+
     public function create(Request $request)
     {
         $validatedData = $request->validate([
             'name' => 'required|string|max:20',
-            'description' => 'required|string|max:100',
+            'description' => 'required|string|max:1000',
             'organization_head' => 'required|exists:users,id',
             'organization_logo' => 'nullable|image|mimes:jpeg,png,jpg,gif',
+            'organization_banner' => 'nullable|image|mimes:jpeg,png,jpg,gif',
         ]);
 
         $logoPath = null;
+        $bannerPath = null;
         if ($request->hasFile('organization_logo')) {
             $logoPath = $request->file('organization_logo');
             $image = ImageManager::imagick()->read($logoPath);
@@ -71,6 +79,22 @@ class OrganizationController extends Controller
             $logoPath = $filename;
         }
 
+        if ($request->hasFile('organization_banner')) {
+            $bannerPath = $request->file('organization_banner');
+            $image = ImageManager::imagick()->read($bannerPath);
+            $image->resize(1000, 300, function ($constraint) {
+                $constraint->aspectRatio(); // Mantiene la proporción original
+                $constraint->upsize(); // Evita que la imagen se agrande si es más pequeña
+            });
+        
+            // Luego recortamos (centrado automático)
+            $image->crop(1000, 300);
+            $image = (string) $image->toWebp();
+            $filename = 'banners/' . uniqid() . '.webp';
+            Storage::disk('public')->put($filename, $image);
+            $bannerPath = $filename;
+        }
+
         $organization = Organization::create([
             'name' => $validatedData['name'],
             'description' => $validatedData['description'],
@@ -78,6 +102,7 @@ class OrganizationController extends Controller
             'created_at' => NOW(),
             'updated_at' => NOW(),
             'organization_logo' => $logoPath, 
+            'organization_banner' => $bannerPath,
         ]);
 
         $userId = Auth::id();
@@ -113,5 +138,47 @@ class OrganizationController extends Controller
 
         // Redirigir con mensaje de éxito
         return redirect()->back()->with('success', 'Organization created successfully!');
+    }
+
+    public function update(Request $request, Organization $organization) {
+        $validatedData = $request->validate([
+            'name' => 'required|string|max:20',
+            'description' => 'required|string|max:1000',
+            'organization_logo' => 'nullable|image|mimes:jpeg,png,jpg,gif',
+            'organization_banner' => 'nullable|image|mimes:jpeg,png,jpg,gif',
+        ]);
+    
+        $organization->update([
+            'name' => $request->name,
+            'description' => $request->description,
+        ]);
+    
+        if ($request->hasFile('organization_logo')) {
+            $logoPath = $request->file('organization_logo');
+            $image = ImageManager::imagick()->read($logoPath);
+            $image->resize(250, 250);
+            $image = (string) $image->toWebp();
+            $filename = 'logos/' . uniqid() . '.webp';
+            Storage::disk('public')->put($filename, $image);
+            $organization->update(['organization_logo' => $filename]);
+        }
+    
+        if ($request->hasFile('organization_banner')) {
+            $bannerPath = $request->file('organization_banner');
+            $image = ImageManager::imagick()->read($bannerPath);
+            $image->resize(1000, 300, function ($constraint) {
+                $constraint->aspectRatio(); // Mantiene la proporción original
+                $constraint->upsize(); // Evita que la imagen se agrande si es más pequeña
+            });
+        
+            // Luego recortamos (centrado automático)
+            $image->crop(1000, 300);
+            $image = (string) $image->toWebp();
+            $filename = 'banners/' . uniqid() . '.webp';
+            Storage::disk('public')->put($filename, $image);
+            $organization->update(['organization_banner' => $filename]);
+        }
+    
+        return redirect()->route('home')->with('success', 'Organization updated successfully');
     }
 }

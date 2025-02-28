@@ -6,19 +6,30 @@ import Cropper from 'cropperjs';
 import 'cropperjs/dist/cropper.css';
 
 const page = usePage();
+const organization = computed(() => usePage().props.auth?.current_organization);
 const users = page.props.users;
 
-const newOrganizationName = ref('');
-const newOrganizationDescription = ref('');
-const organizationHead = ref('');
+const newOrganizationName = ref(organization.value?.name || '');
+const newOrganizationDescription = ref(organization.value?.description || '');
+const organizationHead = ref(organization.value?.organization_head || '');
 
-
+// Logo handling
 const organizationLogo = ref(null);
-const previewLogo = ref(null);
+const previewLogo = ref(
+    organization.value?.organization_logo
+        ? new URL(`/storage/${organization.value.organization_logo}`, window.location.origin).href
+        : null
+);
 
+// Banner handling (new)
 const organizationBanner = ref(null);
-const previewBanner = ref(null);
+const previewBanner = ref(
+    organization.value?.organization_banner
+        ? new URL(`/storage/${organization.value.organization_banner}`, window.location.origin).href
+        : null
+);
 
+// Cropper references
 const cropperLogo = ref(null);
 const cropperBanner = ref(null);
 const imageElement = ref(null);
@@ -53,7 +64,7 @@ const onLogoChange = (event) => {
                             movable: false,
                             zoomable: false,
                             scalable: false,
-                            rotatable: true, // ✅ Ahora se activa correctamente
+                            rotatable: true,
                         });
                     }
                 }, 100);
@@ -77,16 +88,11 @@ const onBannerChange = (event) => {
             img.onload = () => {
                 const minWidth = 1000;
                 const minHeight = 300;
-                const aspectRatioMin = 2.5; // Relación mínima aceptada (ej: 1000x400)
-                const aspectRatioMax = 4;   // Relación máxima aceptada (ej: 1600x400)
-
-                const imageAspectRatio = img.width / img.height;
 
                 if (img.width < minWidth || img.height < minHeight) {
                     alert(`The image must be at least ${minWidth}x${minHeight} pixels.`);
                     return;
                 }
-
 
                 previewBanner.value = e.target.result;
                 showCropperBannerModal.value = true;
@@ -113,8 +119,6 @@ const onBannerChange = (event) => {
     }
 };
 
-
-
 const cropLogoImage = () => {
     if (cropperLogo.value) {
         const canvas = cropperLogo.value.getCroppedCanvas();
@@ -131,7 +135,7 @@ const cropBannerImage = () => {
     if (cropperBanner.value) {
         const canvas = cropperBanner.value.getCroppedCanvas();
         canvas.toBlob((blob) => {
-            organizationBanner.value = new File([blob], "cropped_logo.png", { type: "image/png" });
+            organizationBanner.value = new File([blob], "cropped_banner.png", { type: "image/png" });
             previewBanner.value = URL.createObjectURL(blob);
             showCropperBannerModal.value = false;
             cropperBanner.value.destroy();
@@ -159,16 +163,16 @@ const organizationInitials = computed(() => {
         .toUpperCase();
 });
 
-const createOrganization = () => {
-    if (!newOrganizationName.value.trim() || !newOrganizationDescription.value.trim() || !organizationHead.value) {
+const updateOrganization = () => {
+    if (!newOrganizationName.value.trim() || !newOrganizationDescription.value.trim()) {
         alert("Please fill in all required fields.");
         return;
     }
 
     const formData = new FormData();
+    formData.append("_method", "PUT");
     formData.append("name", newOrganizationName.value);
     formData.append("description", newOrganizationDescription.value);
-    formData.append("organization_head", organizationHead.value);
 
     if (organizationLogo.value) {
         formData.append("organization_logo", organizationLogo.value);
@@ -178,60 +182,48 @@ const createOrganization = () => {
         formData.append("organization_banner", organizationBanner.value);
     }
 
-    router.post('/organizations/create', formData, {
+    router.post(`/organizations/${organization.value.id}/update`, formData, {
         onSuccess: () => {
-            alert("Organization created successfully!");
+            router.get('/home');
         },
         onError: (errors) => {
-            console.error("Error creating organization:", errors);
-            alert("Failed to create organization.");
+            console.error("Error updating organization:", errors);
+            alert("Failed to update organization.");
         }
     });
 };
 </script>
 
 <template>
-    <Layout pageTitle="Create Organization">
+    <Layout pageTitle="Edit Organization">
         <div class="w-2/3 mx-auto bg-gray-950 p-6 rounded-lg shadow-lg space-x-6 border border-gray-600">
-            <div class="flex justify-center items-center gap-8">
+            <h2 class="text-xl font-bold hover:text-gray-300 cursor-pointer max-w-fit"
+                @click="router.get('/home')">↩ Discard changes</h2>
+            <div class="flex justify-center items-center gap-8 mt-4">
                 <div class="w-2/3">
-                    <p class="mb-4">Fill in the details to create a new organization.</p>
+                    <p class="mb-4">Edit the details of your organization.</p>
 
                     <div class="mb-4">
                         <label for="name" class="block text-sm font-medium text-gray-300">Name</label>
-                        <input v-model="newOrganizationName" id="name" type="text" placeholder="Organization name"
-                            maxlength="20"
+                        <input v-model="newOrganizationName" id="name" type="text" maxlength="20"
                             class="mt-1 p-1 block w-full rounded-md border-gray-700 bg-gray-900 text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
                     </div>
 
                     <div class="mb-4">
                         <label for="description" class="block text-sm font-medium text-gray-300">Description</label>
                         <textarea v-model="newOrganizationDescription" id="description" rows="3" maxlength="1000"
-                            placeholder="Organization description"
-                            class="mt-1 p-1 block min-h-135 max-h-135 w-full rounded-md border-gray-700 bg-gray-900 text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500"></textarea>
-                    </div>
-
-                    <div class="mb-4">
-                        <label for="organization_head" class="block text-sm font-medium text-gray-300">Organization
-                            Head</label>
-                        <select v-model="organizationHead" id="organization_head"
-                            class="mt-1 p-1 block w-full rounded-md border-gray-700 bg-gray-900 text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                            <option disabled value="">Select an organization head</option>
-                            <option v-for="user in users" :key="user.id" :value="user.id">{{ user.name }}</option>
-                        </select>
+                            class="mt-1 p-1 block w-full min-h-135 max-h-135 rounded-md border-gray-700 bg-gray-900 text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500"></textarea>
                     </div>
 
                     <div class="flex mb-4 justify-between">
                         <div>
-                            <label for="organization_logo" class="block text-sm font-medium text-gray-300">Upload
-                                Logo</label>
+                            <label for="organization_logo" class="block text-sm font-medium text-gray-300">Upload Logo</label>
                             <input type="file" id="organization_logo" accept="image/*" @change="onLogoChange"
                                 class="mt-1 block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 cursor-pointer transition duration-300">
                         </div>
 
                         <div>
-                            <label for="organization_banner" class="block text-sm font-medium text-gray-300">Upload
-                                Banner</label>
+                            <label for="organization_banner" class="block text-sm font-medium text-gray-300">Upload Banner</label>
                             <input type="file" id="organization_banner" accept="image/*" @change="onBannerChange"
                                 class="mt-1 block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-indigo-600 file:text-white hover:file:bg-indigo-700 cursor-pointer transition duration-300">
                         </div>
@@ -244,17 +236,15 @@ const createOrganization = () => {
                         <img :src="previewBanner" alt="Org Banner" class="w-full h-20 rounded object-cover shadow-md">
                     </template>
                     <template v-else>
-                            <div
-                                class="w-full h-20 flex items-center justify-center rounded bg-gray-500 text-white font-bold text-xl overflow-hidden">
-                            </div>
-                        </template>
+                        <div class="w-full h-20 flex items-center justify-center rounded bg-gray-500 text-white font-bold text-xl overflow-hidden">
+                        </div>
+                    </template>
                     <div class="flex justify-center cursor-pointer mb-4">
                         <template v-if="previewLogo">
                             <img :src="previewLogo" alt="Org Logo" class="border absolute top-30 left-10 w-10 h-10 rounded object-cover shadow-md">
                         </template>
                         <template v-else>
-                            <div
-                                class="border absolute top-30 left-10 w-10 h-10 flex items-center justify-center rounded bg-gray-700 text-white font-bold text-xl overflow-hidden">
+                            <div class="border absolute top-30 left-10 w-10 h-10 flex items-center justify-center rounded bg-gray-700 text-white font-bold text-xl overflow-hidden">
                                 {{ organizationInitials }}
                             </div>
                         </template>
@@ -262,17 +252,16 @@ const createOrganization = () => {
 
                     <h3 class="text-white font-semibold">{{ newOrganizationName || 'Organization Name' }}</h3>
                     <div>
-                        <p class="text-gray-400 text-justify text-sm mt-2 overflow-x-auto">{{ newOrganizationDescription
-                            ||
-                            'Organization description...'
-                        }}</p>
+                        <p class="text-gray-400 text-justify text-sm mt-2 overflow-x-auto">
+                            {{ newOrganizationDescription || 'Organization description...' }}
+                        </p>
                     </div>
                 </div>
             </div>
 
-            <h2 class="text-center bg-white text-black rounded-lg p-2 cursor-pointer hover:bg-gray-300 transition duration-300"
-                @click.stop="createOrganization">
-                Create
+            <h2 class="text-center bg-white text-black rounded-lg p-2 cursor-pointer hover:bg-gray-300 transition duration-300 mt-4"
+                @click="updateOrganization">
+                Save Changes
             </h2>
         </div>
 
@@ -309,8 +298,7 @@ const createOrganization = () => {
                         class="bg-red-500 text-white px-4 py-2 rounded">Cancel</button>
                     <div class="flex justify-between mb-4 px-2 gap-2">
                         <button @click="rotateBannerImage(180)" class="bg-gray-700 text-white px-4 py-2 rounded">↩
-                            Rotate
-                            Banner</button>
+                            Rotate Banner</button>
                     </div>
                     <button @click="cropBannerImage" class="bg-green-500 text-white px-4 py-2 rounded">Crop</button>
                 </div>

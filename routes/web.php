@@ -9,6 +9,7 @@ use App\Http\Controllers\ProjectManagement\TaskController;
 use App\Http\Controllers\ProjectManagement\TaskLogController;
 use App\Http\Controllers\ProjectManagement\CommentController;
 use App\Http\Controllers\ProjectManagement\ProjectDocumentationController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\Users\OrganizationController;
 use App\Http\Middleware\CheckDepartmentAccess;
@@ -18,17 +19,16 @@ use App\Models\User;
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/', function () {
-        return Inertia::render('Home', [
+        return Inertia::render('Dashboard', [
             'user' => request()->user(),
         ]);
-    })->name('home');
+    });
     Route::post('/update-status', [HeaderController::class, 'changeStatus']);
 
 });
 
-
-
 Route::group(['middleware' => 'auth'], function () {
+    Route::get('/home', [HomeController::class, 'show'])->name('home');
     Route::get('/dashboard', function () {
         return Inertia::render('Dashboard');
     })->name('dashboard');
@@ -37,8 +37,11 @@ Route::group(['middleware' => 'auth'], function () {
     })->name('projects');
 
     Route::get('/organizations/create', [OrganizationController::class, 'openCreateMenu'])->name('organizations.create.show');
+    Route::get('/organizations/{id}/edit', [OrganizationController::class, 'openEditMenu'])->name('organizations.edit.show');
     Route::post('/organizations/create', [OrganizationController::class, 'create'])->name('organizations.create');
     Route::post('/change-organization', [OrganizationController::class, 'changeOrganization'])->middleware('auth');
+    Route::put('/organizations/{organization}/update', [OrganizationController::class, 'update'])->name('organizations.update');
+
 
     Route::get('/projects/create', [ProjectController::class, 'create'])->name('projects.create');
     
@@ -85,6 +88,5 @@ Route::middleware(['guest'])->group(function () {
 
 Route::get('logout' , function() {
     Auth::logout(); 
-
     return redirect('/login'); 
 });

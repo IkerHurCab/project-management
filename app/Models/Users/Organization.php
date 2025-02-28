@@ -23,6 +23,7 @@ class Organization extends Model
         'description',
         'organization_head',
         'organization_logo',
+        'organization_banner'
     ];
 
     /**

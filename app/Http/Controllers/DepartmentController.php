@@ -65,6 +65,7 @@ class DepartmentController extends Controller
         $department = Department::create([
             'name' => $request->input('name'),
             'description' => $request->input('description'),
+            'organization_id' => $request->user()->currentOrganization()->first()->id,
         ]);
 
         // Asignar al usuario actual al departamento
@@ -87,12 +88,16 @@ class DepartmentController extends Controller
         $userDepartments = Department::withCount('users')
             ->whereHas('users', function($query) use ($request) {
                 $query->where('users.id', $request->user()->id);
-            })->get();
+            })
+            ->where('organization_id', $request->user()->currentOrganization()->first()->id)
+            ->get();
 
         $otherDepartments = Department::withCount('users')
             ->whereDoesntHave('users', function($query) use ($request) {
                 $query->where('users.id', $request->user()->id);
-            })->get();
+            })
+            ->where('organization_id', $request->user()->currentOrganization()->first()->id)
+            ->get();
 
         return Inertia::render('Users/Departments', [
             'users' => User::all(),
