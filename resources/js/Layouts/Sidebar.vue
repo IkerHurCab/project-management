@@ -24,7 +24,7 @@ const logout = () => {
 // Botones de navegación
 const buttons = [
   { name: 'dashboard', type: 'solid', action: dashboard },
-  { name: 'file', action: projects }, // Aseguramos que el botón de "Projects" tenga acción
+  { name: 'folder', action: projects }, // Aseguramos que el botón de "Projects" tenga acción
   { name: 'message-square' },
   { name: 'calendar' },
   { name: 'buildings', action: departments },
