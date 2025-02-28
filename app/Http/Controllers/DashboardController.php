@@ -6,7 +6,9 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\ProjectManagement\Task;
 use App\Models\ProjectManagement\Project;
+use App\Models\User;
 use App\Models\ProjectManagement\TaskLog;
+
 use Carbon\Carbon;
 
 class DashboardController extends Controller
@@ -16,31 +18,24 @@ class DashboardController extends Controller
         $user = auth()->user();
 
         $tasks = Task::where('user_id', $user->id)->get();
-        // Obtener los proyectos del usuario con las relaciones 'tasks' y 'tasks.project'
-        $projects = $user->projects()->with(['tasks' => function($query) {
-            $query->selectRaw('sum(completed_hours) as total_completed_hours');
-        }])->get();
-     
+       
+        $projects = $user->projects()->with(['tasks.project'])->get();
 
         $taskLogs = TaskLog::where('user_id', $user->id)
                     ->whereBetween('log_date', [
-                        Carbon::now()->startOfWeek(),  // El inicio de la semana pasada
-                        Carbon::now()->endOfWeek()     // El final de la semana pasada
+                        Carbon::now()->startOfWeek(),  
+                        Carbon::now()->endOfWeek()    
                     ])
                     ->get();
         
-                    $allTimeLogs = TaskLog::with(['task', 'task.project']) // Carga la relación task y project de cada task
+        $allTimeLogs = TaskLog::with(['task', 'task.project']) 
                     ->where('user_id', $user->id)
                     ->get();
 
-
-                   
-                    
-        
      
-    
-        
+   
 
+                    
         if($user->hasRole('admin')){
             return Inertia::render('Dashboard/AdminDashboard', [
                 'user' => $user,
@@ -49,10 +44,29 @@ class DashboardController extends Controller
             ]);
         }   
         else if($user->hasRole('department_head')){
+            $leaderProjects = Project::with('tasks')->where('project_leader_id', $user->id)->get();
+            $leaderProjectTasks = Task::whereIn('project_id', $leaderProjects->pluck('id'))->get();
+            $teamMembers = User::whereHas('departments', function($query) use ($user){
+                $query->where('department_id', $user->department_id);
+            })->get();
+
+            $leaderProjects = $leaderProjects->map(function ($project) {
+                $totalTasks = $project->tasks->count();
+                $completedTasks = $project->tasks->where('status', 'done')->count();
+                $progress = $totalTasks > 0 ? ($completedTasks / $totalTasks) * 100 : 0;
+                
+                // Agregar el campo 'progress' al proyecto
+                $project->progress = $progress;
+        
+                return $project;
+            });
+            
+            
+
             return Inertia::render('Dashboard/DepartmentHeadDashboard', [
                 'user' => $user,
-                'tasks' => $tasks,
-                'projects' => $projects
+                'tasks' => $leaderProjectTasks,
+                'projects' => $leaderProjects
             ]);
         }
         else if($user->hasRole('employee')){

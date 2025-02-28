@@ -8,7 +8,12 @@
     import CreateProject from '@/Pages/ProjectManagement/Project/CreateProject.vue'
     import 'boxicons'
     
-    // Dummy data for the dashboard
+    const props = defineProps({
+      projects: Array,
+      tasks: Array,
+      user: Object,
+    })
+
     const user = ref({
       id: 1,
       name: 'John Doe',
@@ -16,133 +21,7 @@
       department: 'Engineering'
     })
     
-    const projects = ref([
-      {
-        id: 1,
-        name: 'Website Redesign',
-        description: 'Complete overhaul of the company website with new design and features',
-        status: 'in_progress',
-        priority: 3,
-        start_date: '2025-01-15',
-        end_date: '2025-04-30',
-        total_tasks: 24,
-        completed_tasks: 10,
-        team_members: 5,
-        progress: 42
-      },
-      {
-        id: 2,
-        name: 'Mobile App Development',
-        description: 'Develop a new mobile application for iOS and Android platforms',
-        status: 'to_do',
-        priority: 2,
-        start_date: '2025-03-01',
-        end_date: '2025-07-15',
-        total_tasks: 32,
-        completed_tasks: 0,
-        team_members: 7,
-        progress: 0
-      },
-      {
-        id: 3,
-        name: 'Database Migration',
-        description: 'Migrate existing database to a new cloud-based solution',
-        status: 'review',
-        priority: 4,
-        start_date: '2025-01-05',
-        end_date: '2025-02-28',
-        total_tasks: 18,
-        completed_tasks: 16,
-        team_members: 4,
-        progress: 89
-      },
-      {
-        id: 4,
-        name: 'Security Audit',
-        description: 'Comprehensive security audit of all systems and infrastructure',
-        status: 'done',
-        priority: 3,
-        start_date: '2025-01-10',
-        end_date: '2025-02-10',
-        total_tasks: 15,
-        completed_tasks: 15,
-        team_members: 3,
-        progress: 100
-      }
-    ])
-    
-    const tasks = ref([
-      {
-        id: 1,
-        name: 'Design Homepage Mockup',
-        description: 'Create mockup designs for the new homepage',
-        status: 'in_progress',
-        priority: 2,
-        project_id: 1,
-        project_name: 'Website Redesign',
-        assignee: 'Alice Johnson',
-        start_date: '2025-01-20',
-        end_date: '2025-02-05',
-        estimated_hours: 20,
-        completed_hours: 12
-      },
-      {
-        id: 2,
-        name: 'Setup Database Schema',
-        description: 'Design and implement the new database schema',
-        status: 'review',
-        priority: 3,
-        project_id: 3,
-        project_name: 'Database Migration',
-        assignee: 'Bob Smith',
-        start_date: '2025-01-10',
-        end_date: '2025-01-25',
-        estimated_hours: 30,
-        completed_hours: 28
-      },
-      {
-        id: 3,
-        name: 'API Integration',
-        description: 'Integrate third-party APIs for payment processing',
-        status: 'to_do',
-        priority: 4,
-        project_id: 2,
-        project_name: 'Mobile App Development',
-        assignee: 'Charlie Davis',
-        start_date: '2025-03-10',
-        end_date: '2025-03-30',
-        estimated_hours: 40,
-        completed_hours: 0
-      },
-      {
-        id: 4,
-        name: 'Penetration Testing',
-        description: 'Conduct penetration testing on all systems',
-        status: 'done',
-        priority: 3,
-        project_id: 4,
-        project_name: 'Security Audit',
-        assignee: 'Diana Wilson',
-        start_date: '2025-01-25',
-        end_date: '2025-02-05',
-        estimated_hours: 25,
-        completed_hours: 25
-      },
-      {
-        id: 5,
-        name: 'User Authentication',
-        description: 'Implement secure user authentication system',
-        status: 'in_progress',
-        priority: 3,
-        project_id: 2,
-        project_name: 'Mobile App Development',
-        assignee: 'Eve Martin',
-        start_date: '2025-03-05',
-        end_date: '2025-03-20',
-        estimated_hours: 35,
-        completed_hours: 15
-      }
-    ])
+   
     
     const teamMembers = ref([
       { id: 1, name: 'Alice Johnson', role: 'Senior Developer', tasks_assigned: 4, tasks_completed: 2 },
@@ -153,11 +32,17 @@
     ])
     
     // Dashboard statistics
-    const totalProjects = computed(() => projects.value.length)
-    const completedProjects = computed(() => projects.value.filter(p => p.status === 'done').length)
-    const inProgressProjects = computed(() => projects.value.filter(p => p.status === 'in_progress').length)
-    const totalTasks = computed(() => projects.value.reduce((sum, project) => sum + project.total_tasks, 0))
-    const completedTasks = computed(() => projects.value.reduce((sum, project) => sum + project.completed_tasks, 0))
+    const totalProjects = computed(() => props.projects.length)
+    const completedProjects = computed(() => props.projects.filter(p => p.status === 'done').length)
+    const inProgressProjects = computed(() => props.projects.filter(p => p.status === 'in_progress').length)
+    const totalTasks = computed(() => props.projects.reduce((sum, project) => sum + project.tasks.length, 0))
+    const completedTasks = computed(() => {
+  return props.projects.reduce((sum, project) => {
+    // Filtrar las tareas que tienen el status 'done' y contar cuántas son
+    return sum + project.tasks.filter(task => task.status === 'done').length;
+  }, 0);
+});
+
     const overallProgress = computed(() => Math.round((completedTasks.value / totalTasks.value) * 100) || 0)
     
     // Project status chart
@@ -234,10 +119,10 @@
     
     const projectStatusSeries = computed(() => {
       const statusCounts = {
-        'to_do': projects.value.filter(p => p.status === 'to_do').length,
-        'in_progress': projects.value.filter(p => p.status === 'in_progress').length,
-        'review': projects.value.filter(p => p.status === 'review').length,
-        'done': projects.value.filter(p => p.status === 'done').length
+        'to_do': props.projects.filter(p => p.status === 'to_do').length,
+        'in_progress': props.projects.filter(p => p.status === 'in_progress').length,
+        'review': props.projects.filter(p => p.status === 'review').length,
+        'done': props.projects.filter(p => p.status === 'done').length
       }
       return Object.values(statusCounts)
     })
@@ -254,14 +139,19 @@
       },
       colors: ['#4ADE80', '#FACC15', '#FB923C', '#EF4444'],
       plotOptions: {
-        bar: {
-          horizontal: true,
-          distributed: true,
-          dataLabels: {
-            position: 'top'
-          }
-        }
+    bar: {
+      horizontal: true,
+      distributed: true,
+      dataLabels: {
+        position: 'top'
       },
+      hover: {
+        // Cambiar el color de fondo al hacer hover
+        brightness: 0.1,  // Puedes ajustar el brillo para cambiar el color al hacer hover
+        color: '#000000'  // Color negro de fondo al hacer hover
+      }
+    }
+  },
       dataLabels: {
         enabled: true,
         offsetX: -6,
@@ -295,10 +185,10 @@
     
     const taskPrioritySeries = computed(() => {
       const priorityCounts = [
-        tasks.value.filter(t => t.priority === 1).length,
-        tasks.value.filter(t => t.priority === 2).length,
-        tasks.value.filter(t => t.priority === 3).length,
-        tasks.value.filter(t => t.priority === 4).length
+        props.tasks.filter(t => t.priority === 1).length,
+        props.tasks.filter(t => t.priority === 2).length,
+        props.tasks.filter(t => t.priority === 3).length,
+        props.tasks.filter(t => t.priority === 4).length
       ]
       return [{
         name: 'Tasks',
@@ -406,7 +296,7 @@
     
     const timelineSeries = computed(() => {
       return [{
-        data: projects.value.map(project => ({
+        data: props.projects.map(project => ({
           x: project.name,
           y: [
             new Date(project.start_date).getTime(),
@@ -449,7 +339,7 @@
     
     // Get urgent tasks (high priority tasks with upcoming deadlines)
     const urgentTasks = computed(() => {
-      return tasks.value
+      return props.tasks
         .filter(task => task.priority >= 3 && task.status !== 'done')
         .sort((a, b) => new Date(a.end_date) - new Date(b.end_date))
         .slice(0, 3)
