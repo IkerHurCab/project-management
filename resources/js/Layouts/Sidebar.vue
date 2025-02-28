@@ -39,8 +39,8 @@ const logout = () => {
 };
 
 
-const home = () => {
-  window.location.href = '/home';
+const organization = () => {
+  window.location.href = '/organization';
 }
 
 const addOrg = () => {
@@ -61,13 +61,14 @@ const changeOrganization = (id) => {
 
 // Botones de navegación
 const buttons = [
-  { name: 'home-alt', action: home},
+ 
   { name: 'dashboard', type: 'solid', action: dashboard },
   { name: 'folder', action: projects }, // Aseguramos que el botón de "Projects" tenga acción
-  { name: 'message-square' },
-  { name: 'calendar' },
-  { name: 'book-bookmark', action: departments },
-  { name: 'time-five' }
+  //{ name: 'message-square' },
+ // { name: 'calendar' },
+  { name: 'group', action: departments },
+  { name: 'building-house', action: organization},
+ // { name: 'time-five' }
 ];
 
 const lowButtons = [{ name: 'cog' }];
@@ -114,8 +115,8 @@ const bottomLineStyle = createLineStyle(activeBottomIndex);
     <div class="flex flex-col gap-y-4" @mouseleave="activeBottomIndex = null">
       <div class="absolute left-0 w-1 bg-white transition-all duration-300 ease-in-out" :style="bottomLineStyle"></div>
       <div class="flex flex-col items-center">
-        <NavButton v-for="(button, index) in lowButtons" :key="index" v-bind="button"
-          @mouseenter="activeBottomIndex = index" :isActive="activeBottomIndex === index" />
+        <!-- <NavButton v-for="(button, index) in lowButtons" :key="index" v-bind="button"
+          @mouseenter="activeBottomIndex = index" :isActive="activeBottomIndex === index" /> -->
       </div>
       <div class="flex items-center justify-center">
         <div class="w-3/4 h-px bg-gray-600"></div>

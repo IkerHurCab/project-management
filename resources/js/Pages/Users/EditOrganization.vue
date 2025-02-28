@@ -184,7 +184,7 @@ const updateOrganization = () => {
 
     router.post(`/organizations/${organization.value.id}/update`, formData, {
         onSuccess: () => {
-            router.get('/home');
+            router.get('/organization');
         },
         onError: (errors) => {
             console.error("Error updating organization:", errors);

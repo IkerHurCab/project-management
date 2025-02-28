@@ -30,7 +30,7 @@ Route::middleware(['auth'])->group(function () {
 });
 
 Route::group(['middleware' => 'auth'], function () {
-    Route::get('/home', [HomeController::class, 'show'])->name('home');
+    Route::get('/organization', [HomeController::class, 'show'])->name('home');
     Route::get('/dashboard', function () {
         return Inertia::render('Dashboard');
     })->name('dashboard');
