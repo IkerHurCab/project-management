@@ -16,6 +16,8 @@ class DashboardController extends Controller
         $tasks = Task::where('user_id', $user->id)->get();
         $projects = $user->projects()->get();
 
+      
+
         if($user->hasRole('admin')){
             return Inertia::render('Dashboard/AdminDashboard', [
                 'user' => $user,

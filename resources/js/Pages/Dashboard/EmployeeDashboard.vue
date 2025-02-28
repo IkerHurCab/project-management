@@ -1,5 +1,5 @@
 <script setup>
-  import { ref, watch,  defineProps, computed, onMounted } from 'vue'
+  import { ref, watch, defineProps, computed, onMounted } from 'vue'
   import { router } from '@inertiajs/vue3'
   import Layout from '@/Layouts/Layout.vue'
   import StandardButton from '@/Components/StandardButton.vue'
@@ -16,19 +16,20 @@
 
   const viewMode = ref('all')
 
-  watch(() => viewMode.value, (mode) => {
-    console.log('View mode changed:', mode)
-  })
+
+
+
 
   const filteredTasks = computed(() => {
-    if (viewMode.value === 'active') {
-      return props.MyTasks.filter(task => task.status !== 'done')
-    } else {
-      return props.MyTasks
-    }
+    if (!props.myTasks) return [];
 
-    console.log(filteredTasks.value)
-  })
+    if (viewMode.value === 'active') {
+      return props.myTasks.filter(task => task.status !== 'done');
+    } else {
+      return props.myTasks;
+    }
+  });
+
 
   const user = ref({
     id: 1,
@@ -221,9 +222,9 @@
   // Dashboard statistics
   const totalAssignedTasks = computed(() => props.myTasks.length)
   const completedTasks = computed(() => props.myTasks.filter(t => t.status === 'done').length)
-  const inProgressTasks = computed(() => myTasks.value.filter(t => t.status === 'in_progress').length)
-  const toDoTasks = computed(() => myTasks.value.filter(t => t.status === 'to_do').length)
-  const reviewTasks = computed(() => myTasks.value.filter(t => t.status === 'review').length)
+  const inProgressTasks = computed(() => props.myTasks.filter(t => t.status === 'in_progress').length)
+  const toDoTasks = computed(() => props.myTasks.filter(t => t.status === 'to_do').length)
+  const reviewTasks = computed(() => props.myTasks.filter(t => t.status === 'review').length)
 
   const totalEstimatedHours = computed(() =>
     props.myTasks.reduce((sum, task) => sum + Number(task.estimated_hours), 0)
@@ -378,6 +379,7 @@
     reviewTasks.value,
     completedTasks.value
   ])
+
 
   // Progress chart
   const progressChartOptions = {
@@ -575,27 +577,29 @@
               <div class="border-b border-gray-700 px-6 py-4 flex justify-between items-center">
                 <h2 class="text-xl font-semibold text-white">My Tasks</h2>
                 <div class="flex space-x-2">
-                  <button
-                    class="px-3 py-1 text-sm rounded-md bg-gray-800 text-gray-300 hover:bg-gray-700"
-                    :class="{ 'bg-gray-700': viewMode === 'all' }"
+                  <button class="px-3 py-1 cursor-pointer text-sm rounded-md text-gray-300 hover:bg-gray-700"
+                    :class="{ 'bg-blue-700': viewMode === 'all', 'bg-gray-800': viewMode !== 'all' }"
                     @click="viewMode = 'all'">
                     All
                   </button>
-                  <button
-                    class="px-3 py-1 text-sm rounded-md bg-blue-600 text-white"
-                    :class="{ 'bg-blue-700': viewMode === 'active' }"
+
+                  <button class="px-3 py-1 text-sm rounded-md cursor-pointer text-white hover:bg-blue-700"
+                    :class="{ 'bg-blue-700': viewMode === 'active', 'bg-gray-800': viewMode !== 'active' }"
                     @click="viewMode = 'active'">
                     Active
                   </button>
+
                 </div>
               </div>
-        
+
               <div class="p-4">
                 <div class="space-y-3">
+                  <div v-if="filteredTasks && filteredTasks.length === 0" class="text-gray-400 text-center">
+                    No tasks found
+                  </div>
+
                   <!-- Mostrar tareas basadas en la vista seleccionada -->
-                  <div
-                    v-for="task in filteredTasks"
-                    :key="task.id"
+                  <div v-for="task in filteredTasks" :key="task.id"
                     class="bg-gray-900 p-4 rounded-lg hover:bg-gray-800 transition-colors cursor-pointer"
                     @click="navigateToTask(task.project_id, task.id)">
                     <div class="flex justify-between items-start">
@@ -627,7 +631,7 @@
                         </div>
                       </div>
                       <button @click.stop="openLogTimeModal(task)"
-                        class="text-sm px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                        class="text-sm cursor-pointer px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700">
                         Log Time
                       </button>
                     </div>
