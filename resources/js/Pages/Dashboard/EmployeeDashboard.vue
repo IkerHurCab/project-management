@@ -1,5 +1,5 @@
 <script setup>
-  import { ref, watch, defineProps, computed, onMounted } from 'vue'
+  import { ref, watch, defineProps, computed, onMounted, nextTick } from 'vue'
   import { router } from '@inertiajs/vue3'
   import Layout from '@/Layouts/Layout.vue'
   import StandardButton from '@/Components/StandardButton.vue'
@@ -12,13 +12,11 @@
     user: Object,
     myTasks: Array,
     myProjects: Array,
+    taskLogs: Array,
+    allTimeLogs: Array,
   });
 
   const viewMode = ref('all')
-
-
-
-
 
   const filteredTasks = computed(() => {
     if (!props.myTasks) return [];
@@ -30,7 +28,6 @@
     }
   });
 
-
   const user = ref({
     id: 1,
     name: 'Alex Johnson',
@@ -39,154 +36,10 @@
     avatar: 'A'
   })
 
-  const myTasks = ref([
-    {
-      id: 1,
-      name: 'Design Homepage Mockup',
-      description: 'Create mockup designs for the new homepage',
-      status: 'in_progress',
-      priority: 2,
-      project_id: 1,
-      project_name: 'Website Redesign',
-      start_date: '2025-01-20',
-      end_date: '2025-02-05',
-      estimated_hours: 20,
-      completed_hours: 12
-    },
-    {
-      id: 2,
-      name: 'Implement User Authentication',
-      description: 'Develop the authentication system for the application',
-      status: 'to_do',
-      priority: 3,
-      project_id: 1,
-      project_name: 'Website Redesign',
-      start_date: '2025-02-06',
-      end_date: '2025-02-20',
-      estimated_hours: 30,
-      completed_hours: 0
-    },
-    {
-      id: 3,
-      name: 'Create Responsive Components',
-      description: 'Build reusable UI components that work on all devices',
-      status: 'review',
-      priority: 2,
-      project_id: 1,
-      project_name: 'Website Redesign',
-      start_date: '2025-01-15',
-      end_date: '2025-01-30',
-      estimated_hours: 25,
-      completed_hours: 23
-    },
-    {
-      id: 4,
-      name: 'Optimize Image Loading',
-      description: 'Implement lazy loading and optimize image delivery',
-      status: 'done',
-      priority: 1,
-      project_id: 1,
-      project_name: 'Website Redesign',
-      start_date: '2025-01-10',
-      end_date: '2025-01-18',
-      estimated_hours: 15,
-      completed_hours: 15
-    },
-    {
-      id: 5,
-      name: 'Develop Mobile Navigation',
-      description: 'Create a responsive navigation menu for mobile devices',
-      status: 'to_do',
-      priority: 4,
-      project_id: 2,
-      project_name: 'Mobile App Development',
-      start_date: '2025-03-05',
-      end_date: '2025-03-15',
-      estimated_hours: 18,
-      completed_hours: 0
-    }
-  ])
+ 
+  
 
-  const myProjects = ref([
-    {
-      id: 1,
-      name: 'Website Redesign',
-      description: 'Complete overhaul of the company website with new design and features',
-      status: 'in_progress',
-      priority: 3,
-      start_date: '2025-01-15',
-      end_date: '2025-04-30',
-      total_tasks: 24,
-      completed_tasks: 10,
-      my_tasks: 4,
-      my_completed_tasks: 1,
-      progress: 42,
-      role: 'Frontend Developer'
-    },
-    {
-      id: 2,
-      name: 'Mobile App Development',
-      description: 'Develop a new mobile application for iOS and Android platforms',
-      status: 'to_do',
-      priority: 2,
-      start_date: '2025-03-01',
-      end_date: '2025-07-15',
-      total_tasks: 32,
-      completed_tasks: 0,
-      my_tasks: 1,
-      my_completed_tasks: 0,
-      progress: 0,
-      role: 'UI Developer'
-    }
-  ])
-
-  const timeEntries = ref([
-    {
-      id: 1,
-      task_id: 1,
-      task_name: 'Design Homepage Mockup',
-      project_name: 'Website Redesign',
-      date: '2025-01-25',
-      hours: 4,
-      description: 'Created initial wireframes and design concepts'
-    },
-    {
-      id: 2,
-      task_id: 1,
-      task_name: 'Design Homepage Mockup',
-      project_name: 'Website Redesign',
-      date: '2025-01-26',
-      hours: 5,
-      description: 'Refined designs based on feedback'
-    },
-    {
-      id: 3,
-      task_id: 3,
-      task_name: 'Create Responsive Components',
-      project_name: 'Website Redesign',
-      date: '2025-01-20',
-      hours: 6,
-      description: 'Built button, card, and form components'
-    },
-    {
-      id: 4,
-      task_id: 3,
-      task_name: 'Create Responsive Components',
-      project_name: 'Website Redesign',
-      date: '2025-01-21',
-      hours: 7,
-      description: 'Implemented responsive behavior for all components'
-    },
-    {
-      id: 5,
-      task_id: 4,
-      task_name: 'Optimize Image Loading',
-      project_name: 'Website Redesign',
-      date: '2025-01-15',
-      hours: 8,
-      description: 'Researched and implemented lazy loading techniques'
-    }
-  ])
+  
 
   const notifications = ref([
     {
@@ -237,69 +90,83 @@
     Math.round((completedTasks.value / totalAssignedTasks.value) * 100) || 0
   )
 
-  // Weekly time tracking
-  const weeklyTimeData = [
-    { day: 'Monday', hours: 7.5 },
-    { day: 'Tuesday', hours: 8 },
-    { day: 'Wednesday', hours: 6.5 },
-    { day: 'Thursday', hours: 8.5 },
-    { day: 'Friday', hours: 7 },
-    { day: 'Saturday', hours: 2 },
-    { day: 'Sunday', hours: 0 }
-  ]
+  const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+  // Initialize with empty data
+  const weeklyTimeSeries = ref([{
+    name: 'Worked Hours',
+    data: [0, 0, 0, 0, 0, 0, 0]
+  }]);
 
   const weeklyTimeChartOptions = {
-    chart: {
-      type: 'bar',
-      background: 'transparent',
-      foreColor: '#E5E7EB',
-      toolbar: {
-        show: false
-      }
+  chart: {
+    type: 'bar',
+    background: 'transparent',
+    foreColor: '#E5E7EB',
+    toolbar: {
+      show: false
     },
-    colors: ['#3B82F6'],
-    plotOptions: {
-      bar: {
-        borderRadius: 4,
-        columnWidth: '60%'
-      }
-    },
-    dataLabels: {
-      enabled: false
-    },
-    xaxis: {
-      categories: weeklyTimeData.map(d => d.day),
-      labels: {
-        style: {
-          colors: '#E5E7EB'
-        }
-      }
-    },
-    yaxis: {
-      title: {
-        text: 'Hours',
-        style: {
-          color: '#E5E7EB'
-        }
+    animations: {
+      enabled: true,
+      easing: 'easeinout',
+      speed: 800,
+      animateGradually: {
+        enabled: true,
+        delay: 150
       },
-      labels: {
-        style: {
-          colors: '#E5E7EB'
-        }
+      dynamicAnimation: {
+        enabled: true,
+        speed: 350
+      }
+    }
+  },
+  colors: ['#3B82F6'],
+  plotOptions: {
+    bar: {
+      borderRadius: 4,
+      columnWidth: '60%'
+    }
+  },
+  dataLabels: {
+    enabled: false
+  },
+  xaxis: {
+    categories: daysOfWeek,
+    labels: {
+      style: {
+        colors: '#E5E7EB'
+      }
+    }
+  },
+  yaxis: {
+    title: {
+      text: 'Hours',
+      style: {
+        color: '#E5E7EB'
       }
     },
-    grid: {
-      borderColor: '#374151'
-    },
-    tooltip: {
-      theme: 'dark'
+    labels: {
+      style: {
+        colors: '#E5E7EB'
+      },
+      formatter: (value) => {
+        return value.toFixed(2);  // Limita los decimales a 2
+      }
+    }
+  },
+  grid: {
+    borderColor: '#374151'
+  },
+  tooltip: {
+    theme: 'dark',
+    y: {
+      formatter: (value) => {
+        return value.toFixed(2);  // Limita los decimales a 2 en el tooltip
+      }
     }
   }
+}
 
-  const weeklyTimeSeries = [{
-    name: 'Hours Logged',
-    data: weeklyTimeData.map(d => d.hours)
-  }]
 
   // Task status chart
   const taskStatusChartOptions = {
@@ -380,7 +247,6 @@
     completedTasks.value
   ])
 
-
   // Progress chart
   const progressChartOptions = {
     chart: {
@@ -412,7 +278,7 @@
     labels: ['Completion']
   }
 
-  // Modals
+
   const isLogTimeModalOpen = ref(false)
   const selectedTask = ref(null)
 
@@ -425,10 +291,122 @@
     isLogTimeModalOpen.value = false
   }
 
+  // Function to get day of week from date string
+  const getDayOfWeek = (dateString) => {
+    const date = new Date(dateString);
+    // getDay() returns 0 for Sunday, 1 for Monday, etc.
+    let day = date.getDay();
+    // Convert to 1-7 format where 1 is Monday and 7 is Sunday
+    return day === 0 ? 7 : day;
+  };
+
+  // Update weekly hours chart
+  const updateWeeklyHours = () => {
+  
+    
+    const hoursByDay = {
+      Monday: 0,
+      Tuesday: 0,
+      Wednesday: 0,
+      Thursday: 0,
+      Friday: 0,
+      Saturday: 0,
+      Sunday: 0
+    };
+
+    
+    props.taskLogs.forEach(log => {
+      // Ensure log_time is treated as a number
+      const logHours = Number(log.log_time);
+      if (isNaN(logHours)) {
+        console.warn("Invalid log_time value:", log.log_time);
+        return;
+      }
+      
+      // Determine day of week
+      let dayIndex;
+      
+      if (log.day_of_week !== undefined) {
+        // If day_of_week is already provided
+        dayIndex = log.day_of_week;
+      } else if (log.log_date) {
+        // If we have a date, calculate day of week
+        dayIndex = getDayOfWeek(log.log_date);
+      } else {
+        console.warn("Log entry has no day_of_week or log_date:", log);
+        return;
+      }
+      
+      // Map day index to day name
+      let dayName;
+      switch (dayIndex) {
+        case 1: dayName = 'Monday'; break;
+        case 2: dayName = 'Tuesday'; break;
+        case 3: dayName = 'Wednesday'; break;
+        case 4: dayName = 'Thursday'; break;
+        case 5: dayName = 'Friday'; break;
+        case 6: dayName = 'Saturday'; break;
+        case 0: // JavaScript getDay() returns 0 for Sunday
+        case 7: dayName = 'Sunday'; break;
+        default:
+          console.warn(`Unknown day of week: ${dayIndex}`);
+          return;
+      }
+      
+      // Add hours to the appropriate day
+      hoursByDay[dayName] += logHours;
+      console.log(`Added ${logHours} hours to ${dayName}`);
+    });
+
+    console.log("Hours by day:", hoursByDay);
+
+    // Create a new array to trigger reactivity
+    const newData = [{
+      name: 'Worked Hours',
+      data: daysOfWeek.map(day => hoursByDay[day])
+    }];
+    
+    // Update the chart series data
+    weeklyTimeSeries.value = newData;
+    console.log("Weekly time series updated:", weeklyTimeSeries.value);
+  };
+
+  // Handle new time log entry
   const logTime = (timeEntry) => {
-    console.log('Logging time:', timeEntry)
-    // Here you would normally send this to your API
-  }
+  
+    const newTaskLog = {
+      log_time: Number(timeEntry.log_time),
+      log_date: timeEntry.log_date,
+      day_of_week: getDayOfWeek(timeEntry.log_date),
+      description: timeEntry.description,
+      task_id: timeEntry.task_id,
+      user_id: timeEntry.user_id
+    };
+    
+  
+    
+    // Create a new array with the new log to ensure reactivity
+    props.taskLogs = [...props.taskLogs.value, newTaskLog];
+    
+   
+    
+    // Update the weekly hours chart
+    nextTick(() => {
+      updateWeeklyHours();
+      closeLogTimeModal();
+    });
+  };
+  
+  const getTotalCompletedHours = (tasks) => {
+  return tasks.reduce((total, task) => {
+    // Asegúrate de que 'task.completed_hours' existe en los datos
+    if (task.completed_hours) {
+      total += task.completed_hours;
+    }
+    return total;
+  }, 0);
+};
+
 
   // Utility functions
   const formatDate = (date) => {
@@ -453,9 +431,9 @@
     router.visit(`/projects/${projectId}/task/${taskId}`)
   }
 
-  // Get upcoming deadlines (tasks sorted by end date)
+
   const upcomingDeadlines = computed(() => {
-    return myTasks.value
+    return props.myTasks
       .filter(task => task.status !== 'done')
       .sort((a, b) => new Date(a.end_date) - new Date(b.end_date))
       .slice(0, 3)
@@ -480,13 +458,23 @@
   const unreadNotificationsCount = computed(() => {
     return notifications.value.filter(n => !n.read).length
   })
+
+  // Initialize the chart on component mount
+  onMounted(() => {
+    
+    updateWeeklyHours();
+  });
+
+  
+  // Watch for changes to taskLogs
+  watch(props.taskLogs, (newTaskLogs) => {
+    updateWeeklyHours();
+  }, { deep: true });
 </script>
 
 <template>
   <Layout pageTitle="Employee Dashboard">
     <div class="min-h-screen bg-black text-gray-300">
-
-
       <!-- Main Content -->
       <div class="p-6">
         <!-- Stats Overview -->
@@ -536,7 +524,7 @@
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-gray-400 text-sm">Hours Logged</p>
-                <h3 class="text-3xl font-bold text-white mt-1">{{ totalCompletedHours }}</h3>
+                <h3 class="text-3xl font-bold text-white mt-1">{{ totalCompletedHours.toFixed(2) }} h</h3>
               </div>
               <div class="w-12 h-12 bg-green-600/20 rounded-lg flex items-center justify-center">
                 <box-icon name='time-five' color='#10B981'></box-icon>
@@ -598,7 +586,7 @@
                     No tasks found
                   </div>
 
-                  <!-- Mostrar tareas basadas en la vista seleccionada -->
+               
                   <div v-for="task in filteredTasks" :key="task.id"
                     class="bg-gray-900 p-4 rounded-lg hover:bg-gray-800 transition-colors cursor-pointer"
                     @click="navigateToTask(task.project_id, task.id)">
@@ -667,12 +655,12 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <tr v-for="entry in timeEntries" :key="entry.id"
+                    <tr v-for="entry in allTimeLogs" :key="entry.id"
                       class="border-b border-gray-800 hover:bg-gray-900 transition-colors">
-                      <td class="p-4 text-white">{{ entry.task_name }}</td>
-                      <td class="p-4 text-gray-300">{{ entry.project_name }}</td>
-                      <td class="p-4 text-gray-300">{{ entry.date }}</td>
-                      <td class="p-4 text-gray-300">{{ entry.hours }}</td>
+                      <td class="p-4 text-white">{{ entry.task.name }}</td>
+                      <td class="p-4 text-gray-300">{{ entry.task.project.name }}</td>
+                      <td class="p-4 text-gray-300">{{ formatDate(entry.log_date) }}</td>
+                      <td class="p-4 text-gray-300">{{ entry.log_time }} h</td>
                       <td class="p-4 text-gray-300 truncate max-w-xs">{{ entry.description }}</td>
                     </tr>
                   </tbody>
@@ -722,7 +710,7 @@
               </div>
             </div>
 
-            <!-- My Projects -->
+           
             <div class="bg-gray-950 rounded-lg overflow-hidden border border-gray-700">
               <div class="border-b border-gray-700 px-6 py-4">
                 <h2 class="text-xl font-semibold text-white">My Projects</h2>
@@ -736,10 +724,12 @@
                       <h3 class="text-white font-medium">{{ project.name }}</h3>
                       <StatusBadge :status="project.status" class="ml-2" />
                     </div>
-                    <p class="text-gray-400 text-xs mt-1">Role: {{ project.role }}</p>
+                    <div>
+                      <span>{{ project.tasks[0]?.total_completed_hours || 0 }}</span>
+                    </div>
                     <div class="mt-3">
                       <div class="flex justify-between text-xs text-gray-400 mb-1">
-                        <span>My Tasks: {{ project.my_completed_tasks }}/{{ project.my_tasks }}</span>
+                        <span>My Tasks: </span>
                         <span>{{ project.progress }}%</span>
                       </div>
                       <div class="w-full bg-gray-700 rounded-full h-1.5">

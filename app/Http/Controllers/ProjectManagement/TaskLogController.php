@@ -6,10 +6,13 @@ use Illuminate\Http\Request;
 use App\Models\ProjectManagement\TaskLog;
 use App\Http\Controllers\Controller;
 use App\Models\ProjectManagement\Task;
+use Carbon\Carbon;
 use App\Models\ProjectManagement\Project;
 
 class TaskLogController extends Controller
-{
+{   
+    protected $appends = ['day_of_week'];   
+
     public function store(Request $request, $projectId, $taskId) {
         
             $validated = $request->validate([
@@ -32,10 +35,10 @@ class TaskLogController extends Controller
             $task->update([
                 'completed_hours' => $task->completed_hours + $validated['hours']
             ]);
-        
-            
-
 
     }
+
     
+    
+
 }

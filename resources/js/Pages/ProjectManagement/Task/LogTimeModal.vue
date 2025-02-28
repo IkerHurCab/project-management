@@ -25,10 +25,17 @@
 
 
     router.post(`/projects/${props.project.id}/task/${props.task.id}/task-log`, form, {
-        onSuccess: () => {
-          form.reset();
-          emit('close');
-        }
+      onSuccess: () => {
+      form.reset();
+      emit('close'); // Cierra el modal
+      emit('log-time', { // Emite el evento log-time al componente padre
+        task_id: form.task_id,
+        user_id: form.user_id,
+        log_time: form.hours,
+        log_date: form.date,
+        description: form.description,
+      });
+    },
     })
 
   };
