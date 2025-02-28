@@ -3,6 +3,7 @@ namespace App\Models\ProjectManagement;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
 class TaskLog extends Model
 {
@@ -17,7 +18,8 @@ class TaskLog extends Model
         'description',
     ];
 
-
+    protected $appends = ['day_of_week'];
+    
     public function task()
     {
         return $this->belongsTo(Task::class);
@@ -27,5 +29,9 @@ class TaskLog extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function getDayOfWeekAttribute() {
+        return Carbon::parse($this->log_date)->dayOfWeek;
     }
 }

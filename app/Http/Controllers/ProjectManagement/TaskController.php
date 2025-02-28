@@ -28,8 +28,13 @@ class TaskController extends Controller
         }   
         $taskLogs = $task->logs()->orderBy('log_date')->get();
     
+        $userId = $task->user_id;
+        $relatedTasks = $task->project->tasks()
+    ->where('user_id', $userId)  // Filtra por el usuario asignado
+    ->where('id', '!=', $task->id)  // Excluye la tarea actual de los resultados
+    ->limit(3)  // Limita el número de tareas relacionadas
+    ->get();
 
-        $relatedTasks = $task->project->tasks()->limit(3)->get();
 
         return Inertia::render('ProjectManagement/Task/SingleTask', [
             'project' => $task->project,
@@ -47,7 +52,7 @@ class TaskController extends Controller
     {
        
       
-        
+ 
         $task = Task::find($taskId);
 
         if ($request->hasFile('attachments')) {
@@ -86,6 +91,18 @@ class TaskController extends Controller
 
             $task->attachments = json_encode($currentAttachments);   
             $task->save();
+
+        } else {
+
+            $task->update([
+                'name' => $request['name'],
+                'description' => $request['description'],
+                'estimated_hours' => $request['estimated_hours'],
+                'priority' => $request['priority'],
+                'status' => $request['status'],
+                'start_date' => $request['start_date'],
+                'end_date' => $request['end_date'],
+            ]);
 
         }
        
@@ -144,6 +161,21 @@ class TaskController extends Controller
 
 
     }
+
+    public function destroy($projectId, $taskId)
+{
+    $task = Task::find($taskId);
+    
+    if (!$task) {
+        return redirect()->route('projects.show', ['id' => $projectId])->with('error', 'Task not found');
+    }
+
+    $task->delete();
+
+    return redirect()->route('projects.show', ['projects' => $projectId]);
+
+}
+
 
 
 

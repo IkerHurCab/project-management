@@ -10,8 +10,10 @@
   import CreateTaskModal from '@/Pages/ProjectManagement/Task/CreateTaskModal.vue';
   import AddMemberModal from '@/Pages/ProjectManagement/Project/AddMemberModal.vue';
   import ProjectDocumentation from '@/Pages/ProjectManagement/Project/ProjectDocumentation.vue';
- 
-  
+  import EditProjectModal from '@/Pages/ProjectManagement/Project/EditProjectModal.vue';
+  import DeleteMemberModal from '@/Pages/ProjectManagement/Project/DeleteMemberModal.vue';
+
+
 
 
 
@@ -19,7 +21,7 @@
   import 'boxicons';
 
 
-  
+
   const props = defineProps({
     tasksCompleted: {
       type: Number,
@@ -59,10 +61,19 @@
     openSingleDoc: {
       type: Boolean
     },
+    isProjectLeader: {
+      type: Boolean
+    },
+    isUserInProject: {
+      type: Boolean
+    },
+    departmentHead: {
+      type: Array
+    },
 
   });
-  
- 
+
+
   const taskCount = computed(() => props.tasks.length);
 
 
@@ -75,58 +86,12 @@
     return Math.round((props.project.completed_tasks / props.project.total_tasks) * 100)
   })
 
- 
+
   const activeTab = ref(props.activeTab || 'overview');
-  const chartOptions = computed(() => ({
-    chart: {
-      type: 'donut',
-      background: 'transparent'
-    },
-    colors: ['#6366F1', '#22D3EE', '#F59E0B', '#EF4444'],
-    plotOptions: {
-      donut: {
-        size: '85%',
-        background: 'transparent',
-        labels: {
-          show: true,
-          total: {
-            show: true,
-            label: 'Total Hours',
-            color: '#E5E7EB',
-            fontSize: '16px',
-            fontFamily: 'Inter, sans-serif'
-          }
-        }
-      }
-    },
-    legend: {
-      position: 'bottom',
-      labels: {
-        colors: '#E5E7EB'
-      },
-      markers: {
-        width: 8,
-        height: 8,
-        radius: 12
-      }
-    },
-    theme: {
-      mode: 'dark'
-    }
-  }));
-
-  const series = computed(() => {
-    const completed = props.tasks
-      .filter(task => task.status === 'completed')
-      .reduce((sum, task) => sum + task.estimated_hours, 0);
-
-    const inProgress = props.tasks
-      .filter(task => task.status === 'in_progress')
-      .reduce((sum, task) => sum + task.estimated_hours, 0);
-
-    return [completed, inProgress];
-  });
-
+  const memberToDelete = ref(null);
+  
+  
+ 
   const tasksByStatus = computed(() => {
     if (!Array.isArray(props.tasks)) {
       return {
@@ -156,7 +121,7 @@
       .sort((a, b) => new Date(a.end_date) - new Date(b.end_date))
       .slice(0, 3)
   );
-    
+
 
 
   const leader = computed(() => {
@@ -202,11 +167,29 @@
 
 
   const isCreateTaskModalOpen = ref(false);
- 
+  const isEditProjectModalOpen = ref(false);
+  const isDeleteMemberModalOpen = ref(false);
   const isModalOpen = ref(false);
   const allMembers = ref([]);
- 
- 
+
+  const openDeleteMemberModal = (member) => {
+  memberToDelete.value = member;
+  isDeleteMemberModalOpen.value = true;
+};
+
+
+  const closeDeleteMemberModal = () => {
+    isDeleteMemberModalOpen.value = false;
+  }
+
+
+  const openEditProjectModal = () => {
+    isEditProjectModalOpen.value = true;
+  }
+  const closeEditProjectModal = () => {
+    isEditProjectModalOpen.value = false;
+
+  }
 
   const openCreateTaskModal = () => {
     isCreateTaskModalOpen.value = true;
@@ -228,6 +211,126 @@
     router.post(`/projects/${props.project.id}/new-members`, { users: newEmployees });
   };
 
+  const chartData = computed(() => {
+  const statusCounts = {
+    'to_do': 0,
+    'in_progress': 0,
+    'review': 0,
+    'done': 0
+  };
+
+  props.tasks.forEach(task => {
+    if (statusCounts.hasOwnProperty(task.status)) {
+      statusCounts[task.status]++;
+    }
+  });
+
+  return Object.entries(statusCounts).map(([status, count]) => ({
+    status,
+    count
+  }));
+});
+const statusColors = {
+  'to_do': '#155DFC',
+  'in_progress': '#D08700',
+  'review': '#9810FA',
+  'done': '#00A63E'
+};
+
+const chartOptions = computed(() => ({
+  chart: {
+    type: 'donut',
+    background: 'transparent'
+  },
+  colors: Object.values(statusColors),
+  labels: Object.keys(statusColors),
+  plotOptions: {
+    pie: {
+      donut: {
+        size: '70%',
+        labels: {
+          show: true,
+          name: {
+            show: true,
+            fontSize: '22px',
+            fontFamily: 'Helvetica, Arial, sans-serif',
+            fontWeight: 600,
+            color: '#fff',
+            offsetY: -10
+          },
+          value: {
+            show: true,
+            fontSize: '16px',
+            fontFamily: 'Helvetica, Arial, sans-serif',
+            fontWeight: 400,
+            color: '#fff',
+            offsetY: 16
+          },
+          total: {
+            show: true,
+            showAlways: false,
+            label: 'Total Tasks',
+            fontSize: '22px',
+            fontFamily: 'Helvetica, Arial, sans-serif',
+            fontWeight: 600,
+            color: '#fff'
+          }
+        }
+      }
+    }
+  },
+  dataLabels: {
+    enabled: false
+  },
+  legend: {
+    show: true,
+    position: 'bottom',
+    horizontalAlign: 'center',
+    floating: false,
+    fontSize: '14px',
+    fontFamily: 'Helvetica, Arial, sans-serif',
+    fontWeight: 400,
+    labels: {
+      colors: '#fff'
+    },
+    markers: {
+      width: 12,
+      height: 12,
+      strokeWidth: 0,
+      strokeColor: '#fff',
+      fillColors: Object.values(statusColors)
+    },
+    itemMargin: {
+      horizontal: 5,
+      vertical: 5
+    }
+  },
+  responsive: [{
+    breakpoint: 480,
+    options: {
+      chart: {
+        width: 200
+      },
+      legend: {
+        position: 'bottom'
+      }
+    }
+  }],
+  tooltip: {
+    enabled: true,
+    theme: 'dark',
+    y: {
+      formatter: function(value) {
+        return value + " tasks";
+      }
+    }
+  }
+}));
+
+const series = computed(() => chartData.value.map(item => item.count));
+
+
+
 </script>
 
 <template>
@@ -244,22 +347,26 @@
             <h1 class="text-xl font-semibold text-white">{{ project.name }}</h1>
           </div>
           <div class="flex items-center space-x-4">
-            <StandardButton @click="openCreateTaskModal">+ Create Task</StandardButton>
+            <StandardButton v-if="isProjectLeader && isUserInProject" @click="openCreateTaskModal">+ Create Task</StandardButton>
           </div>
         </div>
       </div>
 
       <div class="bg-gray-950 px-6 py-2 border-b border-gray-700">
         <div class="flex space-x-6">
-          <button v-for="tab in ['Overview', 'Tasks', 'Documentation', 'Analytics', 'Files']" :key="tab"
-            @click="activeTab = tab.toLowerCase()" :class="[
-              'px-4 py-2 text-sm cursor-pointer font-medium rounded-md transition-colors',
-              activeTab === tab.toLowerCase()
-                ? 'bg-blue-500 text-white'
-                : 'text-gray-400 hover:text-white'
-            ]">
-            {{ tab }}
-          </button>
+          <button v-for="tab in ['Overview', 'Tasks', 'Documentation']" 
+        :key="tab"
+        v-show="tab !== 'Tasks' || isUserInProject" 
+        @click="activeTab = tab.toLowerCase()" 
+        :class="[
+            'px-4 py-2 text-sm cursor-pointer font-medium rounded-md transition-colors',
+            activeTab === tab.toLowerCase()
+            ? 'bg-blue-500 text-white'
+            : 'text-gray-400 hover:text-white'
+        ]">
+    {{ tab }}
+</button>
+
         </div>
       </div>
 
@@ -267,7 +374,7 @@
       <div class="flex min-h-[80vh]">
         <!-- Left Panel -->
         <div class="flex-1 p-6 overflow-auto">
-          <div v-if="activeTab === 'tasks'" class="grid grid-cols-4 gap-6 ">
+          <div v-if="activeTab === 'tasks' && isUserInProject" class="grid grid-cols-4 gap-6 ">
             <!-- Task Columns -->
             <TaskList ref="taskContainer" :projectId="project.id" :tasksByStatus="tasksByStatus" />
           </div>
@@ -277,7 +384,7 @@
             <div class="col-span-2 bg-gray-950 rounded-lg overflow-hidden border border-gray-700">
               <div class="border-b border-gray-700 px-6 py-4 flex justify-between items-center">
                 <h2 class="text-2xl font-semibold text-white">Project Details</h2>
-                <StandardButton @click="openEditProjectModal" size="sm" class="">Edit Project</StandardButton>
+                <StandardButton v-if="isProjectLeader && isUserInProject" @click="openEditProjectModal" size="sm" class="">Edit Project</StandardButton>
               </div>
               <div class="p-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -347,15 +454,20 @@
             <!-- Hours Chart -->
             <div class="col-span-1 bg-gray-950 rounded-lg overflow-hidden border border-gray-700">
               <div class="border-b border-gray-700 px-6 py-4">
-                <h2 class="text-xl font-bold text-white">Hours Overview</h2>
+                <h2 class="text-xl font-bold text-white">Tasks Overview</h2>
               </div>
               <div class="p-6">
-                <VueApexCharts type="donut" height="300" :options="chartOptions" :series="series" />
+                <VueApexCharts
+      type="donut"
+      height="350"
+      :options="chartOptions"
+      :series="series"
+    />
               </div>
             </div>
 
 
-            <div class="col-span-3 bg-gray-950 rounded-lg overflow-hidden border border-gray-700 ">
+            <div v-if="isUserInProject" class="col-span-3 bg-gray-950 rounded-lg overflow-hidden border border-gray-700 ">
               <div class="border-b border-gray-700 px-6 py-4">
                 <h2 class="text-2xl font-semibold text-white ">Your Tasks</h2>
               </div>
@@ -365,33 +477,45 @@
                     <thead>
                       <tr class="bg-gray-800 text-left">
                         <th class="p-4 font-semibold text-gray-400">Task Name</th>
+                        <th class="p-4 font-semibold text-gray-400">Description</th>
                         <th class="p-4 font-semibold text-gray-400">Priority</th>
-                        <th class="p-4 font-semibold text-gray-400">Start Date</th>
-                        <th class="p-4 font-semibold text-gray-400">End Date</th>
+                        <th class="p-4 font-semibold text-gray-400 w-30">Start Date</th>
+                        <th class="p-4 font-semibold text-gray-400 w-30">End Date</th>
                         <th class="p-4 font-semibold text-gray-400">Completed Hours</th>
-                        <th class="p-4 font-semibold text-gray-400">Status</th>
+                        <th class="p-4 font-semibold text-gray-400 w-30">Status</th>
                       </tr>
                     </thead>
                     <tbody>
 
                       <!-- Si no hay tareas pendientes -->
-                      <tr v-if="personalTasks.length === 0" class="border-b border-gray-900 bg-gray-950">
+                      <tr v-if="tasks.length === 0" class="border-b border-gray-900 bg-gray-950">
                         <td colspan="7" class="p-4 text-center text-gray-400">There are no pending tasks</td>
                       </tr>
 
 
-                      <tr v-for="task in personalTasks" :key="task.id"
-                        @click="router.get(`/projects/${project.id}/task/${task.id}`)"
-                        class="bg-gray-950 border-b border-gray-700 text-left cursor-pointer hover:bg-gray-900">
-                        <td class="p-4 text-gray-400">{{ task.name }}</td>
-                        <td class="p-4 text-gray-400">{{ task.description }}</td>
-                        <td class="p-4 text-gray-400">{{ task.start_date }}</td>
-                        <td class="p-4 text-gray-400">{{ task.end_date }}</td>
-                        <td class="p-4  text-gray-400">{{ task.completed_hours || 0 }} h</td>
-                        <td class="p-4 text-gray-400">
-                          <StatusBadge :status="task.status" />
-                        </td>
-                      </tr>
+                      <tr v-for="task in tasks" :key="task.id"
+    @click="router.get(`/projects/${project.id}/task/${task.id}`)"
+    class="bg-gray-950 border-b border-gray-700 text-left cursor-pointer hover:bg-gray-900">
+  <td class="p-4 text-gray-400">{{ task.name }}</td>
+  <td class="p-4 text-gray-400">{{ task.description }}</td>
+
+  <!-- Aquí envuelves el contenido en un <td> -->
+  <td class="p-4">
+    <div class="flex justify-center items-center">
+      <div :class="`w-3 h-3 flex flex-row rounded-full ${getPriorityColor(task.priority)} mr-2`"></div>
+      <span class="text-lg text-white font-light">{{ getPriorityLabel(task.priority) }}</span>
+    </div>
+  </td>
+
+  <td class="p-4 text-gray-400">{{ task.start_date }}</td>
+  <td class="p-4 text-gray-400">{{ task.end_date }}</td>
+  <td class="p-4 text-gray-400">{{ task.completed_hours || 0 }} h</td>
+  <td class="p-4 text-gray-400">
+    <StatusBadge :status="task.status || {}" />
+  </td>
+  
+</tr>
+
 
 
 
@@ -405,8 +529,10 @@
             </div>
           </div>
 
-          <div v-if="activeTab === 'documentation'" class="flex justify-center w-full flex-col rounded-lg overflow-auto">
-           <ProjectDocumentation :project="project" :createDoc="createDoc" :openSingleDoc="openSingleDoc"  :documentations="documentations"/> 
+          <div v-if="activeTab === 'documentation'"
+            class="flex justify-center w-full flex-col rounded-lg overflow-auto">
+            <ProjectDocumentation :isUserInProject="isUserInProject" :project="project" :createDoc="createDoc" :openSingleDoc="openSingleDoc"
+              :documentations="documentations" />
           </div>
         </div>
 
@@ -440,7 +566,7 @@
             <div>
               <div class="flex justify-between items-center">
                 <h3 class="text-lg font-semibold text-white mb-4">Team Members</h3>
-                <StandardButton @click="openModal" class="h-7 w-7 mb-4 flex items-center justify-center">
+                <StandardButton v-if="isProjectLeader && isUserInProject" @click="openModal" class="h-7 w-7 mb-4 flex items-center justify-center">
                   +
                 </StandardButton>
               </div>
@@ -450,18 +576,27 @@
                   <InputWithIcon icon="search" v-model="searchQuery" placeholder="Search members..." class="h-10 w-full"
                     type="text" />
                 </div>
-                <div class="overflow-y-auto max-h-70 scrollbar">
-                  <div v-for="employee in employees" :key="employee.id"
-                    class="flex cursor-pointer items-center justify-between p-2 hover:bg-gray-700 rounded-lg transition-colors">
-                    <div class="flex items-center space-x-3">
-                      <div class="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center text-white">
-                        {{ employee.name.charAt(0) }}
-                      </div>
-                      <span class="text-white">{{ employee.name }}</span>
-                    </div>
-                    <span class="text-gray-400 text-sm">{{ employee.role }}</span>
-                  </div>
-                </div>
+               <div class="overflow-y-auto max-h-70 scrollbar">
+  <div v-for="employee in employees" :key="employee.id"
+    class="flex cursor-pointer items-center justify-between p-2 hover:bg-gray-700 rounded-lg transition-colors group">
+    
+    <div class="flex items-center space-x-3">
+      <div class="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center text-white">
+        {{ employee.name.charAt(0) }}
+      </div>
+      <span class="text-white">{{ employee.name }}</span>
+    </div>
+
+    <div class="flex items-center space-x-3">
+    
+      
+      <button @click="openDeleteMemberModal(employee)" class=" text-red-500 cursor-pointer opacity-0 group-hover:opacity-100 mt-1 transition-opacity duration-300">
+        <box-icon name='x' color='#ff0000' class="hover:text-red-700" ></box-icon>
+      </button>
+    </div>
+  </div>
+</div>
+
               </div>
             </div>
 
@@ -475,6 +610,8 @@
       @add-members="handleAddMembers" />
     <CreateTaskModal :is-open="isCreateTaskModalOpen" :project-id="project.id" :employees="employees"
       @close="closeCreateTaskModal" />
-     
+    <EditProjectModal :is-open="isEditProjectModalOpen" :project="project" :departmentHead="departmentHead" @close="closeEditProjectModal" />
+    <DeleteMemberModal :is-open="isDeleteMemberModalOpen" :memberToDelete="memberToDelete" :project="project" @close="closeDeleteMemberModal" />
+
   </Layout>
 </template>

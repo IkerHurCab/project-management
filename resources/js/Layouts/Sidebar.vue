@@ -28,13 +28,16 @@ const departments = () => {
   window.location.href = '/departments';
 };
 
+const dashboard = () => {
+  window.location.href = '/dashboard';
+};  
+
+
+// Función para cerrar sesión
 const logout = () => {
   window.location.href = '/logout';
 };
 
-const dashboard = () => {
-  window.location.href = '/';
-}
 
 const home = () => {
   window.location.href = '/home';

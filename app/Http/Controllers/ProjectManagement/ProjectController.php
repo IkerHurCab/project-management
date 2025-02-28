@@ -18,9 +18,10 @@ class ProjectController extends Controller
 {
     public function index(Request $request)
     {
-        $filters = $request->only(['search', 'status', 'user', 'dateRange']);
+        $filters = $request->only(['search', 'status', 'user', 'dateRange', 'my_projects']);
+        $currentUser = $request->user();
     
-        $projects = Project::with('leader:id,name')
+        $projects = Project::with('leader:id,name', 'users:id,name')
             ->when($filters['search'] ?? null, function ($query, $search) {
                 $query->where('name', 'ILIKE', "%{$search}%");
             })
@@ -34,27 +35,45 @@ class ProjectController extends Controller
             })
             ->when($filters['dateRange'] ?? null, function ($query, $dateRange) {
                 if (!empty($dateRange['start'])) {
-                    $query->where('start_date', '>=', $dateRange['start']);
+                    $query->whereDate('start_date', '>=', $dateRange['start']);
                 }
                 if (!empty($dateRange['end'])) {
-                    $query->where('end_date', '<=', $dateRange['end']);
+                    $query->whereDate('end_date', '<=', $dateRange['end']);
                 }
             })
+            ->when($filters['my_projects'] ?? null, function ($query) use ($currentUser) {
+                $query->where(function ($query) use ($currentUser) {
+                    $query->whereHas('users', function ($query) use ($currentUser) {
+                        $query->where('user_id', $currentUser->id);
+                    })
+                    ->orWhere('project_leader_id', $currentUser->id);
+                });
+            })
+            ->where(function ($query) use ($currentUser) {
+                $query->where('is_public', true)
+                    ->orWhereHas('users', function ($query) use ($currentUser) {
+                        $query->where('user_id', $currentUser->id);
+                    })
+                    ->orWhere('project_leader_id', $currentUser->id);
+            })
             ->get();
+    
+        $isAdminOrDepartmentHead = $currentUser->hasRole('admin') || $currentUser->hasRole('department_head');
     
         $departmentHeads = User::whereHas('roles', function ($query) {
             $query->where('name', 'department_head');
         })->get(['id', 'name']);
     
         $statuses = Project::distinct()->pluck('status');
-     
+    
         return Inertia::render('ProjectManagement/Project/Projects', [
             'projects' => $projects,
             'filters' => $filters,
-            'user' => request()->user(),
+            'user' => $currentUser,
             'projectsUrl' => route('projects.index'),
             'departmentHeads' => $departmentHeads,
             'statuses' => $statuses,
+            'isAdminOrDepartmentHead' => $isAdminOrDepartmentHead
         ]);
     }
 
@@ -63,7 +82,7 @@ class ProjectController extends Controller
     
         $searchMember = $request->query('searchMember');
          
-        $project = Project::with(['tasks', 'users'])->findOrFail($id);
+        $project = Project::with(['tasks', 'users', 'leader'])->findOrFail($id);
         $project->load(['tasks.user']);
 
         $membersQuery = $project->users()->newQuery();  
@@ -97,12 +116,34 @@ class ProjectController extends Controller
     $openSingleDoc = $request->session()->get('openSingleDoc', false);
     $createDoc = $request->session()->get('createDoc', false);
 
+    $user = request()->user();
 
+    if($user->id === $project->project_leader_id) {
+        $tasks = $project->tasks()->with('user')->get();  // Carga las tareas y los usuarios asociados
+    } else {
+        $tasks = $project->tasks()->with('user')->where('user_id', $user->id)->get();
+    }
+
+    $projectLeaderId = $project->project_leader_id;
+
+    $isProjectLeader = ($projectLeaderId === $user->id);
+
+    $isUserInProject = $project->users->contains('id', $user->id) || $isProjectLeader;
+    
+    $departmentHead = User::role('department_head')
+    ->select('id', 'name')
+    ->get()
+    ->map(function ($user) {
+        return [
+            'value' => $user->id, 
+            'label' => $user->name, 
+        ];
+    });
 
     return Inertia::render('ProjectManagement/Project/SingleProject', [
         'project' => $project,
-        'user' => request()->user(),
-        'tasks' => $project->tasks,
+        'user' => $user,
+        'tasks' => $tasks,
         'personalTasks' => $personalTasks,
         'employees' => $members,
         'searchQuery' => $request->input('searchMember', ''),
@@ -110,9 +151,11 @@ class ProjectController extends Controller
         'tasksCompleted' => $totalCompletedTasks,
         'documentations' => $documentation,
         'activeTab' => $activeTab,
-        'openSingleDoc' => $openSingleDoc,  // Pasando el valor a Vue
+        'openSingleDoc' => $openSingleDoc,  
         'createDoc' => $createDoc, 
- 
+        'isProjectLeader' => $isProjectLeader,
+        'isUserInProject' => $isUserInProject,
+        'departmentHead' => $departmentHead
     ]);
     }
 
@@ -152,7 +195,7 @@ class ProjectController extends Controller
             'description' => 'nullable|string',
             'attachments' => 'nullable|array',
         ]);
-     
+      
         $project = Project::create([
             'name' => $request->name,
             'company' => $request->company,
@@ -189,6 +232,54 @@ class ProjectController extends Controller
       
     }
 
+    public function update(Request $request, $projectId){
+
+        $project = Project::find($projectId);
+        
+        if (!$project) {
+            return response()->json(['error' => 'Proyecto no encontrado'], 404);
+        }  
+        
+ 
+
+        $project->update([
+            'name' => $request['projectName'],
+            'company' => $request['company'],
+            'project_leader_id' => $request['projectLeader'],
+            'priority' => $request['priority'],
+            'start_date' => $request['startDate'],
+            'end_date' => $request['endDate'],
+            'assigned_hours' => $request['assignedHours'],
+            'description' => $request['description'],
+            'attachments' => $request['attachments'],
+            'is_public' => $request['isPublic'],
+        ]);
+
+    }
+
+    public function destroy($projectId)
+{
+    
+    $project = Project::find($projectId);
+
+    // Verificar si el proyecto existe
+    if (!$project) {
+        return redirect()->route('projects.index')->with('error', 'Proyecto no encontrado');
+    }
+
+    // Eliminar el proyecto
+    $project->delete();
+
+    // Redirigir con mensaje de éxito
+    return redirect()->route('projects.index')->with('success', 'Proyecto eliminado con éxito');
+}
+
+    public function removeMember(Project $project, User $user)
+    {
+        $project->users()->detach($user->id);
+
+        return redirect()->back()->with('success', 'Member removed successfully.');    
+    }
     
 
 }

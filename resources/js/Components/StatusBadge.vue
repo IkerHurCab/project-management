@@ -13,18 +13,18 @@ const statusConfig = computed(() => {
   const configs = {
     pending: {
       text: 'Pending',
-      bgColor: 'bg-yellow-500',
-      textColor: 'text-yellow-900'
+      bgColor: 'bg-yellow-600',
+      textColor: 'text-white'
     },
     to_do: {
       text: 'To Do',
-      bgColor: 'bg-yellow-500',
-      textColor: 'text-yellow-900'
+      bgColor: 'bg-blue-500',
+      textColor: 'text-blue-200'
     },
     in_progress: {
       text: 'In Progress',
-      bgColor: 'bg-blue-500',
-      textColor: 'text-gray-300'
+      bgColor: 'bg-yellow-500',
+      textColor: 'text-yellow-900'
     },
     finished: {
       text: 'Finished',
@@ -43,8 +43,8 @@ const statusConfig = computed(() => {
     },
     review: {
       text: 'Review',
-      bgColor: 'bg-orange-500',
-      textColor: 'text-orange-900'
+      bgColor: 'bg-purple-800',
+      textColor: 'text-purple-300'
     }
   };
 

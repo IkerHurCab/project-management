@@ -13,6 +13,8 @@ const props = defineProps({
   }
 });
 
+console.log(props.label)
+
 
 
 const emit = defineEmits(['remove']);
