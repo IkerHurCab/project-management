@@ -1,7 +1,12 @@
 version: '3'
 services:
+<<<<<<< HEAD
     lucas_laravel:
         container_name: "lucas-pm-platform"
+=======
+    iker_laravel:
+        container_name: "iker-pm-platform"
+>>>>>>> release/1.0.0
         build:
             context: ./vendor/laravel/sail/runtimes/8.2
             dockerfile: Dockerfile

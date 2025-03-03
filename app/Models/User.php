@@ -6,11 +6,18 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Spatie\Permission\Traits\HasRoles;
+use App\Models\Users\Organization;
+use App\Models\ProjectManagement\Project;
+use App\Models\ProjectManagement\Comment;
+use App\Models\Role;
+use App\Models\Users\Department;
+
 
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasRoles;
 
     /**
      * The attributes that are mass assignable.
@@ -20,6 +27,7 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'status',
         'password',
     ];
 
@@ -45,4 +53,43 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+    
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class, 'role_user');
+    }
+    
+    public function hasRole($role)
+    {
+        return $this->roles->pluck('name')->contains($role);
+    }
+    public function projects()
+    {
+        return $this->belongsToMany(Project::class);
+    }
+
+    public function organizations() {
+        return $this->belongsToMany(Organization::class);
+    }
+
+
+// En el modelo User
+public function departments()
+{
+    return $this->belongsToMany(Department::class, 'user_department' );
+}
+
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
+
+    public function currentOrganization()
+    {
+        return $this->belongsToMany(Organization::class, 'organization_user')
+                    ->wherePivot('is_current', 't');
+    }
+    
+
+    
 }

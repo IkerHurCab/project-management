@@ -1,0 +1,212 @@
+<script setup>
+    import { ref, watchEffect } from 'vue';
+    import { router } from '@inertiajs/vue3'
+    import InputWithIcon from '@/Components/InputWithIcon.vue';
+    import SelectWithIcon from '@/Components/SelectWithIcon.vue';
+    import StandardButton from '@/Components/StandardButton.vue';
+    
+    const emit = defineEmits(['close']);
+    const props = defineProps({
+      isOpen: {
+        type: Boolean,
+        required: true
+      },
+      departmentHead: {
+        type: Array,
+        required: true
+      },
+      project: {
+        type: Object,
+        required: true
+      }
+    });
+    
+    const projectName = ref('');
+    const company = ref('');
+    const projectLeader = ref('');
+    const priority = ref('');
+    const startDate = ref('');
+    const endDate = ref('');
+    const assignedHours = ref('');
+    const description = ref('');
+    const attachments = ref([]);
+    const isPrivate = ref(false);
+    const showDeleteModal = ref(false);
+    
+    
+    watchEffect(() => {
+      if (props.project) {
+        projectName.value = props.project.name || '';
+        company.value = props.project.company || '';
+        projectLeader.value = props.project.project_leader_id || '';
+        priority.value = props.project.priority || '';
+        startDate.value = props.project.start_date || '';
+        endDate.value = props.project.end_date || '';
+        assignedHours.value = props.project.assigned_hours || '';
+        description.value = props.project.description || '';
+        isPrivate.value = !props.project.is_public;
+      }
+    });
+  
+    const handleFileUpload = (event) => {
+      attachments.value = Array.from(event.target.files);
+    };
+    
+    const createProject = () => {
+      console.log(props.project);
+      const data =  {
+        projectName: projectName.value,
+        company: company.value,
+        projectLeader: projectLeader.value,
+        priority: priority.value,
+        startDate: startDate.value,
+        endDate: endDate.value,
+        assignedHours: assignedHours.value,
+        description: description.value,
+        attachments: attachments.value,
+        isPublic: !isPrivate.value
+      };
+
+      router.put(`/projects/${props.project.id}` , data);
+    
+      // Close the modal after creating the project
+      emit('close');
+    };
+
+    const openDeleteModal = () => {
+  showDeleteModal.value = true;
+  console.log(showDeleteModal.value)
+};
+
+const closeDeleteModal = () => {
+  showDeleteModal.value = false;
+};
+
+const deleteProject = () => {
+  router.delete(`/projects/${props.project.id}`);
+  closeDeleteModal();
+
+};
+    </script>
+    
+    <template>
+      <div v-if="isOpen" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+        <div class="bg-gray-950 rounded-lg w-full max-w-6xl h-auto border border-gray-700 shadow-lg">
+          <div class="border-b border-gray-700 px-6 py-4 flex justify-between items-center bg-gray-950 rounded-t-lg">
+            <h2 class="text-2xl font-semibold text-white">Edit Project</h2>
+            <div class="flex items-center space-x-4">
+              <button @click="openDeleteModal" class="text-red-500 cursor-pointer hover:text-red-400 transition-colors">
+                <box-icon name='trash' type='solid' color='currentColor'></box-icon>
+              </button>
+              <button @click="emit('close')" class="text-gray-400 cursor-pointer hover:text-white transition-colors">
+                <box-icon name='x' color='currentColor'></box-icon>
+              </button>
+            </div>
+          </div>
+          <form @submit.prevent="createProject" class="p-6 space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div class="col-span-1 md:col-span-2 lg:col-span-3">
+                <label for="projectName" class="block text-sm font-medium text-gray-400 mb-2">Project Name</label>
+                <InputWithIcon v-model="projectName" icon="folder" placeholder="Enter project name" class="w-full" />
+              </div>
+    
+              <div>
+                <label for="company" class="block text-sm font-medium text-gray-400 mb-2">Company</label>
+                <InputWithIcon v-model="company" icon="building" placeholder="Enter company name" class="w-full" type="text" />
+              </div>
+    
+              <div>
+                <label for="projectLeader" class="block text-sm font-medium text-gray-400 mb-2">Project Leader</label>
+                <SelectWithIcon v-model="projectLeader" icon="user" placeholder="Select project leader" class="w-full"
+                :options="[
+    { label: 'Select the project leader', value: '' },
+    ...departmentHead.map(leader => ({ label: leader.label, value: leader.value }))
+  ]" />
+  </div>  
+    
+              <div>
+                <label for="priority" class="block text-sm font-medium text-gray-400 mb-2">Priority</label>
+                <SelectWithIcon v-model="priority" icon="flag" placeholder="Select priority" class="w-full" :options="[ 
+                  { label: 'Low', value: 1 },
+                  { label: 'Medium', value: 2 },
+                  { label: 'High', value: 3 },
+                  { label: 'Urgent', value: 4 }
+                ]"/>
+              </div>
+    
+              <div>
+                <label for="startDate" class="block text-sm font-medium text-gray-400 mb-2">Start Date</label>
+                <InputWithIcon v-model="startDate" icon="calendar" placeholder="Select start date" class="w-full" type="date" />
+              </div>
+    
+              <div>
+                <label for="endDate" class="block text-sm font-medium text-gray-400 mb-2">End Date</label>
+                <InputWithIcon v-model="endDate" icon="calendar" placeholder="Select end date" class="w-full" type="date" />
+              </div>
+    
+              <div>
+                <label for="assignedHours" class="block text-sm font-medium text-gray-400 mb-2">Assigned Hours</label>
+                <InputWithIcon v-model="assignedHours" icon="time" placeholder="Enter assigned hours" class="w-full" type="number" />
+              </div>
+    
+              <div class="col-span-1 md:col-span-2 lg:col-span-3">
+                <label class="block text-sm font-medium text-gray-400 mb-2">Description</label>
+                <textarea v-model="description"
+                  class="w-full h-32 bg-gray-900 p-3 border border-gray-700 rounded-lg focus:outline-none focus:border-gray-300 text-white placeholder-gray-500"
+                  placeholder="Enter project description"></textarea>
+              </div>
+              
+            </div>
+    
+            <div class="flex justify-between items-center mt-8">
+              <div class="flex items-center ">  
+            
+                <label class="flex space-x-3 items-center cursor-pointer group">
+                  <div class="flex items-center space-x-1">
+                  <box-icon  name='lock-alt' color="#99A1AF" ></box-icon>
+                  <span class="text-sm mt-1 text-gray-400 group-hover:text-gray-300 transition-colors duration-200 ease-in-out">
+                    Private
+                  </span>
+                </div>
+                  <div class="relative">
+                    <input type="checkbox" v-model="isPrivate" class="sr-only" />
+                    <div
+                      class="w-5 h-5 bg-gray-700 border-2 border-gray-600 rounded-md transition-all duration-200 ease-in-out group-hover:border-gray-500">
+                      <svg
+                        class="w-3 h-3 text-blue-500 opacity-0 transition-opacity duration-200 ease-in-out absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+                        :class="{ 'opacity-100': isPrivate }" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+                      </svg>
+                    </div>
+                  </div>
+                   
+                </label>
+              </div>
+              <div class="flex space-x-3">
+                <StandardButton type="button" @click="emit('close')" class="bg-gray-600 hover:bg-gray-500 transition-colors">
+                  Cancel
+                </StandardButton>
+                <StandardButton type="submit" class="bg-blue-600 hover:bg-blue-500 transition-colors">
+                  Edit Project
+                </StandardButton>
+              </div>
+            </div>
+          </form>
+        </div>
+        <div v-if="showDeleteModal" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+          <div class="bg-gray-950 rounded-lg w-full max-w-md p-6 border border-gray-700 shadow-lg">
+            <h3 class="text-xl font-semibold text-white mb-4">Are you sure you want to delete this project?</h3>
+            <p class="text-gray-400 mb-6">This action cannot be undone.</p>
+            <div class="flex justify-end space-x-4">
+              <StandardButton @click="closeDeleteModal" class="bg-gray-600 hover:bg-gray-500 transition-colors">
+                Cancel
+              </StandardButton>
+              <StandardButton @click="deleteProject" class="bg-red-600 hover:bg-red-500 transition-colors">
+                Delete
+              </StandardButton>
+            </div>
+          </div>
+        </div>
+      </div>
+    </template>
+    
