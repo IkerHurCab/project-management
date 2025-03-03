@@ -11,7 +11,7 @@ class CheckProjectAccess
 {
     public function handle(Request $request, Closure $next)
     {
-        $projectId = $request->route('projects');
+        $projectId = $request->route('projectId');
 
 
         $user = $request->user();
