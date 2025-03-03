@@ -28,8 +28,8 @@
       { id: 2, name: 'Bob Smith', role: 'Database Administrator', tasks_assigned: 3, tasks_completed: 2 },
       { id: 3, name: 'Charlie Davis', role: 'Frontend Developer', tasks_assigned: 5, tasks_completed: 1 },
       { id: 4, name: 'Diana Wilson', role: 'Security Specialist', tasks_assigned: 3, tasks_completed: 3 },
-      { id: 5, name: 'Eve Martin', role: 'Mobile Developer', tasks_assigned: 4, tasks_completed: 2 }
-    ])
+      { id: 5, name: 'Eve Martin', role: 'Mobile Developer', tasks_assigned: 4, tasks_completed: 2 },
+    ]);
     
     // Dashboard statistics
     const totalProjects = computed(() => props.projects.length)
