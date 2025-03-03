@@ -1,26 +1,25 @@
-  <script setup>
-  import { ref } from 'vue';
+<script setup>
+  import { ref, computed } from 'vue';
   import Layout from '@/Layouts/Layout.vue';
   import StandardButton from '@/Components/StandardButton.vue';
   import InputWithIcon from '@/Components/InputWithIcon.vue';
   import SelectWithIcon from '@/Components/SelectWithIcon.vue';
   import { router } from '@inertiajs/vue3'
-
   import 'boxicons';
+
   // Props
-  defineProps({
+  const props = defineProps({
     departmentHead: Array,
     userDepartments: Array,
   });
 
-  const selectedDepartment = ref('');
-
+  const selectedDepartments = ref([]);
+  const departmentInput = ref('');
 
   const createProject = () => {
     // Datos a enviar al servidor
     const projectData = {
       name: projectName.value,
-      company: company.value,
       project_leader_id: projectLeader.value,
       start_date: startDate.value,
       end_date: endDate.value,
@@ -30,7 +29,7 @@
       priority: priority.value,
       is_public: !is_private.value,
       attachments: attachments.value,
-      department_id: selectedDepartment.value,
+      department_ids: selectedDepartments.value,
     };
 
     // Enviar el formulario usando Inertia
@@ -46,7 +45,6 @@
     });
   };
 
-
   const projectName = ref('');
   const company = ref('');
   const projectLeader = ref('');
@@ -60,20 +58,46 @@
   const attachments = ref([]);
 
   function getCurrentDate() {
-
     const today = new Date();
     const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, '0'); // Meses en JS empiezan desde 0, sumamos 1
-    const day = String(today.getDate()).padStart(2, '0'); // Aseguramos que el día tenga 2 dígitos
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
-
   }
 
   const handleFileUpload = (event) => {
     attachments.value = Array.from(event.target.files);
   };
-</script>
 
+  const addDepartment = () => {
+    if (departmentInput.value && !selectedDepartments.value.includes(departmentInput.value)) {
+      selectedDepartments.value.push(departmentInput.value);
+      departmentInput.value = '';
+    }
+  };
+
+  const removeDepartment = (dept) => {
+    selectedDepartments.value = selectedDepartments.value.filter(d => d !== dept);
+  };
+
+  const filteredDepartments = computed(() => {
+    if (departmentInput.value === '') {
+      return [];
+    }
+    return props.userDepartments.filter(dept =>
+      !selectedDepartments.value.includes(dept.id) &&
+      dept.name.toLowerCase().includes(departmentInput.value.toLowerCase())
+    );
+  });
+
+  const handleKeydown = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      addDepartment();
+    }
+  };
+</script>
+  
   <template>
     <Layout pageTitle="Project Management">
 
@@ -98,13 +122,42 @@
                 <InputWithIcon v-model="projectName" icon="folder" placeholder="Enter project name" class="w-full" />
               </div>
 
-              <div>
-                <label for="company" class="block text-sm font-medium text-gray-400 mb-2">Company</label>
-                <InputWithIcon v-model="company" icon="building" placeholder="Enter company name" class="w-full"
-                  type="text" />
+              <div class="col-span-1 md:col-span-2 lg:col-span-3">
+                <label for="department" class="block text-sm font-medium text-gray-400 mb-2">Departments</label>
+                <div class="relative">
+                  <input
+                    v-model="departmentInput"
+                    @keydown="handleKeydown"
+                    type="text"
+                    class="w-full bg-gray-900 text-white border border-gray-700 rounded-lg py-2 px-4 focus:outline-none focus:border-blue-500"
+                    placeholder="Select departments"
+                  />
+                  <div v-if="filteredDepartments.length > 0" class="absolute z-10 w-full mt-1 bg-gray-900 border border-gray-700 rounded-lg shadow-lg">
+                    <div
+                      v-for="dept in filteredDepartments"
+                      :key="dept.id"
+                      @click="selectedDepartments.push(dept.id); departmentInput = ''"
+                      class="px-4 py-2 hover:bg-gray-800 cursor-pointer"
+                    >
+                      {{ dept.name }}
+                    </div>
+                  </div>
+                </div>
+                <div class="flex flex-wrap gap-2 mt-2">
+                  <div
+                    v-for="deptId in selectedDepartments"
+                    :key="deptId"
+                    class="bg-blue-600 text-white px-3 py-1 rounded-full text-sm flex items-center"
+                  >
+                    {{ props.userDepartments.find(d => d.id === deptId).name }}
+                    <button @click="removeDepartment(deptId)" class="ml-2 focus:outline-none">
+                      <box-icon name='x' color='#ffffff' size="sm"></box-icon>
+                    </button>
+                  </div>
+                </div>
               </div>
-
-              <div>
+              <div class="flex col-span-3 space-x-5">
+              <div class="w-1/2">
                 <label for="projectLeader" class="block text-sm font-medium text-gray-400 mb-2">Project Leader</label>
                 <SelectWithIcon v-model="projectLeader" icon="user" placeholder="Select project leader" class="w-full"
                   :options="[
@@ -112,7 +165,7 @@
                     ...departmentHead.map(leader => ({ label: leader.label, value: leader.value }))
                   ]" />
               </div>
-              <div>
+              <div class="w-1/2"> 
                 <label for="priority" class="block text-sm font-medium text-gray-400 mb-2">Priority</label>
                 <SelectWithIcon v-model="priority" icon="flag" placeholder="Select priority" class="w-full" :options="[
                   { label: 'Low', value: 1 },
@@ -121,6 +174,7 @@
                   { label: 'Urgent', value: 4 }
                 ]" />
               </div>
+            </div>
 
 
               <!-- Agrupar estos campos en una fila -->
@@ -143,14 +197,7 @@
                     type="number" />
                 </div>
 
-                <div>
-                  <label for="department" class="block text-sm font-medium text-gray-400 mb-2">Department</label>
-                  <SelectWithIcon v-model="selectedDepartment" icon="building" placeholder="Select department"
-                    class="w-full" :options="[
-                      { label: 'Select a department', value: '' },
-                      ...userDepartments.map(dept => ({ label: dept.name, value: dept.id }))
-                    ]" />
-                </div>
+              
 
 
 
