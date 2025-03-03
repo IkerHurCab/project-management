@@ -11,6 +11,7 @@ use App\Models\ProjectManagement\ProjectDocumentation;
 use App\Models\User;
 use Spatie\Permission\Models\Role;
 use Inertia\Response;
+use Illuminate\Support\Facades\DB;
 
 
 
@@ -18,10 +19,34 @@ class ProjectController extends Controller
 {
     public function index(Request $request)
     {
+        // dd($request->user()->departments()->get());
         $filters = $request->only(['search', 'status', 'user', 'dateRange', 'my_projects']);
         $currentUser = $request->user();
     
+        // Obtener la organización actual del usuario
+        $currentOrganization = $currentUser->currentOrganization()->first();
+    
+        if (!$currentOrganization) {
+            // Si el usuario no tiene una organización actual, devolver una lista vacía o un error
+            return Inertia::render('ProjectManagement/Project/Projects', [
+                'projects' => [],
+                'filters' => $filters,
+                'user' => $currentUser,
+                'projectsUrl' => route('projects.index'),
+                'departmentHeads' => [],
+                'statuses' => [],
+                'isAdminOrDepartmentHead' => false,
+                'error' => 'No current organization set for the user.'
+            ]);
+        }
+    
+        // Obtener los IDs de los departamentos de la organización actual
+        $departmentIds = $currentOrganization->departments()->pluck('id')->toArray();
+    
         $projects = Project::with('leader:id,name', 'users:id,name')
+            ->whereHas('departments', function ($query) use ($departmentIds) {
+                $query->whereIn('department.id', $departmentIds);
+            })
             ->when($filters['search'] ?? null, function ($query, $search) {
                 $query->where('name', 'ILIKE', "%{$search}%");
             })
@@ -62,9 +87,13 @@ class ProjectController extends Controller
     
         $departmentHeads = User::whereHas('roles', function ($query) {
             $query->where('name', 'department_head');
+        })->whereHas('departments', function ($query) use ($departmentIds) {
+            $query->whereIn('department.id', $departmentIds);
         })->get(['id', 'name']);
     
-        $statuses = Project::distinct()->pluck('status');
+        $statuses = Project::whereHas('departments', function ($query) use ($departmentIds) {
+            $query->whereIn('department.id', $departmentIds);
+        })->distinct()->pluck('status');
     
         return Inertia::render('ProjectManagement/Project/Projects', [
             'projects' => $projects,
@@ -171,10 +200,19 @@ class ProjectController extends Controller
                 'label' => $user->name, 
             ];
         });
+
+        $user = auth()->user();
+        $departments = $user->departments()
+        ->where('organization_id', request()->user()->currentOrganization()->first()->id)
+        ->get(['id', 'name']);
+
+        
+
         return Inertia::render('ProjectManagement/Project/CreateProject', [
             'users' => $users,
             'departmentHead' => $departmentHead,
             'user' => request()->user(),
+            'userDepartments' => $departments,
         ]);
     }
 
@@ -194,6 +232,7 @@ class ProjectController extends Controller
             'priority' => 'required|integer',
             'description' => 'nullable|string',
             'attachments' => 'nullable|array',
+            'department_id' => 'required|exists:department,id'
         ]);
       
         $project = Project::create([
@@ -208,6 +247,14 @@ class ProjectController extends Controller
             'priority' => $request->priority,
             'description' => $request->description,
             'attachments' => json_encode($request->attachments), 
+        ]);
+
+
+        DB::table('department_project')->insert([
+            'department_id' => $request->department_id,            
+            'project_id' => $project->id,
+            'created_at' => now(),
+            'updated_at' => now()
         ]);
 
 

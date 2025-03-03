@@ -33,7 +33,7 @@ class OrganizationController extends Controller
                 ->where('organization_id', $organization->id)
                 ->update(['is_current' => true]);
     
-            return redirect()->route('home')->with([
+            return redirect()->back()->with([
                 'success' => 'Organización cambiada correctamente',
                 'auth' => [
                     'current_organization' => $organization

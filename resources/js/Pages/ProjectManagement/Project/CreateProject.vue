@@ -10,7 +10,11 @@
   // Props
   defineProps({
     departmentHead: Array,
+    userDepartments: Array,
   });
+
+  const selectedDepartment = ref('');
+
 
   const createProject = () => {
     // Datos a enviar al servidor
@@ -25,7 +29,8 @@
       description: description.value,
       priority: priority.value,
       is_public: !is_private.value,
-      attachments: attachments.value, // Asegúrate de enviar los archivos correctamente (o manejarlos en el servidor)
+      attachments: attachments.value,
+      department_id: selectedDepartment.value,
     };
 
     // Enviar el formulario usando Inertia
@@ -71,16 +76,16 @@
 
   <template>
     <Layout pageTitle="Project Management">
-   
+
       <div class="flex flex-col bg-black text-gray-300 min-h-screen px-6 py-4">
         <div class="flex flex-row  gap-x-4 ">
           <div class="cursor-pointer flex items-center " @click="$inertia.visit('/projects')">
 
-          
-      <box-icon name='arrow-back' color='#fffdfd' ></box-icon>
-    </div>
-        <h1 class="text-3xl font-bold text-white ">Create Project</h1>
-      </div>
+
+            <box-icon name='arrow-back' color='#fffdfd'></box-icon>
+          </div>
+          <h1 class="text-3xl font-bold text-white ">Create Project</h1>
+        </div>
         <div class="bg-gray-950 border border-gray-700 mt-5 rounded-lg overflow-hidden">
           <div class="border-b border-gray-700 p-6">
             <h3 class="text-xl font-semibold text-white">Project Details</h3>
@@ -102,10 +107,10 @@
               <div>
                 <label for="projectLeader" class="block text-sm font-medium text-gray-400 mb-2">Project Leader</label>
                 <SelectWithIcon v-model="projectLeader" icon="user" placeholder="Select project leader" class="w-full"
-                :options="[
-    { label: 'Select the project leader', value: '' },
-    ...departmentHead.map(leader => ({ label: leader.label, value: leader.value }))
-  ]" />
+                  :options="[
+                    { label: 'Select the project leader', value: '' },
+                    ...departmentHead.map(leader => ({ label: leader.label, value: leader.value }))
+                  ]" />
               </div>
               <div>
                 <label for="priority" class="block text-sm font-medium text-gray-400 mb-2">Priority</label>
@@ -116,7 +121,7 @@
                   { label: 'Urgent', value: 4 }
                 ]" />
               </div>
-              
+
 
               <!-- Agrupar estos campos en una fila -->
               <div class="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-3 gap-6 col-span-1 md:col-span-1 lg:col-span-3">
@@ -138,7 +143,16 @@
                     type="number" />
                 </div>
 
-                
+                <div>
+                  <label for="department" class="block text-sm font-medium text-gray-400 mb-2">Department</label>
+                  <SelectWithIcon v-model="selectedDepartment" icon="building" placeholder="Select department"
+                    class="w-full" :options="[
+                      { label: 'Select a department', value: '' },
+                      ...userDepartments.map(dept => ({ label: dept.name, value: dept.id }))
+                    ]" />
+                </div>
+
+
 
 
               </div>
@@ -152,7 +166,7 @@
                   placeholder="Enter project description"></textarea>
               </div>
               <div class="col-span-1 md:col-span-2 lg:col-span-3">
-                
+
                 <div v-if="attachments.length > 0" class="mt-2">
                   <p class="text-sm text-gray-400">{{ attachments.length }} file(s) selected</p>
                 </div>
@@ -164,8 +178,9 @@
                 <div class="flex items-center">
                   <label class="flex items-center space-x-3 cursor-pointer group">
                     <div class="flex items-center space-x-1">
-                      <box-icon  name='lock-alt' color="#99A1AF" ></box-icon>
-                      <span class="text-sm mt-1 text-gray-400 group-hover:text-gray-300 transition-colors duration-200 ease-in-out">
+                      <box-icon name='lock-alt' color="#99A1AF"></box-icon>
+                      <span
+                        class="text-sm mt-1 text-gray-400 group-hover:text-gray-300 transition-colors duration-200 ease-in-out">
                         Private
                       </span>
                     </div>
@@ -180,13 +195,12 @@
                         </svg>
                       </div>
                     </div>
-                    
+
                   </label>
                 </div>
               </div>
               <StandardButton type="submit" class="bg-blue-600 hover:bg-blue-700">
                 Create Project
-
               </StandardButton>
             </div>
           </form>
