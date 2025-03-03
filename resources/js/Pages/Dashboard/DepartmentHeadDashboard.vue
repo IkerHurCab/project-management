@@ -35,7 +35,7 @@
     return uniqueTeamMembers.value.slice(startIndex, endIndex)
   })
   
-  // Active Projects Pagination
+
   const projectCurrentPage = ref(1)
   const projectItemsPerPage = ref(5)
   const activeProjects = computed(() => props.projects.filter(p => p.status !== 'done'))
@@ -102,7 +102,8 @@
     const totalPages = computed(() => Math.ceil(uniqueTeamMembers.value.length / itemsPerPage.value))
     
   
-    const activeMembers = computed(() => props.teamMembers.filter(member => member.status === 'online').length)
+    const activeMembers = computed(() => uniqueTeamMembers.value.filter(member => member.status === 'online').length)
+   
   
     const totalProjects = computed(() => props.projects.length)
     const completedProjects = computed(() => props.projects.filter(p => p.status === 'done').length)
@@ -117,6 +118,7 @@
     
     function userCompletedTasks(member) {
       return member.tasks.filter(task => task.status === 'done').length;
+      console.log(props.teamMembers.status)
     }
   
     const overallProgress = computed(() => Math.round((completedTasks.value / totalTasks.value) * 100) || 0)
@@ -499,7 +501,7 @@
               <div class="flex items-center justify-between">
                 <div>
                   <p class="text-gray-400 text-sm">Team Members</p>
-                  <h3 class="text-3xl font-bold text-white mt-1">{{ teamMembers.length }}</h3>
+                  <h3 class="text-3xl font-bold text-white mt-1">{{ uniqueTeamMembers.length }}</h3>
                 </div>
                 <div class="w-12 h-12 bg-green-600/20 rounded-lg flex items-center justify-center">
                   <box-icon name='group' color='#10B981'></box-icon>

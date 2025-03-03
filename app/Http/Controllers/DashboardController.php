@@ -57,6 +57,7 @@ class DashboardController extends Controller
             ->flatMap(function ($department) {
                 return $department->users; 
             });
+
         
         
     
