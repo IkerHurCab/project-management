@@ -21,6 +21,12 @@ yarn-error.log
 /.nova
 /.vscode
 /.zed
+<<<<<<< HEAD
+**/.docker
+**/Dockerfile
+**/docker-compose.yml
+=======
 docker-compose.yml
 core
 vite.config.js
+>>>>>>> release/1.0.0

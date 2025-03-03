@@ -12,7 +12,7 @@ use App\Models\ProjectManagement\Project;
 use App\Models\ProjectManagement\Comment;
 use App\Models\Role;
 use App\Models\Users\Department;
-
+use App\Models\ProjectManagement\Task;
 
 class User extends Authenticatable
 {
@@ -73,8 +73,11 @@ class User extends Authenticatable
         return $this->belongsToMany(Organization::class);
     }
 
+    public function tasks()
+    {
+        return $this->hasMany(Task::class);
+    }
 
-// En el modelo User
 public function departments()
 {
     return $this->belongsToMany(Department::class, 'user_department' );
