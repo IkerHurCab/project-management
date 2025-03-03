@@ -698,15 +698,15 @@
             </div>
           </div>
   
-          <!-- Team Performance -->
+      
           <div class="bg-gray-950 rounded-lg overflow-hidden border border-gray-700">
             <div class="border-b border-gray-700 px-6 py-4 flex justify-between items-center">
               <h2 class="text-xl font-semibold text-white">Team Performance</h2>
               <div class="flex items-center space-x-2">
                 <select v-model="teamItemsPerPage" class="bg-gray-800 text-white border border-gray-700 rounded px-2 py-1 text-sm">
-                  <option :value="5">5 por página</option>
-                  <option :value="10">10 por página</option>
-                  <option :value="15">15 por página</option>
+                  <option :value="5">5 per page</option>
+                  <option :value="10">10 per page</option>
+                  <option :value="15">15 per page</option>
                 </select>
               </div>
             </div>
@@ -715,6 +715,7 @@
                 <thead>
                   <tr class="bg-gray-900 text-left">
                     <th class="p-4 font-semibold text-gray-400">Team Member</th>
+                    <th class="p-4 font-semibold text-gray-400">Projects Assigned</th>
                     <th class="p-4 font-semibold text-gray-400">Tasks Assigned</th>
                     <th class="p-4 font-semibold text-gray-400">Tasks Completed</th>
                     <th class="p-4 font-semibold text-gray-400">Completion Rate</th>
@@ -732,6 +733,7 @@
                         <span class="text-white">{{ member.name }}</span>
                       </div>
                     </td>
+                    <td class="p-4 text-center">{{ member.projects.length }}</td>
                     <td class="p-4 text-center">{{ member.tasks.length }}</td>
                     <td class="p-4 text-center">{{ userCompletedTasks(member) }}</td>
                     <td class="p-4">
