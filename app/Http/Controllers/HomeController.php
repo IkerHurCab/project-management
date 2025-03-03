@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Inertia\Inertia;
 use App\Models\Users\Department;
+use Exception;
 
 class HomeController extends Controller
 {
@@ -16,8 +17,18 @@ class HomeController extends Controller
             $query->where('users.id', $request->user()->id);
         })->get();
 
-        $organization_departments = $request->user()->currentOrganization()->first()->departments()->get();
-        return Inertia::render('Home', [
+        try {
+            $organization = $request->user()->currentOrganization()->first();
+        
+            if (!$organization) {
+                throw new Exception("No current organization found.");
+            }
+        
+            $organization_departments = $organization->departments()->get();
+        } catch (Exception $e) {
+            $organization_departments = collect();
+        }     
+           return Inertia::render('Home', [
             'organization_departments' => $organization_departments,
             'user_departments' => $userDepartments
         ]);
