@@ -397,15 +397,12 @@
     });
   };
   
-  const getTotalCompletedHours = (tasks) => {
-  return tasks.reduce((total, task) => {
-    // Asegúrate de que 'task.completed_hours' existe en los datos
-    if (task.completed_hours) {
-      total += task.completed_hours;
-    }
-    return total;
-  }, 0);
-};
+  function getTotalCompletedHours(project) {
+  return Number(project.tasks.reduce((sum, task) => sum + task.completed_hours, 0));
+}
+  function getTotalHours(project) {
+  return Number(project.tasks.reduce((sum, task) => sum + task.estimated_hours, 0));
+}
 
 
   // Utility functions
@@ -593,10 +590,12 @@
                     <div class="flex justify-between items-start">
                       <div>
                         <h3 class="text-white font-medium">{{ task.name }}</h3>
-                        <p class="text-gray-400 text-sm mt-1">{{ task.project_name }}</p>
+                        <p class="text-gray-400 text-sm mt-1">{{ task.project.name }}</p>
                       </div>
                       <StatusBadge :status="task.status" class="ml-2" />
+                   
                     </div>
+                    <hr class="text-gray-500 my-1">
                     <p class="text-gray-400 text-sm mt-2 line-clamp-2">{{ task.description }}</p>
                     <div class="mt-3 flex items-center justify-between">
                       <div class="flex items-center">
@@ -725,15 +724,15 @@
                       <StatusBadge :status="project.status" class="ml-2" />
                     </div>
                     <div>
-                      <span>{{ project.tasks[0]?.total_completed_hours || 0 }}</span>
+                      <span>Total hours: {{ getTotalHours(project) }} h</span>
                     </div>
                     <div class="mt-3">
                       <div class="flex justify-between text-xs text-gray-400 mb-1">
                         <span>My Tasks: </span>
-                        <span>{{ project.progress }}%</span>
+                        <span>{{ getTotalCompletedHours(project) }}%</span>
                       </div>
                       <div class="w-full bg-gray-700 rounded-full h-1.5">
-                        <div class="bg-blue-600 h-1.5 rounded-full" :style="{ width: `${project.progress}%` }"></div>
+                        <div class="bg-blue-600 h-1.5 rounded-full" :style="{ width: `${getTotalCompletedHours(project)}%` }"></div>
                       </div>
                     </div>
                   </div>

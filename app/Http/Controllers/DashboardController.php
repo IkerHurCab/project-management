@@ -18,7 +18,8 @@ class DashboardController extends Controller
 
         $user = auth()->user();
 
-        $tasks = Task::where('user_id', $user->id)->get();
+// Obtener tareas del usuario, con los proyectos asociados
+        $tasks = Task::where('user_id', $user->id)->with('project')->get();
        
         $projects = $user->projects()->with(['tasks.project'])->get();
 
