@@ -8,6 +8,7 @@ use App\Models\ProjectManagement\Task;
 use App\Models\ProjectManagement\Project;
 use App\Models\User;
 use App\Models\ProjectManagement\TaskLog;
+use App\Models\Users\Department;
 
 use Carbon\Carbon;
 
@@ -44,11 +45,25 @@ class DashboardController extends Controller
             ]);
         }   
         else if($user->hasRole('department_head')){
-            $leaderProjects = Project::with('tasks')->where('project_leader_id', $user->id)->get();
+            $leaderProjects = Project::with(['tasks', 'users'])->where('project_leader_id', $user->id)->get();
+
             $leaderProjectTasks = Task::whereIn('project_id', $leaderProjects->pluck('id'))->get();
-            $teamMembers = User::whereHas('departments', function($query) use ($user){
-                $query->where('department_id', $user->department_id);
-            })->get();
+            
+
+            $teamMembers = $user->departments()
+            ->with('users.projects') 
+            ->with('users.tasks')
+            ->get()
+            ->flatMap(function ($department) {
+                return $department->users; 
+            });
+        
+        
+    
+        
+            
+
+
 
             $leaderProjects = $leaderProjects->map(function ($project) {
                 $totalTasks = $project->tasks->count();
@@ -66,7 +81,8 @@ class DashboardController extends Controller
             return Inertia::render('Dashboard/DepartmentHeadDashboard', [
                 'user' => $user,
                 'tasks' => $leaderProjectTasks,
-                'projects' => $leaderProjects
+                'projects' => $leaderProjects,
+                'teamMembers' => $teamMembers,
             ]);
         }
         else if($user->hasRole('employee')){
