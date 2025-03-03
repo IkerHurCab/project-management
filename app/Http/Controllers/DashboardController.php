@@ -18,20 +18,45 @@ class DashboardController extends Controller
 
         $user = auth()->user();
 
-        $tasks = Task::where('user_id', $user->id)->get();
-       
-        $projects = $user->projects()->with(['tasks.project'])->get();
+        $organization = $user->currentOrganization()->first();
+if (!$organization) {
+    return redirect('/projects');
+}
 
-        $taskLogs = TaskLog::where('user_id', $user->id)
-                    ->whereBetween('log_date', [
-                        Carbon::now()->startOfWeek(),  
-                        Carbon::now()->endOfWeek()    
-                    ])
-                    ->get();
+
+$tasks = Task::whereHas('project.departments', function ($query) use ($organization) {
+    $query->where('organization_id', $organization->id);
+})
+->where('user_id', $user->id)
+->get();
+       
+        $projects = Project::whereHas('departments', function ($query) use ($organization) {
+            $query->where('organization_id', $organization->id);
+        })
+        ->whereHas('users', function ($query) use ($user) {
+            $query->where('user_id', $user->id);
+        })
+        ->with(['tasks.project'])
+        ->get();
         
-        $allTimeLogs = TaskLog::with(['task', 'task.project']) 
-                    ->where('user_id', $user->id)
-                    ->get();
+        $taskLogs = TaskLog::whereHas('task.project.departments', function ($query) use ($organization) {
+            $query->where('organization_id', $organization->id);
+        })
+        ->where('user_id', $user->id)
+        ->whereBetween('log_date', [
+            Carbon::now()->startOfWeek(),  
+            Carbon::now()->endOfWeek()    
+        ])
+        ->get();
+        
+        
+        $allTimeLogs = TaskLog::with(['task', 'task.project'])
+        ->whereHas('task.project.departments', function ($query) use ($organization) {
+            $query->where('organization_id', $organization->id);
+        })
+        ->where('user_id', $user->id)
+        ->get();
+    
 
      
    
@@ -45,36 +70,33 @@ class DashboardController extends Controller
             ]);
         }   
         else if($user->hasRole('department_head')){
-            $leaderProjects = Project::with(['tasks', 'users'])->where('project_leader_id', $user->id)->get();
-
-            $leaderProjectTasks = Task::whereIn('project_id', $leaderProjects->pluck('id'))->get();
-            
-
-            $teamMembers = $user->departments()
-            ->with('users.projects') 
-            ->with('users.tasks')
+            $leaderProjects = Project::with(['tasks', 'users'])
+            ->where('project_leader_id', $user->id)
+            ->whereHas('departments', function ($query) use ($organization) {
+                $query->where('organization_id', $organization->id);
+            })
+            ->get();
+        
+        $leaderProjectTasks = Task::whereIn('project_id', $leaderProjects->pluck('id'))->get();
+        
+        $teamMembers = $organization->departments()
+            ->with(['users.projects' => function ($query) use ($organization) {
+                $query->whereHas('departments', function ($q) use ($organization) {
+                    $q->where('organization_id', $organization->id);
+                });
+            }, 'users.tasks'])
             ->get()
-            ->flatMap(function ($department) {
-                return $department->users; 
-            });
-
+            ->flatMap(fn ($department) => $department->users);
         
-        
-    
-        
+        $leaderProjects = $leaderProjects->map(function ($project) {
+            $totalTasks = $project->tasks->count();
+            $completedTasks = $project->tasks->where('status', 'done')->count();
+            $progress = $totalTasks > 0 ? ($completedTasks / $totalTasks) * 100 : 0;
             
-
-
-
-            $leaderProjects = $leaderProjects->map(function ($project) {
-                $totalTasks = $project->tasks->count();
-                $completedTasks = $project->tasks->where('status', 'done')->count();
-                $progress = $totalTasks > 0 ? ($completedTasks / $totalTasks) * 100 : 0;
-                
-                // Agregar el campo 'progress' al proyecto
-                $project->progress = $progress;
+            // Agregar el campo 'progress' al proyecto
+            $project->progress = $progress;
         
-                return $project;
+            return $project;
             });
             
             

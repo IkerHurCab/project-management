@@ -38,6 +38,10 @@ const logout = () => {
   window.location.href = '/logout';
 };
 
+const settings = () => {
+  window.location.href = '/settings';
+};
+
 
 const organization = () => {
   window.location.href = '/organization';
@@ -115,8 +119,9 @@ const bottomLineStyle = createLineStyle(activeBottomIndex);
     <div class="flex flex-col gap-y-4" @mouseleave="activeBottomIndex = null">
       <div class="absolute left-0 w-1 bg-white transition-all duration-300 ease-in-out" :style="bottomLineStyle"></div>
       <div class="flex flex-col items-center">
-        <!-- <NavButton v-for="(button, index) in lowButtons" :key="index" v-bind="button"
-          @mouseenter="activeBottomIndex = index" :isActive="activeBottomIndex === index" /> -->
+        <NavButton v-for="(button, index) in lowButtons" :key="index" v-bind="button"
+          @mouseenter="activeBottomIndex = index" :isActive="activeBottomIndex === index" 
+          @click = "settings"/>
       </div>
       <div class="flex items-center justify-center">
         <div class="w-3/4 h-px bg-gray-600"></div>

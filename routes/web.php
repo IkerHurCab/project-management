@@ -11,10 +11,12 @@ use App\Http\Controllers\ProjectManagement\CommentController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProjectManagement\ProjectDocumentationController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\Users\OrganizationController;
 use App\Http\Middleware\CheckDepartmentAccess;
 use App\Http\Middleware\CheckProjectAccess;
+
 
 use App\Models\User;
 
@@ -47,6 +49,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('/organizations/{organization}/update', [OrganizationController::class, 'update'])->name('organizations.update');
 
    
+    Route::get('/settings', [SettingsController::class, 'index'])->name('settings');
 
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
