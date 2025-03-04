@@ -132,9 +132,12 @@ class ProjectController extends Controller
         return $task->user_id === auth()->id() && $task->status !== 'done';
     });
 
-    // pending of change to all users FROM THE SAME DEPARTMENT
-    
-    $allUsers = User::whereNotIn('id', $members->pluck('id'))->get();
+
+   
+
+
+
+ 
 
     $totalCompletedTasks = $project->tasks->filter(function ($task) {
         return $task->status === 'done';
@@ -169,6 +172,18 @@ class ProjectController extends Controller
             'label' => $user->name, 
         ];
     });
+
+    $departmentIds = $project->departments()->pluck('id')->toArray(); 
+    
+    $allUsers = User::whereHas('departments', function ($query) use ($departmentIds) {
+        $query->whereIn('department.id', $departmentIds); // Asegurar el alias correcto
+    })
+    ->whereNotIn('id', $members->pluck('id')) // Excluir los usuarios ya en el proyecto
+    ->get(['id', 'name']);
+
+
+
+
 
     return Inertia::render('ProjectManagement/Project/SingleProject', [
         'project' => $project,
@@ -277,7 +292,7 @@ class ProjectController extends Controller
     
         
         $project->users()->attach($usersId); 
-    
+        
       
     }
 
@@ -323,11 +338,15 @@ class ProjectController extends Controller
     return redirect()->route('projects.index')->with('success', 'Proyecto eliminado con éxito');
 }
 
-    public function removeMember(Project $project, User $user)
+    public function removeMember($projectId, $userId)
     {
-        $project->users()->detach($user->id);
+        $project = Project::findOrFail($projectId);
+       
 
-        return redirect()->back()->with('success', 'Member removed successfully.');    
+        $project->users()->detach($userId);
+        
+      
+        return redirect()->back();    
     }
     
 

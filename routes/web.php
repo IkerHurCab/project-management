@@ -86,7 +86,7 @@ Route::group(['middleware' => 'auth'], function () {
     
         Route::post('projects/{projectId}/task/{taskId}/comment', [CommentController::class, 'store'])->name('comment.store');
         Route::post('projects/{projectId}/new-members', [ProjectController::class, 'storeMember'])->name('projects.new-member');
-        Route::delete('/projects/{project}/members/{user}', [ProjectController::class, 'removeMember']);
+        Route::delete('/projects/{projectId}/members/{userId}', [ProjectController::class, 'removeMember']);
     
         Route::post('projects/{projectId}/documentation', [ProjectDocumentationController::class, 'store'])->name('documentation.store');;
         Route::put('projects/{projectId}/documentation/{documentationId}', [ProjectDocumentationController::class, 'update'])->name('documentation.update');

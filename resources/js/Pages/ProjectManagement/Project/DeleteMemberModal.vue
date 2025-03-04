@@ -12,6 +12,7 @@
     const emit = defineEmits(['close', 'confirm-delete']);
     
     const confirmDelete = () => {
+      console.log(`/projects/${props.project.id}/members/${props.memberToDelete.id}`);
         router.delete(`/projects/${props.project.id}/members/${props.memberToDelete.id}`, {
             onSuccess: () => {
                 emit('confirm-delete');
