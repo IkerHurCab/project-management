@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use Laravel\Fortify\Http\Controllers\TwoFactorAuthenticationController;
+use Laravel\Fortify\Http\Controllers\TwoFactorQrCodeController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\ProjectManagement\ProjectController;
 use App\Http\Controllers\HeaderController;
@@ -30,6 +32,13 @@ Route::middleware(['auth'])->group(function () {
     });
    
     Route::post('/update-status', [HeaderController::class, 'changeStatus']);
+
+});
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/user/two-factor-authentication', [TwoFactorAuthenticationController::class, 'store']);
+    Route::delete('/user/two-factor-authentication', [TwoFactorAuthenticationController::class, 'destroy']);
+    Route::get('/user/two-factor-qr-code', [TwoFactorQrCodeController::class, 'show']); // Obtener QR
 
 });
 

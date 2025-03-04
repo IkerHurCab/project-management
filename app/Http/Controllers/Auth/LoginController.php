@@ -7,6 +7,10 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Laravel\Fortify\Actions\ConfirmTwoFactorAuthentication;
+use Illuminate\Support\Facades\Hash;
+use App\Models\User;
+
 
 class LoginController extends Controller
 {
@@ -15,35 +19,38 @@ class LoginController extends Controller
         return Inertia::render('Auth/Login');
     }
 
-    public function store(Request $request) {
-
+    public function store(Request $request)
+    {
         $validator = Validator::make($request->all(), [
             'email' => 'required|email',
             'password' => 'required',
         ]);
-
+    
         if ($validator->fails()) {
-           
-            return Inertia::render('Login', [
-                
+            return Inertia::render('Auth/Login', [
                 'errors' => $validator->errors(),
             ]);
         }
-
-        if (Auth::attempt([
-            'email' => $request->email, 
-            'password' => $request->password
-        ])) {
-            $request->session()->regenerate();
-            return redirect()->route('dashboard');
+    
+        $user = User::where('email', $request->email)->first();
+    
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            return Inertia::render('Auth/Login', [
+                'errors' => 'The provided credentials do not match our records.',
+            ]);
+        }
+    
+        if ($user->two_factor_secret) {
+            $request->session()->put('login.id', $user->id);
+            $request->session()->save();
+                
+            return redirect()->route('two-factor.login');
         }
         
-      
-        return Inertia::render('Auth/Login', [
-            'errors' => 'The provided credentials do not match our records.',
-        ]);
-
-
+    
+        Auth::login($user);
+        $request->session()->regenerate();
+        return redirect()->route('dashboard');
     }
 
     public function destroy(Request $request) {
