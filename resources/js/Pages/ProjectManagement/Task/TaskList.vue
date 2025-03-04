@@ -1,5 +1,6 @@
 <script setup>
 import { ref, defineProps, defineEmits, watch } from 'vue';
+import { toast } from 'vue3-toastify';
 import TaskCard from './TaskCard.vue';
 import { VueDraggableNext } from 'vue-draggable-next';
 import { router } from '@inertiajs/vue3';
@@ -37,16 +38,29 @@ const onMove = (e) => {
 
 
   if (fromStatus && toStatus && taskId) {
-   
-      router.post(`/projects/${projectId}/tasks/${taskId}/update-status`, { status: toStatus })
-        .then(() => {
-          emit('updateTaskStatus', { taskId, status: toStatus });
-          router.visit(`/projects/${projectId}`);
-        })
-        .catch(err => {
-          console.error('Error al actualizar el estado:', err);
-        });
-    }
+  router.post(`/projects/${projectId}/tasks/${taskId}/update-status`, { status: toStatus })
+    .then(() => {
+      // Acción en caso de éxito
+      toast.success("Task status updated successfully!", {
+        position: "top-right",
+        autoClose: 3000,
+        theme: 'dark'
+      });
+      
+      emit('updateTaskStatus', { taskId, status: toStatus });
+      router.visit(`/projects/${projectId}`);
+    })
+    .catch(err => {
+      // Acción en caso de error
+      toast.error("Error updating task status", {
+        position: "top-right",
+        autoClose: 3000,
+        theme: 'dark'
+      });
+      console.error('Error al actualizar el estado:', err);
+    });
+}
+
   
 };
 const getStatusColor = (status) => {

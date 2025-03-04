@@ -2,6 +2,7 @@
 import Layout from '@/Layouts/Layout.vue';
 import { ref, computed, onMounted } from 'vue';
 import { usePage, router } from '@inertiajs/vue3';
+import { toast } from 'vue3-toastify';
 import Cropper from 'cropperjs';
 import 'cropperjs/dist/cropper.css';
 
@@ -184,6 +185,7 @@ const updateOrganization = () => {
 
     router.post(`/organizations/${organization.value.id}/update`, formData, {
         onSuccess: () => {
+            toast.success("Organization updated successfully.");
             router.get('/organization');
         },
         onError: (errors) => {

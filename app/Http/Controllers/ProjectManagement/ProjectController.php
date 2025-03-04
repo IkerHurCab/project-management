@@ -293,6 +293,7 @@ class ProjectController extends Controller
         
         $project->users()->attach($usersId); 
         
+        
       
     }
 

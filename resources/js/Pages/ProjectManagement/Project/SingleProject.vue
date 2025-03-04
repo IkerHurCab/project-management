@@ -1,6 +1,7 @@
 <script setup>
   import { ref, computed, onMounted, watch } from 'vue';
   import { router, usePage } from '@inertiajs/vue3';
+  import { toast } from 'vue3-toastify';
 
   import Layout from '@/Layouts/Layout.vue';
   import StatusBadge from '@/Components/StatusBadge.vue';
@@ -12,15 +13,7 @@
   import ProjectDocumentation from '@/Pages/ProjectManagement/Project/ProjectDocumentation.vue';
   import EditProjectModal from '@/Pages/ProjectManagement/Project/EditProjectModal.vue';
   import DeleteMemberModal from '@/Pages/ProjectManagement/Project/DeleteMemberModal.vue';
-
-
-
-
-
   import TaskList from '@/Pages/ProjectManagement/Task/TaskList.vue';
-  import 'boxicons';
-
-
 
   const props = defineProps({
     tasksCompleted: {
@@ -74,6 +67,9 @@
   });
 
 
+
+
+ 
   const taskCount = computed(() => props.tasks.length);
 
 
@@ -110,7 +106,7 @@
   });
 
 
-
+ 
   const totalTasks = computed(() => props.tasks.length);
   const completedTasks = computed(() => props.tasks.filter(task => task.status === 'done').length);
   const progressPercentage = computed(() => (completedTasks.value / totalTasks.value) * 100 || 0);
@@ -152,7 +148,6 @@
       queryParams.append('searchMember', searchQuery.value);
     }
 
-    console.log(props.filteredEmployees);
 
     const url = queryParams.toString()
       ? `${props.project.id}/?${queryParams.toString()}`
@@ -208,8 +203,15 @@
 
 
   const handleAddMembers = (newEmployees) => {
-    router.post(`/projects/${props.project.id}/new-members`, { users: newEmployees });
-  };
+  router.post(`/projects/${props.project.id}/new-members`, { users: newEmployees }, {
+    onSuccess: () => {
+      toast.success("Members successfully added to the project!");
+    },
+    onError: (errors) => {
+      toast.error("An error occurred while adding members to the project.");
+    },
+  });
+};
 
   const chartData = computed(() => {
   const statusCounts = {

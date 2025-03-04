@@ -1,6 +1,7 @@
 <script setup>
     import { ref, onMounted } from 'vue';
     import { useForm, router } from '@inertiajs/vue3';
+    import { toast } from 'vue3-toastify';
     import StandardButton from '@/Components/StandardButton.vue';
     import SelectWithIcon from '@/Components/SelectWithIcon.vue'
     import InputWithIcon from '@/Components/InputWithIcon.vue';
@@ -53,11 +54,17 @@
     
     const submitForm = () => {
   router.post(`/projects/${props.projectId}/tasks`, form, {
-    onFinish: (page) => {
-      // Redirige a la vista del proyecto después de que la tarea se haya creado correctamente
+    onSuccess: () => {
+  
       router.visit(`/projects/${props.projectId}`);
+      toast.success('Task created successfully');
+    },
+    onError: (errors) => {
+      toast.error('An error occurred while creating the task.');
     }
   });
+
+
 };
 
 

@@ -33,7 +33,11 @@ class ProjectDocumentationController extends Controller
             'created_by' => auth()->user()->id,
         ]);
     
-        // 🔹 Redirigir después de crear
+        session()->flash('toast', [
+            'type' => 'success',
+            'message' => 'Document created successfully',
+        ]);
+
         return Inertia::location("/projects/$projectId");
     }
     
@@ -59,7 +63,7 @@ class ProjectDocumentationController extends Controller
     
 public function destroy($projectId, $documentId)
 {
-    // Buscar el proyecto
+
     $project = Project::findOrFail($projectId);
 
 
@@ -67,8 +71,7 @@ public function destroy($projectId, $documentId)
 
     // Eliminar el documento
     $document->delete();
-
-    // Redirigir a la página del proyecto con Inertia
+ 
     return Inertia::location("/projects/$projectId");
 }
 

@@ -1,6 +1,7 @@
 <script setup>
   import { ref, computed, onMounted, watch } from 'vue'
   import { useForm, router  } from '@inertiajs/vue3'
+  import { toast } from 'vue3-toastify'
   import Layout from '@/Layouts/Layout.vue'
   import Button from '@/Components/StandardButton.vue'
   import StatusBadge from '@/Components/StatusBadge.vue'
@@ -101,16 +102,7 @@
     document.body.removeChild(link);
   }
   
-  const updateTask = (updatedTask) => {
-    // Implement task update logic here
-    console.log('Updating task:', updatedTask)
-  }
-  
-  const logTime = (timeEntry) => {
- 
-    console.log('Logging time:', timeEntry)
-  }
-  
+
   const addAttachment = async (attachment) => {
   try {
     const formData = new FormData();
@@ -124,12 +116,18 @@
 
     if (formData.has('attachments[0]')) {
       await router.post(`/projects/${props.project.id}/task/${props.task.id}`, formData, {
-        _method: "PUT"
+        _method: "PUT",
+        onSuccess: () => {
+          toast.success('Attachments added successfully');
+ 
+        },
+        onError: (errors) => {
+          toast.error('An error occurred. Please try again.');
+        },
+        
       });
-      console.log('Attachments added successfully');
-    } else {
-      console.error('No valid files found in attachments');
-    }
+     
+    } 
   } catch (error) {
     console.error('Error adding attachments:', error);
   }
@@ -166,7 +164,7 @@ function getRandomColor(index) {
 
 }
 
-  console.log(JSON.parse(props.task.attachments))
+
  
   
   
@@ -253,7 +251,7 @@ function getRandomColor(index) {
                     <div class="flex items-center justify-between mt-1">
                       <div class="flex items-center">
                         <box-icon name='check-circle' color='#9CA3AF' class="mr-2"></box-icon>
-                        <span class="text-lg text-white font-light">{{ task.completed_hours }} h</span>
+                        <span class="text-lg text-white font-light">{{ task.completed_hours || 0 }} h</span>
                       </div>
                       <div class="w-1/2 bg-gray-700 rounded-full h-2">
                         <div class="bg-blue-600 h-2 rounded-full" :style="{ width: `${(task.completed_hours / task.estimated_hours) * 100}%` }"></div>
@@ -419,7 +417,6 @@ function getRandomColor(index) {
       :task="task"
       :project="project"
       @close="closeEditTaskModal"
-      @update="updateTask"
     />
     <LogTimeModal
       :is-open="isLogTimeModalOpen"

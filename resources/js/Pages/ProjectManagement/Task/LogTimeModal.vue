@@ -1,6 +1,7 @@
 <script setup>
   import { ref } from 'vue';
   import { useForm, router } from '@inertiajs/vue3';
+  import { toast } from 'vue3-toastify';
   import StandardButton from '@/Components/StandardButton.vue';
   import InputWithIcon from '@/Components/InputWithIcon.vue';
   
@@ -26,6 +27,7 @@
 
     router.post(`/projects/${props.project.id}/task/${props.task.id}/task-log`, form, {
       onSuccess: () => {
+      toast.success('Time logged successfully');
       form.reset();
       emit('close'); // Cierra el modal
       emit('log-time', { // Emite el evento log-time al componente padre

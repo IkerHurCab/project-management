@@ -1,6 +1,7 @@
 <script setup>
   import { ref } from 'vue';
   import { useForm, router } from '@inertiajs/vue3';
+  import { toast } from 'vue3-toastify';
   import StandardButton from '@/Components/StandardButton.vue';
   import SelectWithIcon from '@/Components/SelectWithIcon.vue'
   import InputWithIcon from '@/Components/InputWithIcon.vue';
@@ -41,10 +42,16 @@
   const showDeleteModal = ref(false);
   
   const submitForm = () => {
-    router.post(`/projects/${props.project.id}/task/${props.task.id}`, form)
-    emit('close');
-    
-  };
+  router.post(`/projects/${props.project.id}/task/${props.task.id}`, form, {
+    onSuccess: () => {
+      console.log('Task updated successfully');
+      toast.success('Task updated successfully');
+      emit('update');
+      emit('close');
+    }
+  });
+};
+
   
   const openDeleteModal = () => {
     showDeleteModal.value = true;

@@ -1,6 +1,7 @@
 <script setup>
     import { ref, watchEffect } from 'vue';
     import { router } from '@inertiajs/vue3'
+    import { toast } from 'vue3-toastify';
     import InputWithIcon from '@/Components/InputWithIcon.vue';
     import SelectWithIcon from '@/Components/SelectWithIcon.vue';
     import StandardButton from '@/Components/StandardButton.vue';
@@ -53,7 +54,6 @@
     };
     
     const createProject = () => {
-      console.log(props.project);
       const data =  {
         projectName: projectName.value,
         company: company.value,
@@ -67,8 +67,16 @@
         isPublic: !isPrivate.value
       };
 
-      router.put(`/projects/${props.project.id}` , data);
-    
+      router.put(`/projects/${props.project.id}`, data, {
+  onSuccess: () => {
+    toast.success('Project updated successfully');
+  },
+  onError: (errors) => {
+    toast.error('An error occurred. Please try again.');
+  }
+});
+
+      
       // Close the modal after creating the project
       emit('close');
     };

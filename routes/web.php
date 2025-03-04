@@ -90,7 +90,7 @@ Route::group(['middleware' => 'auth'], function () {
     
         Route::post('projects/{projectId}/documentation', [ProjectDocumentationController::class, 'store'])->name('documentation.store');;
         Route::put('projects/{projectId}/documentation/{documentationId}', [ProjectDocumentationController::class, 'update'])->name('documentation.update');
-        Route::delete('/projects/{projectId}/documentation/{documentId}', [ProjectDocumentationController::class, 'docoumentation.destroy']);
+        Route::delete('/projects/{projectId}/documentation/{documentId}', [ProjectDocumentationController::class, 'destroy'])->name('documentation.destroy');
         Route::put('projects/{projectId}', [ProjectController::class, 'update'])->name('project.update');
         Route::delete('projects/{projectId}', [ProjectController::class, 'destroy'])->name('project.destroy');
         Route::get('projects/{projectId}/task/{taskId}', [TaskController::class, 'show'])->name('tasks.show');
