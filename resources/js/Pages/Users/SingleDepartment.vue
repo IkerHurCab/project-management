@@ -3,6 +3,7 @@ import Layout from '@/Layouts/Layout.vue';
 import InputWithIcon from '@/Components/InputWithIcon.vue';
 import 'boxicons';
 import { ref } from 'vue';
+import { toast } from 'vue3-toastify';
 import { router } from '@inertiajs/vue3';
 
 const props = defineProps({
@@ -77,7 +78,11 @@ function addMembers(members) {
             preserveState: true,
             preserveScroll: true,
             onSuccess: (page) => {
+                toast.success('User added successfully');
                 closeAddMemberModal();
+            },
+            onError: (errors) => {
+                toast.error('Error adding user');
             }
         });
         });

@@ -1,6 +1,7 @@
 <script setup>
   import { ref, watch, onMounted } from 'vue';
   import { router } from '@inertiajs/vue3';
+  import { toast } from 'vue3-toastify';
   import StandardButton from '@/Components/StandardButton.vue';
 
   const props = defineProps({
@@ -44,26 +45,35 @@
   }, { immediate: true });
 
   const submitForm = async () => {
-    try {
-      if (props.isEdit) {
-        // Si estamos editando, usa PUT
-        await router.put(`/projects/${props.project.id}/documentation/${props.documentation.id}`, form.value);
-      } else {
-        // Si estamos creando, usa POST
-        await router.post(`/projects/${props.project.id}/documentation`, form.value);
-      }
-
-      // Redirige a la vista de la documentación después de la creación o actualización
-
-    } catch (error) {
-      // Maneja errores si ocurren
-      console.error('Error al enviar el formulario:', error);
+  try {
+    if (props.isEdit) {
+      await router.put(`/projects/${props.project.id}/documentation/${props.documentation.id}`, form.value, {
+        onSuccess: () => {
+          toast.success('Document updated successfully');
+        }
+      });
+    } else {
+      await router.post(`/projects/${props.project.id}/documentation`, form.value, {
+        onSuccess: () => {
+          toast.success('Document created successfully');
+        }
+      });
     }
-  };
+
+  } catch (error) {
+    console.error('Error al enviar el formulario:', error);
+  }
+};
+
 
   const deleteDocument = async (documentId) => {
     if (confirm("¿Seguro que quieres eliminar este documento?")) {
-      await router.delete(`/projects/${props.project.id}/documentation/${props.documentation.id}`);
+      await router.delete(`/projects/${props.project.id}/documentation/${props.documentation.id}`), {
+        onSuccess: () => {
+          toast.success('Document deleted successfully');
+          emit('updateIsEdit', false);
+        }
+      }
     }
   };
 

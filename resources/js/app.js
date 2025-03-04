@@ -1,5 +1,6 @@
 import { createApp, h } from 'vue'
 import { createInertiaApp, router } from '@inertiajs/vue3'
+
 import 'boxicons';
 import FloatingVue from 'floating-vue'
 import 'floating-vue/dist/style.css';
@@ -8,6 +9,8 @@ import 'nprogress/nprogress.css';
 import VueHighlightJS from 'vue3-highlightjs'
 import Vue3Toastify from 'vue3-toastify'
 import 'vue3-toastify/dist/index.css';
+
+
 
 
 
@@ -22,12 +25,21 @@ createInertiaApp({
     return pages[`./Pages/${name}.vue`]
   },
   setup({ el, App, props, plugin }) {
-    createApp({ render: () => h(App, props) })
+    const app = createApp({ render: () => h(App, props) })
       .use(plugin)
       .use(FloatingVue)
       .use(VueHighlightJS)
-      .use(Vue3Toastify)
-      .mount(el)
+      .use(Vue3Toastify, {
+        position: "top-right",
+        autoClose: 2000,
+        theme: "dark",
+        hideProgressBar: true,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+
+      })
+    app.mount(el);
   }
 })
 

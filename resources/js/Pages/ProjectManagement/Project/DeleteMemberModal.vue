@@ -2,6 +2,7 @@
     import { ref } from 'vue';
     import { router } from '@inertiajs/vue3';
     import StandardButton from '@/Components/StandardButton.vue';
+    import { toast } from 'vue3-toastify';
     
     const props = defineProps({
       isOpen: Boolean,
@@ -15,8 +16,9 @@
       console.log(`/projects/${props.project.id}/members/${props.memberToDelete.id}`);
         router.delete(`/projects/${props.project.id}/members/${props.memberToDelete.id}`, {
             onSuccess: () => {
-                emit('confirm-delete');
-                emit('close');
+               toast.success('Member deleted successfully');
+               emit('confirm-delete');
+               emit('close');
             }
         })
         

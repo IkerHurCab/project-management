@@ -1,11 +1,13 @@
 <script setup>
   import { ref, computed } from 'vue';
+  import { toast } from 'vue3-toastify';
+  
   import Layout from '@/Layouts/Layout.vue';
   import StandardButton from '@/Components/StandardButton.vue';
   import InputWithIcon from '@/Components/InputWithIcon.vue';
   import SelectWithIcon from '@/Components/SelectWithIcon.vue';
   import { router } from '@inertiajs/vue3'
-  import 'boxicons';
+ 
 
   // Props
   const props = defineProps({
@@ -35,12 +37,10 @@
     // Enviar el formulario usando Inertia
     router.post('/projects', projectData, {
       onSuccess: () => {
-        // Aquí puedes redirigir a otra página o mostrar un mensaje de éxito
-        console.log('Proyecto creado con éxito');
+        toast.success('Project created successfully');
       },
       onError: (errors) => {
-        // Manejar los errores aquí (por ejemplo, mostrar mensajes de error)
-        console.error('Hubo un error:', errors);
+        toast.error('An error occurred while creating the project');
       }
     });
   };

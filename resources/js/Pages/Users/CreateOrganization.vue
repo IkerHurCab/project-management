@@ -1,6 +1,7 @@
 <script setup>
 import Layout from '@/Layouts/Layout.vue';
 import { ref, computed, onMounted } from 'vue';
+import { toast } from 'vue3-toastify';
 import { usePage, router } from '@inertiajs/vue3';
 import Cropper from 'cropperjs';
 import 'cropperjs/dist/cropper.css';
@@ -180,11 +181,10 @@ const createOrganization = () => {
 
     router.post('/organizations/create', formData, {
         onSuccess: () => {
-            alert("Organization created successfully!");
+            toast.success('Organization created successfully');
         },
         onError: (errors) => {
-            console.error("Error creating organization:", errors);
-            alert("Failed to create organization.");
+            toast.error('An error occurred. Please try again.');
         }
     });
 };

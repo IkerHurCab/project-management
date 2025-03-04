@@ -2,6 +2,7 @@
 import Layout from '@/Layouts/Layout.vue';
 import InputWithIcon from '@/Components/InputWithIcon.vue';
 
+import { toast } from 'vue3-toastify';
 import { ref } from 'vue';
 import { usePage } from '@inertiajs/vue3';
 import { router } from '@inertiajs/vue3';
@@ -29,6 +30,7 @@ function createDepartment() {
         preserveScroll: true,
     }, {
         onSuccess: (page) => {
+            toast.success('Department created successfully');
             user_departments.value = page.props.user_departments;
             modalCreateDepartment.value = false;
             newDepartmentName.value = '';
@@ -47,6 +49,7 @@ function searchMyDepartments(event) {
             preserveState: true,
             preserveScroll: true,
             onSuccess: (page) => {
+                
                 user_departments.value = page.props.user_departments;
             }
         });

@@ -293,11 +293,7 @@ class ProjectController extends Controller
         
         $project->users()->attach($usersId); 
         
-        return redirect()->route('projects.show', ['projectId' => $projectId])
-            ->with('toast', [
-                'message' => 'Members successfully added to the project',
-                'type' => 'success'
-            ]);
+        
       
     }
 

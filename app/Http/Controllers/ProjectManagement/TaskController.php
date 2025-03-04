@@ -155,9 +155,6 @@ class TaskController extends Controller
 
  
 
-        return Inertia::render('ProjectManagement/Project/SingleProject', [
-            'tasks' => $task,
-        ]);
 
 
     }
@@ -167,12 +164,12 @@ class TaskController extends Controller
     $task = Task::find($taskId);
     
     if (!$task) {
-        return redirect()->route('projects.show', ['id' => $projectId])->with('error', 'Task not found');
+        return redirect()->route('projects.show', ['projectId' => $projectId])->with('error', 'Task not found');
     }
 
     $task->delete();
 
-    return redirect()->route('projects.show', ['projects' => $projectId]);
+    return redirect()->route('projects.show', ['projectId' => $projectId]);
 
 }
 

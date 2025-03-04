@@ -148,7 +148,6 @@
       queryParams.append('searchMember', searchQuery.value);
     }
 
-    console.log(props.filteredEmployees);
 
     const url = queryParams.toString()
       ? `${props.project.id}/?${queryParams.toString()}`
@@ -206,18 +205,10 @@
   const handleAddMembers = (newEmployees) => {
   router.post(`/projects/${props.project.id}/new-members`, { users: newEmployees }, {
     onSuccess: () => {
-      toast.success("Members successfully added to the project!", {
-        position: "top-right",
-        autoClose: 3000,
-        theme: 'dark'
-      });
+      toast.success("Members successfully added to the project!");
     },
     onError: (errors) => {
-      toast.error("Error adding members", {
-        position: "top-right",
-        autoClose: 3000,
-      });
-    
+      toast.error("An error occurred while adding members to the project.");
     },
   });
 };
