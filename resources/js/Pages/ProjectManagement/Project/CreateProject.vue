@@ -103,12 +103,12 @@
 
       <div class="flex flex-col bg-black text-gray-300 min-h-screen px-6 py-4">
         <div class="flex flex-row  gap-x-4 ">
-          <div class="cursor-pointer flex items-center " @click="$inertia.visit('/projects')">
+          <div class="cursor-pointer gap-x-2 flex items-center " @click="$inertia.visit('/projects')">
 
 
-            <box-icon name='arrow-back' color='#fffdfd'></box-icon>
+            <box-icon name='arrow-back' color='#fffdfd'></box-icon> Back to Projects
           </div>
-          <h1 class="text-3xl font-bold text-white ">Create Project</h1>
+          <h1 class="text-2xl font-bold text-white ">Create Project</h1>
         </div>
         <div class="bg-gray-950 border border-gray-700 mt-5 rounded-lg overflow-hidden">
           <div class="border-b border-gray-700 p-6">
@@ -125,13 +125,8 @@
               <div class="col-span-1 md:col-span-2 lg:col-span-3">
                 <label for="department" class="block text-sm font-medium text-gray-400 mb-2">Departments</label>
                 <div class="relative">
-                  <input
-                    v-model="departmentInput"
-                    @keydown="handleKeydown"
-                    type="text"
-                    class="w-full bg-gray-900 text-white border border-gray-700 rounded-lg py-2 px-4 focus:outline-none focus:border-blue-500"
-                    placeholder="Select departments"
-                  />
+                  <InputWithIcon v-model="departmentInput" icon="group" placeholder="Select departments" class="w-full"
+                    @keydown="handleKeydown" />
                   <div v-if="filteredDepartments.length > 0" class="absolute z-10 w-full mt-1 bg-gray-900 border border-gray-700 rounded-lg shadow-lg">
                     <div
                       v-for="dept in filteredDepartments"
@@ -147,10 +142,10 @@
                   <div
                     v-for="deptId in selectedDepartments"
                     :key="deptId"
-                    class="bg-blue-600 text-white px-3 py-1 rounded-full text-sm flex items-center"
+                    class="bg-gray-900 text-gray-200 border border-gray-600 px-4 py-1 rounded-full text-sm flex items-center"
                   >
                     {{ props.userDepartments.find(d => d.id === deptId).name }}
-                    <button @click="removeDepartment(deptId)" class="ml-2 focus:outline-none">
+                    <button @click="removeDepartment(deptId)" class="ml-2 mt-1 cursor-pointer focus:outline-none">
                       <box-icon name='x' color='#ffffff' size="sm"></box-icon>
                     </button>
                   </div>
