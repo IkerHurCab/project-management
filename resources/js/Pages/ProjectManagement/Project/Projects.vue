@@ -172,7 +172,7 @@
               <thead>
                 <tr class="bg-gray-800 text-left">
                   <th class="p-4 font-semibold text-gray-400">Project Name</th>
-                  <th class="p-4 font-semibold text-gray-400">Company</th>
+                  <th class="p-4 font-semibold text-gray-400">Department</th>
                   <th class="p-4 font-semibold text-gray-400">Project Leader</th>
                   <th class="p-4 font-semibold text-gray-400">Start Date</th>
                   <th class="p-4 font-semibold text-gray-400">End Date</th>
@@ -196,7 +196,16 @@
                   }"
                   @click="router.get(`/projects/${project.id}`)">
                   <td class="p-4">{{ project.name || 'No hay texto' }}</td>
-                  <td class="p-4 text-gray-400">{{ project.company || 'No hay texto' }}</td>
+                  <td class="p-4 text-gray-400">
+                    <span v-if="project.departments && project.departments.length > 0">
+                      <ul>
+                        <li v-for="department in project.departments" :key="department.id">
+                          {{ department.name || 'No hay texto' }}
+                        </li>
+                      </ul>
+                    </span>
+                    <span v-else>No hay texto</span>
+                  </td>
                   <td class="p-4 text-gray-400">{{ project.leader?.name ?? 'No asignado' }}</td>
                   <td class="p-4 text-gray-400">{{ project.start_date || 'No hay texto' }}</td>
                   <td class="p-4 text-gray-400">{{ project.end_date || 'No hay texto' }}</td>

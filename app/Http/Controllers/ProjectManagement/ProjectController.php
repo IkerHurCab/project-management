@@ -43,7 +43,7 @@ class ProjectController extends Controller
         // Obtener los IDs de los departamentos de la organización actual
         $departmentIds = $currentOrganization->departments()->pluck('id')->toArray();
     
-        $projects = Project::with('leader:id,name', 'users:id,name')
+        $projects = Project::with('leader:id,name', 'users:id,name', 'departments:id,name')
             ->whereHas('departments', function ($query) use ($departmentIds) {
                 $query->whereIn('department.id', $departmentIds);
             })
@@ -82,7 +82,8 @@ class ProjectController extends Controller
                     ->orWhere('project_leader_id', $currentUser->id);
             })
             ->get();
-    
+   
+     
         $isAdminOrDepartmentHead = $currentUser->hasRole('admin') || $currentUser->hasRole('department_head');
     
         $departmentHeads = User::whereHas('roles', function ($query) {
@@ -131,9 +132,12 @@ class ProjectController extends Controller
         return $task->user_id === auth()->id() && $task->status !== 'done';
     });
 
-    // pending of change to all users FROM THE SAME DEPARTMENT
-    
-    $allUsers = User::whereNotIn('id', $members->pluck('id'))->get();
+
+   
+
+
+
+ 
 
     $totalCompletedTasks = $project->tasks->filter(function ($task) {
         return $task->status === 'done';
@@ -168,6 +172,18 @@ class ProjectController extends Controller
             'label' => $user->name, 
         ];
     });
+
+    $departmentIds = $project->departments()->pluck('id')->toArray(); 
+    
+    $allUsers = User::whereHas('departments', function ($query) use ($departmentIds) {
+        $query->whereIn('department.id', $departmentIds); // Asegurar el alias correcto
+    })
+    ->whereNotIn('id', $members->pluck('id')) // Excluir los usuarios ya en el proyecto
+    ->get(['id', 'name']);
+
+
+
+
 
     return Inertia::render('ProjectManagement/Project/SingleProject', [
         'project' => $project,
@@ -222,7 +238,6 @@ class ProjectController extends Controller
         // Validación de los datos del formulario
         $request->validate([
             'name' => 'required|string|max:255',
-            'company' => 'required|string|max:255',
             'project_leader_id' => 'required|exists:users,id',
             'start_date' => 'required|date',
             'end_date' => 'nullable|date|after_or_equal:start_date',
@@ -232,7 +247,7 @@ class ProjectController extends Controller
             'priority' => 'required|integer',
             'description' => 'nullable|string',
             'attachments' => 'nullable|array',
-            'department_id' => 'required|exists:department,id'
+      
         ]);
       
         $project = Project::create([
@@ -249,13 +264,15 @@ class ProjectController extends Controller
             'attachments' => json_encode($request->attachments), 
         ]);
 
-
-        DB::table('department_project')->insert([
-            'department_id' => $request->department_id,            
-            'project_id' => $project->id,
-            'created_at' => now(),
-            'updated_at' => now()
-        ]);
+        foreach($request->department_ids as $departmentId){
+            DB::table('department_project')->insert([
+                'department_id' => $departmentId,            
+                'project_id' => $project->id,
+                'created_at' => now(),
+                'updated_at' => now()
+            ]);
+        }
+       
 
 
         return redirect()->route('projects.index'); 
@@ -275,7 +292,7 @@ class ProjectController extends Controller
     
         
         $project->users()->attach($usersId); 
-    
+        
       
     }
 
@@ -321,11 +338,15 @@ class ProjectController extends Controller
     return redirect()->route('projects.index')->with('success', 'Proyecto eliminado con éxito');
 }
 
-    public function removeMember(Project $project, User $user)
+    public function removeMember($projectId, $userId)
     {
-        $project->users()->detach($user->id);
+        $project = Project::findOrFail($projectId);
+       
 
-        return redirect()->back()->with('success', 'Member removed successfully.');    
+        $project->users()->detach($userId);
+        
+      
+        return redirect()->back();    
     }
     
 

@@ -22,11 +22,12 @@
 
     
     const filteredAllUsers = computed(() => {
-      return props.allMembers.filter(user => 
-        user.name.toLowerCase().includes(allUsersSearchQuery.value.toLowerCase()) &&
-        !form.selectedMembers.some(selectedMember => selectedMember.id === user.id)
-      );
-    });
+  return props.allMembers.filter(user => 
+    user.name.toLowerCase().includes(allUsersSearchQuery.value.toLowerCase()) &&
+    !form.selectedMembers.some(selectedMember => selectedMember.id === user.id) // Excluir los seleccionados
+  );
+});
+
     
     const toggleMemberSelection = (member) => {
       const index = form.selectedMembers.findIndex(m => m.id === member.id);
