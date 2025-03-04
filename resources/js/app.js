@@ -6,6 +6,10 @@ import 'floating-vue/dist/style.css';
 import NProgress from 'nprogress';
 import 'nprogress/nprogress.css';
 import VueHighlightJS from 'vue3-highlightjs'
+import Vue3Toastify from 'vue3-toastify'
+import 'vue3-toastify/dist/index.css';
+
+
 
 
 
@@ -22,6 +26,7 @@ createInertiaApp({
       .use(plugin)
       .use(FloatingVue)
       .use(VueHighlightJS)
+      .use(Vue3Toastify)
       .mount(el)
   }
 })
