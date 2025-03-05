@@ -21,6 +21,7 @@ class LoginController extends Controller
 
     public function store(Request $request)
     {
+
         $validator = Validator::make($request->all(), [
             'email' => 'required|email',
             'password' => 'required',
@@ -48,7 +49,7 @@ class LoginController extends Controller
         }
         
     
-        Auth::login($user);
+        Auth::login($user, $request->has('remember'));
         $request->session()->regenerate();
         return redirect()->route('dashboard');
     }

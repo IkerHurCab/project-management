@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 @import 'boxicons/css/boxicons.min.css';
+@custom-variant dark (&:where(.dark, .dark *));
 @source "../views";
 
 

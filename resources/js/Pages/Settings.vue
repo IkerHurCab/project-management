@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { usePage, router } from '@inertiajs/vue3';
 import axios from 'axios';
 
@@ -11,6 +11,33 @@ const username = ref(user.name);
 
 const isTwoFactorEnabled = ref(!!user.value?.two_factor_secret);
 const qrCode = ref("");
+
+
+const isDarkMode = ref(localStorage.getItem('theme') == 'dark');
+
+const toggleDarkMode = () => {
+
+    if (isDarkMode.value) {
+        localStorage.setItem('theme', 'dark');
+        document.documentElement.classList.add('dark');
+    } else {
+        localStorage.setItem('theme', 'light');
+        document.documentElement.classList.remove('dark');
+    }
+
+    console.log("Nuevo theme:", localStorage.getItem('theme'));
+};
+
+onMounted(() => {
+    const theme = localStorage.getItem('theme');
+    isDarkMode.value = theme === 'dark';
+
+    if (isDarkMode.value) {
+        document.documentElement.classList.add('dark');
+    } else {
+        document.documentElement.classList.remove('dark');
+    }
+});
 
 const getQRCode = async () => {
     try {
@@ -48,7 +75,7 @@ const qrModal = ref(false);
 </script>
 <template>
     <Layout pageTitle="Settings">
-        <div class="bg-gray-950 rounded-lg h-full border border-gray-500">
+        <div class="bg-gray-950 dark:bg-white rounded-lg h-full border border-gray-500">
 
             <h1 class="border-b border-gray-500 p-2 rounded-t-lg">ACCOUNT</h1>
             <p class="px-4 mt-4">Manage your account information.</p>
@@ -67,6 +94,15 @@ const qrModal = ref(false);
                         information</h3>
                     <h3 class="bg-blue-500 p-2 rounded-lg hover:bg-blue-600 cursor-pointer text-center">Change password
                     </h3>
+                </div>
+                <div class="flex items-center">
+                    <span class="text-gray-300">Dark Mode</span>
+                    <label class="relative inline-flex items-center cursor-pointer ml-2">
+                        <input type="checkbox" v-model="isDarkMode" @change="toggleDarkMode" class="sr-only peer">
+                        <div
+                            class="w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer dark:bg-gray-300 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-1 after:left-1 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all">
+                        </div>
+                    </label>
                 </div>
             </div>
 
@@ -102,10 +138,10 @@ const qrModal = ref(false);
                 <div v-html="qrCode" class="p-4 bg-gray-100 rounded-lg inline-block"></div>
                 <p class="text text-gray-300 mt-2">Use your authenticator app to scan the code and enable 2FA</p>
                 <div class="fle gap-2">
-                <button @click="disable2FA()"
-                    class="mt-4 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 cursor-pointer transition duration-300">Cancel</button>
-                <button @click="qrModal = false"
-                    class="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-red-600 cursor-pointer transition duration-300 ml-2">Confirm</button>
+                    <button @click="disable2FA()"
+                        class="mt-4 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 cursor-pointer transition duration-300">Cancel</button>
+                    <button @click="qrModal = false"
+                        class="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-red-600 cursor-pointer transition duration-300 ml-2">Confirm</button>
                 </div>
             </div>
         </div>
