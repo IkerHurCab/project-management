@@ -7,30 +7,22 @@ import InputWithIcon from '../Components/InputWithIcon.vue';
 
 const user = computed(() => usePage().props.auth?.user);
 
-// Form data
 const currentPassword = ref('');
 const newPassword = ref('');
 const confirmPassword = ref('');
 
-// Form state
 const isSubmitting = ref(false);
 const errors = ref({});
 const successMessage = ref('');
 
-// Password validation
 const passwordStrength = computed(() => {
   if (!newPassword.value) return 0;
   
   let strength = 0;
-  // Length check
   if (newPassword.value.length >= 8) strength += 1;
-  // Contains number
   if (/\d/.test(newPassword.value)) strength += 1;
-  // Contains lowercase
   if (/[a-z]/.test(newPassword.value)) strength += 1;
-  // Contains uppercase
   if (/[A-Z]/.test(newPassword.value)) strength += 1;
-  // Contains special character
   if (/[^A-Za-z0-9]/.test(newPassword.value)) strength += 1;
   
   return strength;
@@ -52,7 +44,6 @@ const passwordStrengthColor = computed(() => {
   return 'bg-green-500';
 });
 
-// Form validation
 const validateForm = () => {
   errors.value = {};
   
@@ -77,7 +68,6 @@ const validateForm = () => {
   return Object.keys(errors.value).length === 0;
 };
 
-// Submit form
 const updatePassword = async () => {
   if (!validateForm()) return;
   
@@ -92,9 +82,7 @@ const updatePassword = async () => {
       password_confirmation: confirmPassword.value
     });
     
-    // Only clear form and show success if we get a successful response
     if (response.status === 200) {
-      // Clear form on success
       currentPassword.value = '';
       newPassword.value = '';
       confirmPassword.value = '';
@@ -103,22 +91,18 @@ const updatePassword = async () => {
     }
   } catch (error) {
     console.error('Password update error:', error);
-    successMessage.value = ''; // Clear any success message
+    successMessage.value = '';
     
     if (error.response?.status === 422) {
-      // Validation errors - properly handle the error format
       if (error.response.data.errors) {
-        // Map the errors to our format
         const serverErrors = error.response.data.errors;
         
-        // Handle current_password error specifically
         if (serverErrors.current_password) {
           errors.value.currentPassword = Array.isArray(serverErrors.current_password) 
             ? serverErrors.current_password[0] 
             : serverErrors.current_password;
         }
         
-        // Handle other potential errors
         if (serverErrors.password) {
           errors.value.newPassword = Array.isArray(serverErrors.password)
             ? serverErrors.password[0]
@@ -134,7 +118,6 @@ const updatePassword = async () => {
         errors.value.general = 'Validation failed. Please check your input.';
       }
     } else {
-      // General error
       errors.value.general = 'An error occurred. Please try again.';
     }
   } finally {
@@ -151,17 +134,14 @@ const updatePassword = async () => {
       
       <form @submit.prevent="updatePassword" class="p-4">
         <div class="max-w-md space-y-6">
-          <!-- Success message -->
           <div v-if="successMessage" class="bg-green-100 dark:bg-green-200 border border-green-400 text-green-700 px-4 py-3 rounded relative">
             {{ successMessage }}
           </div>
           
-          <!-- General error message -->
           <div v-if="errors.general" class="bg-red-100 dark:bg-red-200 border border-red-400 text-red-700 px-4 py-3 rounded relative">
             {{ errors.general }}
           </div>
           
-          <!-- Current password -->
           <div>
             <label for="current-password" class="block mb-1">Current Password</label>
             <InputWithIcon 
@@ -175,7 +155,6 @@ const updatePassword = async () => {
             <p v-if="errors.currentPassword" class="text-red-500 text-sm mt-1">{{ errors.currentPassword }}</p>
           </div>
           
-          <!-- New password -->
           <div>
             <label for="new-password" class="block mb-1">New Password</label>
             <InputWithIcon 
@@ -188,7 +167,6 @@ const updatePassword = async () => {
             />
             <p v-if="errors.newPassword" class="text-red-500 text-sm mt-1">{{ errors.newPassword }}</p>
             
-            <!-- Password strength meter -->
             <div v-if="newPassword" class="mt-2">
               <div class="flex items-center justify-between mb-1">
                 <span class="text-sm">Password Strength:</span>
@@ -213,7 +191,6 @@ const updatePassword = async () => {
             </div>
           </div>
           
-          <!-- Confirm password -->
           <div>
             <label for="confirm-password" class="block mb-1">Confirm New Password</label>
             <InputWithIcon 
@@ -227,7 +204,6 @@ const updatePassword = async () => {
             <p v-if="errors.confirmPassword" class="text-red-500 text-sm mt-1">{{ errors.confirmPassword }}</p>
           </div>
           
-          <!-- Submit button -->
           <div>
             <button 
               type="submit" 

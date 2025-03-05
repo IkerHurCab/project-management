@@ -16,7 +16,6 @@ const qrCode = ref("");
 const isDarkMode = ref(localStorage.getItem('theme') == 'dark');
 const emailSending = ref(false);
 
-// Form state
 const isUpdating = ref(false);
 const updateErrors = ref({});
 const updateSuccess = ref(false);
@@ -75,7 +74,6 @@ const disable2FA = async () => {
     }
 };
 
-// Update user information
 const updateUserInfo = async () => {
     isUpdating.value = true;
     updateErrors.value = {};
@@ -90,14 +88,11 @@ const updateUserInfo = async () => {
         
         if (response.status === 200) {
             updateSuccess.value = true;
-            // Update the user object in the page props if needed
-            // This might not be necessary if you're using Inertia's automatic refresh
         }
     } catch (error) {
         console.error('Error updating user information:', error);
         
         if (error.response?.status === 422 && error.response.data.errors) {
-            // Map the errors
             const serverErrors = error.response.data.errors;
             
             if (serverErrors.name) {
@@ -117,7 +112,6 @@ const updateUserInfo = async () => {
     } finally {
         isUpdating.value = false;
         
-        // Hide success message after 3 seconds
         if (updateSuccess.value) {
             setTimeout(() => {
                 updateSuccess.value = false;
@@ -130,13 +124,12 @@ const updateUserInfo = async () => {
 const qrModal = ref(false);
 const disableConfirmModal = ref(false);
 
-// Timer for disable confirmation
+
 const confirmCountdown = ref(10);
 const confirmButtonEnabled = ref(false);
 const countdownTimer = ref(null);
 
 const showDisableConfirmation = () => {
-    // Clear any existing timer first
     if (countdownTimer.value) {
         clearInterval(countdownTimer.value);
     }
@@ -156,7 +149,7 @@ const showDisableConfirmation = () => {
 
 const closeDisableConfirmation = () => {
     disableConfirmModal.value = false;
-    // Clear the timer when closing the modal
+    
     if (countdownTimer.value) {
         clearInterval(countdownTimer.value);
         countdownTimer.value = null;
