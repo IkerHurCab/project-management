@@ -92,14 +92,12 @@
     return new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
   }
   
-  const downloadAttachment = (attachment) => {
-    const link = document.createElement("a")
-    link.href = attachment;
-    link.download = attachment.split('/').pop()
-    console.log(link.href)
-    document.body.appendChild(link);
-    link.click()
-    document.body.removeChild(link);
+  const downloadAttachment = (attachmentIndex) => {
+    const downloadUrl = `/projects/${props.project.id}/task/${props.task.id}/download-attachment/${attachmentIndex}`;
+    window.location.href = downloadUrl; // Esto redirige a la URL para la descarga
+
+
+
   }
   
 
@@ -364,7 +362,7 @@ function getRandomColor(index) {
                           <box-icon name='file-blank' color='#ffffff'></box-icon>
                           <span class="text-white truncate">{{ attachment.split('/').pop() }}</span>
                       </div>
-                      <Button @click="downloadAttachment(attachment)" size="sm">Download</Button>
+                      <Button @click="downloadAttachment(index)" size="sm">Download</Button>
                   </div>
               </div>
               <div v-else class="text-gray-400 text-center py-4">

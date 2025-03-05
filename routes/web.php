@@ -94,6 +94,9 @@ Route::group(['middleware' => 'auth'], function () {
         Route::put('projects/{projectId}', [ProjectController::class, 'update'])->name('project.update');
         Route::delete('projects/{projectId}', [ProjectController::class, 'destroy'])->name('project.destroy');
         Route::get('projects/{projectId}/task/{taskId}', [TaskController::class, 'show'])->name('tasks.show');
+        Route::get('projects/{projectId}/task/{taskId}/download-attachment/{attachmentIndex}', [TaskController::class, 'downloadAttachment'])->name('tasks.download-attachment');
+
+
     });
 
 

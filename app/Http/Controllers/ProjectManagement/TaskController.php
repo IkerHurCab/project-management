@@ -72,11 +72,11 @@ class TaskController extends Controller
             foreach ($files as $file) {
             
                 if ($file->isValid()) {
-                    // Obtener la extensión original
+                    $originalName = $file->getClientOriginalName();
                     $extension = $file->getClientOriginalExtension();
         
                     // Crear el nombre del archivo con la extensión correcta
-                    $filename = uniqid() . '.' . $extension;
+                    $filename = $originalName;
         
                     // Almacenar el archivo con el nombre y la extensión correcta
                     $path = $file->storeAs($folderPath, $filename, 'local');
@@ -173,6 +173,22 @@ class TaskController extends Controller
 
 }
 
+
+    public function downloadAttachment($projectId, $taskId, $attachmentIndex)
+{
+ 
+    $task = Task::find($taskId);
+    $attachments = json_decode($task->attachments);
+
+    if (!$attachments) {
+        return redirect()->route('tasks.show', ['projectId' => $projectId, 'taskId' => $taskId])->with('error', 'Attachment not found');
+    }
+
+    $attachment = $attachments[$attachmentIndex];
+    
+    return Storage::download($attachment);
+
+}
 
 
 
