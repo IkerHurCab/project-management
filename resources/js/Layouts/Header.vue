@@ -1,19 +1,8 @@
 <template>
-    <header class="flex items-center justify-between py-2  px-4 bg-black w-full">
-        <h1 class="text-3xl font-bold text-white mb-4 px-8 py-1">{{ page }}</h1>
+    <header class="flex items-center justify-between py-2  px-4 bg-black dark:bg-white w-full">
+        <h1 class="text-3xl font-bold  mb-4 px-8 py-1">{{ page }}</h1>
         <div class="flex gap-4 items-center">
-            <div class="flex items-center min-h-12">
-                <label for="theme-switch" class="flex items-center cursor-pointer">
-                    <div class="relative">
-                        <input id="theme-switch" type="checkbox" class="sr-only" />
-                        <div class="block bg-gray-800 w-24 min-h-12 rounded-full"></div>
-                        <div class="absolute text-white flex items-center gap-4 top-3 left-4">
-                            <box-icon name="moon" color="#FFFFFF"></box-icon>
-                            <box-icon name="sun" color="#FFFFFF"></box-icon>
-                        </div>
-                    </div>
-                </label>
-            </div>
+
 
             <div class="p-4 hover:cursor-pointer transition duration-300 relative min-w-12 min-h-12">
                 <box-icon :name="'bell'" :color="'gray'" class="w-7 h-7 absolute top-2.5 left-2.5"></box-icon>

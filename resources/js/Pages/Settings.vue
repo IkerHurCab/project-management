@@ -7,16 +7,16 @@ import Layout from '@/Layouts/Layout.vue';
 import InputWithIcon from '../Components/InputWithIcon.vue'
 
 const user = computed(() => usePage().props.auth?.user);
-const username = ref(user.name);
+const username = ref(user.value.name);
+const email = ref(user.value.email);
 
 const isTwoFactorEnabled = ref(!!user.value?.two_factor_secret);
 const qrCode = ref("");
 
-
 const isDarkMode = ref(localStorage.getItem('theme') == 'dark');
+const emailSending = ref(false);
 
 const toggleDarkMode = () => {
-
     if (isDarkMode.value) {
         localStorage.setItem('theme', 'dark');
         document.documentElement.classList.add('dark');
@@ -49,7 +49,6 @@ const getQRCode = async () => {
     }
 };
 
-
 const enable2FA = async () => {
     try {
         await router.post('/user/two-factor-authentication');
@@ -64,20 +63,64 @@ const disable2FA = async () => {
     try {
         await router.delete('/user/two-factor-authentication');
         isTwoFactorEnabled.value = false;
-        qrModal.value = false
+        qrModal.value = false;
+        disableConfirmModal.value = false;
     } catch (error) {
         console.error('Error disabling 2FA', error);
     }
 };
 
-//modals
+// Modals
 const qrModal = ref(false);
+const disableConfirmModal = ref(false);
+
+// Timer for disable confirmation
+const confirmCountdown = ref(10);
+const confirmButtonEnabled = ref(false);
+const countdownTimer = ref(null);
+
+const showDisableConfirmation = () => {
+    // Clear any existing timer first
+    if (countdownTimer.value) {
+        clearInterval(countdownTimer.value);
+    }
+    
+    disableConfirmModal.value = true;
+    confirmCountdown.value = 10;
+    confirmButtonEnabled.value = false;
+    
+    countdownTimer.value = setInterval(() => {
+        confirmCountdown.value--;
+        if (confirmCountdown.value <= 0) {
+            clearInterval(countdownTimer.value);
+            confirmButtonEnabled.value = true;
+        }
+    }, 1000);
+};
+
+const closeDisableConfirmation = () => {
+    disableConfirmModal.value = false;
+    // Clear the timer when closing the modal
+    if (countdownTimer.value) {
+        clearInterval(countdownTimer.value);
+        countdownTimer.value = null;
+    }
+};
+
+const handle2FAButtonClick = () => {
+    if (isTwoFactorEnabled.value) {
+        showDisableConfirmation();
+    } else {
+        enable2FA();
+    }
+};
 </script>
+
 <template>
     <Layout pageTitle="Settings">
-        <div class="bg-gray-950 dark:bg-white rounded-lg h-full border border-gray-500">
+        <div class="bg-gray-950 dark:bg-gray-200 rounded-lg h-full border border-gray-500">
 
-            <h1 class="border-b border-gray-500 p-2 rounded-t-lg">ACCOUNT</h1>
+            <h1 class="border-b border-gray-500 p-2 rounded-t-lg dark:text-gray-500">ACCOUNT</h1>
             <p class="px-4 mt-4">Manage your account information.</p>
             <div class="p-4 grid grid-cols-2 gap-4">
                 <div>
@@ -87,34 +130,48 @@ const qrModal = ref(false);
                 </div>
                 <div>
                     <label for="email">Email</label>
-                    <InputWithIcon icon="envelope" :placeholder="user.email" class="w-full" type="email" required />
+                    <InputWithIcon icon="envelope" :placeholder="user.email" :value="user.email" v-model="email" class="w-full" type="email" required />
                 </div>
                 <div class="grid grid-cols-2 gap-2 w-2/3">
-                    <h3 class="bg-blue-500 p-2 rounded-lg hover:bg-blue-600 cursor-pointer text-center">Update acount
+                    <h3 class="bg-blue-500 p-2 rounded-lg hover:bg-blue-600 cursor-pointer text-center text-white">
+                        Update acount
                         information</h3>
-                    <h3 class="bg-blue-500 p-2 rounded-lg hover:bg-blue-600 cursor-pointer text-center">Change password
+                    <h3 class="bg-blue-500 p-2 rounded-lg hover:bg-blue-600 cursor-pointer text-center text-white" @click = "router.get('/settings/change-password')">
+                        Change password
                     </h3>
                 </div>
                 <div class="flex items-center">
-                    <span class="text-gray-300">Dark Mode</span>
+                    <span class="text-gray-300 dark:text-gray-700">Toggle Dark Mode</span>
                     <label class="relative inline-flex items-center cursor-pointer ml-2">
                         <input type="checkbox" v-model="isDarkMode" @change="toggleDarkMode" class="sr-only peer">
-                        <div
-                            class="w-11 h-6 bg-gray-600 peer-focus:outline-none rounded-full peer dark:bg-gray-300 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-1 after:left-1 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all">
+                        <div class="w-11 h-6 rounded-full transition-all duration-300"
+                            :class="!isDarkMode ? 'bg-yellow-500' : 'bg-gray-600'">
+                            <div class="absolute top-1 left-1 h-4 w-4 bg-white border border-gray-300 rounded-full transition-all duration-300"
+                                :class="!isDarkMode ? 'translate-x-5 border-white' : ''"></div>
                         </div>
                     </label>
                 </div>
             </div>
 
-            <h1 class="border-y border-gray-500 p-2">SOCIAL</h1>
+            <h1 class="border-y border-gray-500 p-2 dark:text-gray-500">SOCIAL</h1>
             <div class="p-4">
-
+                <div class="flex items-center">
+                    <span class="text-gray-300 dark:text-gray-700">Allow emails</span>
+                    <label class="relative inline-flex items-center cursor-pointer ml-2">
+                        <input type="checkbox" v-model="emailSending" class="sr-only peer">
+                        <div class="w-11 h-6 rounded-full transition-all duration-300"
+                            :class="!emailSending ? 'bg-yellow-500' : 'bg-gray-600'">
+                            <div class="absolute top-1 left-1 h-4 w-4 bg-white border border-gray-300 rounded-full transition-all duration-300"
+                                :class="!emailSending ? 'translate-x-5 border-white' : ''"></div>
+                        </div>
+                    </label>
+                </div>
             </div>
 
-            <h1 class="border-y border-gray-500 p-2">SECURITY</h1>
-            <p class="px-4 mt-4">Add an extra layer of security to your account.</p>
+            <h1 class="border-y border-gray-500 p-2 dark:text-gray-500">SECURITY</h1>
+            <p class="px-4 mt-4 dark:text-gray-700">Add an extra layer of security to your account.</p>
             <div class="p-4 grid grid-cols-2 gap-4">
-                <div class="bg-gray-900 p-6 rounded-lg">
+                <div class="bg-gray-900 dark:bg-gray-50 p-6 rounded-lg dark:text-gray-700 shadow-lg">
                     <p class="text-xl font-bold">Two-Factor Authentication (2FA)</p>
                     <p class="mt-2 text-justify">
                         Two-Factor Authentication adds an extra layer of security to your account.
@@ -123,28 +180,71 @@ const qrModal = ref(false);
                     </p>
                     <p class="mt-2 text-justify">
                         Once enabled, you'll be asked for a verification code sent to your device each time
-                        you log in. You can use an authenticator app or receive codes via SMS.
+                        you log in. You can use an authenticator app to complete this process.
                     </p>
-                    <h3 @click="isTwoFactorEnabled ? disable2FA() : enable2FA()"
-                        class="w-1/2 bg-blue-500 text-white font-semibold p-3 rounded-lg hover:bg-blue-600 cursor-pointer text-center mt-4 transition duration-300">
-                        {{ isTwoFactorEnabled ? "DISABLE 2FA" : "ENABLE 2FA" }}
-                    </h3>
-                </div>
-            </div>
-        </div>
-        <div v-if="qrCode && qrModal" class="fixed inset-0 flex items-center justify-center bg-black/50">
-            <div class="bg-gray-900 p-6 rounded-lg shadow-lg w-96 text-center">
-                <h2 class="text-lg font-semibold mb-4">Scan this QR Code</h2>
-                <div v-html="qrCode" class="p-4 bg-gray-100 rounded-lg inline-block"></div>
-                <p class="text text-gray-300 mt-2">Use your authenticator app to scan the code and enable 2FA</p>
-                <div class="fle gap-2">
-                    <button @click="disable2FA()"
-                        class="mt-4 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 cursor-pointer transition duration-300">Cancel</button>
-                    <button @click="qrModal = false"
-                        class="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-red-600 cursor-pointer transition duration-300 ml-2">Confirm</button>
+                    <button @click="handle2FAButtonClick()" :class="[
+                        'w-1/2',
+                        'text-white',
+                        'font-semibold',
+                        'p-3',
+                        'rounded-lg',
+                        'cursor-pointer',
+                        'text-center',
+                        'mt-4',
+                        'transition',
+                        'duration-300',
+                        isTwoFactorEnabled ? 'bg-red-500 hover:bg-red-600' : 'bg-blue-500 hover:bg-blue-600'
+                    ]">
+                        {{ isTwoFactorEnabled ? "DISABLE 2FA (NOT RECOMMENDED)" : "ENABLE 2FA" }}
+                    </button>
                 </div>
             </div>
         </div>
 
+        <!-- QR Code Modal -->
+        <div v-if="qrCode && qrModal" class="fixed inset-0 flex items-center justify-center bg-black/50">
+            <div class="bg-gray-900 dark:bg-white p-6 rounded-lg shadow-lg w-96 text-center">
+                <h2 class="text-lg font-semibold mb-4">Scan this QR Code</h2>
+                <div v-html="qrCode" class="p-4 bg-gray-100 dark:border rounded-lg inline-block"></div>
+                <p class="text text-gray-300 mt-2 dark:text-gray-500">Use your authenticator app to scan the code and
+                    enable 2FA</p>
+                <div class="flex gap-2">
+                    <button @click="disable2FA()"
+                        class="mt-4 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 cursor-pointer transition duration-300">Cancel</button>
+                    <button @click="qrModal = false"
+                        class="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 cursor-pointer transition duration-300">Confirm</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Disable 2FA Confirmation Modal -->
+        <div v-if="disableConfirmModal" class="fixed inset-0 flex items-center justify-center bg-black/50">
+            <div class="bg-gray-900 dark:bg-white p-6 rounded-lg shadow-lg w-96 text-center">
+                <h2 class="text-xl font-bold text-red-500 mb-4">WARNING: Disabling 2FA</h2>
+                <div class="p-4 bg-red-100 dark:bg-red-50 rounded-lg mb-4">
+                    <p class="text-red-800 font-semibold">This action is not recommended</p>
+                </div>
+                <p class="text-gray-300 dark:text-gray-700 text-justify mb-4">
+                    Disabling Two-Factor Authentication will significantly reduce the security of your account. 
+                    Without 2FA, your account will be more vulnerable to unauthorized access.
+                </p>
+                <p class="text-gray-300 dark:text-gray-700 text-justify mb-4">
+                    We strongly recommend keeping 2FA enabled to protect your personal information and data.
+                </p>
+                <div class="flex justify-between gap-2">
+                    <button @click="closeDisableConfirmation()"
+                        class="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 cursor-pointer transition duration-300 flex-1">
+                        Cancel
+                    </button>
+                    <button @click="disable2FA()"
+                        :disabled="!confirmButtonEnabled"
+                        class="mt-4 px-4 py-2 rounded-lg cursor-pointer transition duration-300 flex-1 flex items-center justify-center"
+                        :class="confirmButtonEnabled ? 'bg-red-500 hover:bg-red-600 text-white' : 'bg-gray-500 text-gray-300 cursor-not-allowed'">
+                        <span v-if="!confirmButtonEnabled">Wait {{ confirmCountdown }}s</span>
+                        <span v-else>I understand, disable 2FA</span>
+                    </button>
+                </div>
+            </div>
+        </div>
     </Layout>
 </template>
