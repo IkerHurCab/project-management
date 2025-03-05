@@ -63,6 +63,9 @@
     departmentHead: {
       type: Array
     },
+    userDepartments: {
+      type: Array
+    },
 
   });
 
@@ -612,7 +615,7 @@ const series = computed(() => chartData.value.map(item => item.count));
       @add-members="handleAddMembers" />
     <CreateTaskModal :is-open="isCreateTaskModalOpen" :project-id="project.id" :employees="employees"
       @close="closeCreateTaskModal" />
-    <EditProjectModal :is-open="isEditProjectModalOpen" :project="project" :departmentHead="departmentHead" @close="closeEditProjectModal" />
+    <EditProjectModal :is-open="isEditProjectModalOpen":userDepartments="userDepartments" :project="project" :departmentHead="departmentHead" @close="closeEditProjectModal" />
     <DeleteMemberModal :is-open="isDeleteMemberModalOpen" :memberToDelete="memberToDelete" :project="project" @close="closeDeleteMemberModal" />
 
   </Layout>

@@ -112,7 +112,7 @@ class ProjectController extends Controller
     
         $searchMember = $request->query('searchMember');
          
-        $project = Project::with(['tasks', 'users', 'leader'])->findOrFail($id);
+        $project = Project::with(['tasks', 'users', 'leader', 'departments'])->findOrFail($id);
         $project->load(['tasks.user']);
 
         $membersQuery = $project->users()->newQuery();  
@@ -182,6 +182,10 @@ class ProjectController extends Controller
     ->get(['id', 'name']);
 
 
+    
+    $departments = $user->departments()
+    ->where('organization_id', request()->user()->currentOrganization()->first()->id)
+    ->get(['id', 'name']);
 
 
 
@@ -200,7 +204,8 @@ class ProjectController extends Controller
         'createDoc' => $createDoc, 
         'isProjectLeader' => $isProjectLeader,
         'isUserInProject' => $isUserInProject,
-        'departmentHead' => $departmentHead
+        'departmentHead' => $departmentHead,
+        'userDepartments' => $departments,
     ]);
     }
 
@@ -264,13 +269,8 @@ class ProjectController extends Controller
             'attachments' => json_encode($request->attachments), 
         ]);
 
-        foreach($request->department_ids as $departmentId){
-            DB::table('department_project')->insert([
-                'department_id' => $departmentId,            
-                'project_id' => $project->id,
-                'created_at' => now(),
-                'updated_at' => now()
-            ]);
+        if (isset($request->department_ids)) {
+            $project->departments()->sync($request->department_ids);
         }
        
 
@@ -319,7 +319,8 @@ class ProjectController extends Controller
             'attachments' => $request['attachments'],
             'is_public' => $request['isPublic'],
         ]);
-
+  
+        $project->departments()->sync($request->department_ids);
     }
 
     public function destroy($projectId)
