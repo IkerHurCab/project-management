@@ -2,6 +2,8 @@
 
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use Laravel\Fortify\Http\Controllers\TwoFactorAuthenticationController;
+use Laravel\Fortify\Http\Controllers\TwoFactorQrCodeController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\ProjectManagement\ProjectController;
 use App\Http\Controllers\HeaderController;
@@ -33,6 +35,13 @@ Route::middleware(['auth'])->group(function () {
 
 });
 
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/user/two-factor-authentication', [TwoFactorAuthenticationController::class, 'store']);
+    Route::delete('/user/two-factor-authentication', [TwoFactorAuthenticationController::class, 'destroy']);
+    Route::get('/user/two-factor-qr-code', [TwoFactorQrCodeController::class, 'show']); // Obtener QR
+
+});
+
 Route::group(['middleware' => 'auth'], function () {
     Route::get('/organization', [HomeController::class, 'show'])->name('home');
     Route::get('/dashboard', function () {
@@ -50,7 +59,9 @@ Route::group(['middleware' => 'auth'], function () {
 
    
     Route::get('/settings', [SettingsController::class, 'index'])->name('settings');
-
+    Route::get('/settings/change-password', [SettingsController::class, 'changePassword'])->name('change-password');
+    Route::put('/user/password/update', [SettingsController::class, 'updatePassword'])->name('update-password');
+    Route::put('/user/update', [SettingsController::class, 'updateUser'])->name('user.update');
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
