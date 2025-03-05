@@ -16,6 +16,7 @@ use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\Users\OrganizationController;
 use App\Http\Middleware\CheckDepartmentAccess;
 use App\Http\Middleware\CheckProjectAccess;
+use App\Http\Controllers\ProjectManagement\ProjectExportController;
 
 
 use App\Models\User;
@@ -96,6 +97,9 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('projects/{projectId}/task/{taskId}', [TaskController::class, 'show'])->name('tasks.show');
         Route::get('projects/{projectId}/task/{taskId}/download-attachment/{attachmentIndex}', [TaskController::class, 'downloadAttachment'])->name('tasks.download-attachment');
 
+        Route::get('/projects/{projectId}/export', [ProjectExportController::class, 'exportProject'])->name('projects.export');
+Route::get('/projects/{projectId}/export-status', [ProjectExportController::class, 'checkExportStatus'])->name('projects.export-status');
+Route::get('/projects/download-export/{filename}', [ProjectExportController::class, 'downloadExport'])->name('projects.download-export');
 
     });
 
