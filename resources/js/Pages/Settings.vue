@@ -16,6 +16,11 @@ const qrCode = ref("");
 const isDarkMode = ref(localStorage.getItem('theme') == 'dark');
 const emailSending = ref(false);
 
+// Form state
+const isUpdating = ref(false);
+const updateErrors = ref({});
+const updateSuccess = ref(false);
+
 const toggleDarkMode = () => {
     if (isDarkMode.value) {
         localStorage.setItem('theme', 'dark');
@@ -67,6 +72,57 @@ const disable2FA = async () => {
         disableConfirmModal.value = false;
     } catch (error) {
         console.error('Error disabling 2FA', error);
+    }
+};
+
+// Update user information
+const updateUserInfo = async () => {
+    isUpdating.value = true;
+    updateErrors.value = {};
+    updateSuccess.value = false;
+    
+    try {
+        const response = await axios.put('/user/update', {
+            name: username.value,
+            email: email.value,
+            allow_emails: emailSending.value
+        });
+        
+        if (response.status === 200) {
+            updateSuccess.value = true;
+            // Update the user object in the page props if needed
+            // This might not be necessary if you're using Inertia's automatic refresh
+        }
+    } catch (error) {
+        console.error('Error updating user information:', error);
+        
+        if (error.response?.status === 422 && error.response.data.errors) {
+            // Map the errors
+            const serverErrors = error.response.data.errors;
+            
+            if (serverErrors.name) {
+                updateErrors.value.name = Array.isArray(serverErrors.name) 
+                    ? serverErrors.name[0] 
+                    : serverErrors.name;
+            }
+            
+            if (serverErrors.email) {
+                updateErrors.value.email = Array.isArray(serverErrors.email)
+                    ? serverErrors.email[0]
+                    : serverErrors.email;
+            }
+        } else {
+            updateErrors.value.general = 'An error occurred while updating your information.';
+        }
+    } finally {
+        isUpdating.value = false;
+        
+        // Hide success message after 3 seconds
+        if (updateSuccess.value) {
+            setTimeout(() => {
+                updateSuccess.value = false;
+            }, 3000);
+        }
     }
 };
 
@@ -122,21 +178,38 @@ const handle2FAButtonClick = () => {
 
             <h1 class="border-b border-gray-500 p-2 rounded-t-lg dark:text-gray-500">ACCOUNT</h1>
             <p class="px-4 mt-4">Manage your account information.</p>
+            
+            <!-- Success message -->
+            <div v-if="updateSuccess" class="mx-4 mt-2 bg-green-100 dark:bg-green-200 border border-green-400 text-green-700 px-4 py-3 rounded relative">
+                Your account information has been updated successfully.
+            </div>
+            
+            <!-- Error message -->
+            <div v-if="updateErrors.general" class="mx-4 mt-2 bg-red-100 dark:bg-red-200 border border-red-400 text-red-700 px-4 py-3 rounded relative">
+                {{ updateErrors.general }}
+            </div>
+            
             <div class="p-4 grid grid-cols-2 gap-4">
                 <div>
                     <label for="username">Username</label>
-                    <InputWithIcon icon="user" :placeholder="user.name" :value="user.name" class="w-full" type="text"
+                    <InputWithIcon icon="user" :placeholder="user.name" class="w-full" type="text"
                         required v-model="username" />
+                    <p v-if="updateErrors.name" class="text-red-500 text-sm mt-1">{{ updateErrors.name }}</p>
                 </div>
                 <div>
                     <label for="email">Email</label>
-                    <InputWithIcon icon="envelope" :placeholder="user.email" :value="user.email" v-model="email" class="w-full" type="email" required />
+                    <InputWithIcon icon="envelope" :placeholder="user.email" v-model="email" class="w-full" type="email" required />
+                    <p v-if="updateErrors.email" class="text-red-500 text-sm mt-1">{{ updateErrors.email }}</p>
                 </div>
                 <div class="grid grid-cols-2 gap-2 w-2/3">
-                    <h3 class="bg-blue-500 p-2 rounded-lg hover:bg-blue-600 cursor-pointer text-center text-white">
-                        Update acount
-                        information</h3>
-                    <h3 class="bg-blue-500 p-2 rounded-lg hover:bg-blue-600 cursor-pointer text-center text-white" @click = "router.get('/settings/change-password')">
+                    <button 
+                        @click="updateUserInfo" 
+                        :disabled="isUpdating"
+                        class="bg-blue-500 p-2 rounded-lg hover:bg-blue-600 cursor-pointer text-center text-white transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        {{ isUpdating ? 'Updating...' : 'Update account information' }}
+                    </button>
+                    <h3 class="bg-blue-500 p-2 rounded-lg hover:bg-blue-600 cursor-pointer text-center text-white" @click="router.get('/settings/change-password')">
                         Change password
                     </h3>
                 </div>
