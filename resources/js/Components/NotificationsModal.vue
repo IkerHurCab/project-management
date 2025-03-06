@@ -1,13 +1,17 @@
 <script setup>
-  import { ref } from 'vue';
+  import { ref, watch } from 'vue';
   import { usePage } from '@inertiajs/vue3';
   
   const { notifications } = usePage().props;
-  
+  const notificationsRef = ref(notifications);
   const props = defineProps({
     isOpen: Boolean,
   });
   
+  watch(() => notifications, (newNotifications) => {
+    notificationsRef.value = newNotifications;
+  });
+
   // Mapeo de tipos a iconos
   const getIconByType = (type) => {
     switch (type) {

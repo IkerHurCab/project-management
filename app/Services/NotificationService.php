@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Notification;
+use Inertia\Inertia;
 use App\Models\User;
 
 class NotificationService
@@ -18,7 +19,8 @@ class NotificationService
      */
     public function createNotification(User $user, string $type, string $message, $notifiable)
     {
-        return Notification::create([
+        // Crear la notificación
+        Notification::create([
             'user_id' => $user->id,
             'type' => $type,
             'message' => $message,
@@ -26,7 +28,16 @@ class NotificationService
             'notifiable_id' => $notifiable->id,
             'is_read' => false,
         ]);
+    
+        // Obtener las últimas notificaciones
+        $notifications = auth()->user()->notifications()->latest()->take(3)->get();
+    
+        // Devolver solo las notificaciones actualizadas con Inertia
+        return Inertia::render('Layouts/Header', [
+            'notifications' => $notifications,
+        ]);
     }
+    
 
     /**
      * Notifies when a user has been assigned to a project.
