@@ -1,13 +1,17 @@
 <script setup>
-  import { ref, computed } from 'vue';
+  import { ref, computed, watch } from 'vue';
   import { usePage, useForm } from '@inertiajs/vue3';
   import NotificationsModal from '@/Components/NotificationsModal.vue';
   
   // Recibimos el prop "page" de las vistas que usen este componente
   const props = defineProps({
     page: String,
+    notifications: Array,
   });
-  
+  const { notifications: initialNotifications } = usePage().props;
+const notifications = ref(initialNotifications);
+
+
   // Estado reactivo para mostrar el modal de notificaciones
   const isNotificationsModalOpen = ref(false);
   
@@ -19,11 +23,19 @@
   
   // Cambiar el estado de visibilidad del modal de notificaciones
   const changeNotificationsModal = () => {
+    // Si el popup de estado está abierto, lo cerramos
+    if (isPopupVisible.value) {
+      isPopupVisible.value = false;
+    }
     isNotificationsModalOpen.value = !isNotificationsModalOpen.value;
   };
   
   // Abrir el modal de notificaciones
   const openNotificationsModal = () => {
+    // Si el popup de estado está abierto, lo cerramos
+    if (isPopupVisible.value) {
+      isPopupVisible.value = false;
+    }
     isNotificationsModalOpen.value = true;
   };
   
@@ -63,8 +75,16 @@
   
   // Función para mostrar u ocultar el popup de estado
   const togglePopup = () => {
+    // Si el modal de notificaciones está abierto, lo cerramos
+    if (isNotificationsModalOpen.value) {
+      isNotificationsModalOpen.value = false;
+    }
     isPopupVisible.value = !isPopupVisible.value;
   };
+
+  watch(() => usePage().props.notifications, (newNotifications) => {
+  notifications.value = newNotifications;  // Actualiza las notificaciones cuando cambian
+}, { immediate: true });
   </script>
   
   <template>
@@ -80,7 +100,7 @@
           >
             <box-icon name="bell" color="white"></box-icon>
           </button>
-          <NotificationsModal :is-open="isNotificationsModalOpen" @close="closeNotificationsModal" />
+          <NotificationsModal :notifications="notifications" :is-open="isNotificationsModalOpen" @close="closeNotificationsModal" />
         </div>
   
         <!-- User Avatar with Status -->
@@ -95,10 +115,9 @@
           ></div>
         </div>
   
-        <!-- Status Popup -->
         <div
           v-if="isPopupVisible"
-          class="absolute right-4 top-16 mt-2 bg-gray-800 text-white rounded-lg shadow-lg p-2 w-64 z-10 border border-gray-700"
+          class="absolute right-4 top-16 mt-2 bg-gray-900 text-white rounded-lg shadow-lg p-2 w-64 z-10 border border-gray-700"
         >
           <h3 class="font-bold p-2 text-sm">Estado</h3>
           <ul class="space-y-1">
