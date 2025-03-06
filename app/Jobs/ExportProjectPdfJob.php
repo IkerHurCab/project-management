@@ -11,6 +11,8 @@ use App\Models\ProjectManagement\Project;
 use Illuminate\Support\Facades\Storage;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 class ExportProjectPdfJob implements ShouldQueue
 {
@@ -36,66 +38,67 @@ class ExportProjectPdfJob implements ShouldQueue
      * @return void
      */
     public function handle()
-{
-    try {
-        // Cargar el proyecto con los datos relacionados
-        $project = Project::with([
-            'tasks.user', 
-            'tasks.comments', 
-            'tasks.logs', 
-            'leader', 
-            'users', 
-            'departments'
-        ])->findOrFail($this->projectId);
+    {
+        try {
+            // Load project with all related data
+            $project = Project::with([
+                'tasks.user', 
+                'tasks.comments', 
+                'tasks.logs', 
+                'leader', 
+                'users', 
+                'departments'
+            ])->findOrFail($this->projectId);
 
-        // Preparar las variables de clase y etiqueta para cada tarea
-        $tasksWithStatus = $project->tasks->map(function ($task) {
-            $task->statusClass = $this->getStatusClass($task->status);
-            $task->statusLabel = $this->getStatusLabel($task->status);
-            return $task;
-        });
-        $statusClass = $this->getStatusClass($project->status); // Asumiendo que el proyecto tiene un campo 'status'
-        $statusLabel = $this->getStatusLabel($project->status);
-        $priorityClass = $this->getPriorityClass($project->priority); // Asumiendo que 'priority' es un número entre 1 y 4
-        $priorityLabel = $this->getPriorityLabel($project->priority);
-    
+            // Calcular tareas completadas y total
+            $totalTasks = $project->tasks->count();
+            $completedTasks = $project->tasks->where('status', 'done')->count();
+            
+            // Agrupar tareas por estado
+            $tasksByStatus = $this->getTasksByStatus($project->tasks);
 
+         
+          
 
-        $pdf = PDF::loadView('pdf.project-report', [
-            'project' => $project,
-            'tasks' => $tasksWithStatus,  // Pasamos las tareas con las nuevas variables
-            'tasksByStatus' => $this->getTasksByStatus($project->tasks),
-            'statusClass' => $statusClass,
-            'statusLabel' => $statusLabel,
-            'priorityClass' => $priorityClass,
-            'priorityLabel' => $priorityLabel,
-            'totalTasks' => count($project->tasks),
-            'completedTasks' => $project->tasks->where('status', 'done')->count(),
-        ]);
-        
-        // Configurar opciones del PDF
-        $pdf->setPaper('a4', 'portrait');
-        $pdf->setOptions([
-            'dpi' => 150,
-            'defaultFont' => 'sans-serif',
-            'isHtml5ParserEnabled' => true,
-            'isRemoteEnabled' => true
-        ]);
-        
-        // Generar el nombre del archivo
-        $filename = 'project_report_' . $project->id . '_' . time() . '.pdf';
-        
-        // Guardar el PDF en almacenamiento
-        $storagePath = 'private/exports/' . $filename;
-        Storage::put($storagePath, $pdf->output());
-        
-        // Guardar la ruta del archivo para su recuperación
-        \Cache::put('project_export_' . $this->userId . '_' . $this->projectId, $filename, now()->addDay());
-    } catch (\Exception $e) {
-        dump("Error exporting project: " . $e->getMessage());
+            // Generate PDF
+            $pdf = PDF::loadView('pdf.project-report', [
+                'project' => $project,
+                'tasksByStatus' => $tasksByStatus,
+                'totalTasks' => $totalTasks,
+                'completedTasks' => $completedTasks,
+              
+                'statusClass' => $this->getStatusClass($project->status),
+                'statusLabel' => $this->getStatusLabel($project->status),
+                'priorityClass' => $this->getPriorityClass($project->priority),
+                'priorityLabel' => $this->getPriorityLabel($project->priority)
+            ]);
+            
+            // Set PDF options for better quality
+            $pdf->setPaper('a4', 'portrait');
+            $pdf->setOptions([
+                'dpi' => 150,
+                'defaultFont' => 'sans-serif',
+                'isHtml5ParserEnabled' => true,
+                'isRemoteEnabled' => true
+            ]);
+            
+            // Nombre del archivo único
+            $filename = 'project_report_' . $project->id . '_' . time() . '.pdf';
+
+            // Guardar el PDF en caché (60 minutos)
+            Cache::put('export_pdf_' . $this->userId . '_' . $this->projectId, [
+                'filename' => $filename,
+                'content' => base64_encode($pdf->output()) // Guardar en base64 para evitar problemas binarios
+            ], now()->addMinutes(60));
+            
+            Log::info("📤 Exporting PDF for filename " . $filename);
+            
+           
+        } catch (\Exception $e) {
+            Log::error("❌ Error exporting PDF for project ID: " . $this->projectId);
+            Log::error($e->getMessage());
+        }
     }
-}
-
 
     /**
      * Group tasks by status
@@ -109,65 +112,65 @@ class ExportProjectPdfJob implements ShouldQueue
             'done' => $tasks->where('status', 'done')->values()
         ];
     }
-
+    
+    /**
+     * Get status class from status value
+     */
     private function getStatusClass($status)
-{
-    switch ($status) {
-        case 'to_do':
-            return 'badge-to-do';
-        case 'in_progress':
-            return 'badge-in-progress';
-        case 'review':
-            return 'badge-review';
-        case 'done':
-            return 'badge-done';
-        default:
-            return 'badge-default';
+    {
+        $classes = [
+            'to_do' => 'badge-todo',
+            'in_progress' => 'badge-progress',
+            'review' => 'badge-review',
+            'done' => 'badge-done'
+        ];
+        
+        return $classes[$status] ?? 'badge-todo';
     }
-}
-
-private function getStatusLabel($status)
-{
-    switch ($status) {
-        case 'to_do':
-            return 'To Do';
-        case 'in_progress':
-            return 'In Progress';
-        case 'review':
-            return 'In Review';
-        case 'done':
-            return 'Done';
-        default:
-            return 'Unknown';
+    
+    /**
+     * Get status label from status value
+     */
+    private function getStatusLabel($status)
+    {
+        $labels = [
+            'to_do' => 'To Do',
+            'in_progress' => 'In Progress',
+            'review' => 'Review',
+            'done' => 'Done'
+        ];
+        
+        return $labels[$status] ?? 'Unknown';
     }
-}
-
-
-// Función para obtener la clase CSS según el valor de la prioridad
-private function getPriorityClass($priority)
-{
-    $colors = [
-        'bg-green-500', // Prioridad 1: Baja
-        'bg-yellow-500', // Prioridad 2: Media
-        'bg-orange-500', // Prioridad 3: Alta
-        'bg-red-500' // Prioridad 4: Urgente
-    ];
-
-    return $colors[$priority - 1] ?? 'bg-gray-500'; // Devuelve la clase o gris si el valor no es válido
-}
-
-// Función para obtener la etiqueta de la prioridad según el valor
-private function getPriorityLabel($priority)
-{
-    $labels = [
-        'Low', // Prioridad 1: Baja
-        'Medium', // Prioridad 2: Media
-        'High', // Prioridad 3: Alta
-        'Urgent' // Prioridad 4: Urgente
-    ];
-
-    return $labels[$priority - 1] ?? 'Unknown'; // Devuelve la etiqueta o "Unknown" si el valor no es válido
-}
-
-
+    
+    /**
+     * Get priority class from priority value
+     */
+    private function getPriorityClass($priority)
+    {
+        $classes = [
+            1 => 'priority-low',
+            2 => 'priority-medium',
+            3 => 'priority-high',
+            4 => 'priority-urgent'
+        ];
+        
+        return $classes[$priority] ?? 'priority-medium';
+    }
+    
+    /**
+     * Get priority label from priority value
+     */
+    private function getPriorityLabel($priority)
+    {
+        $labels = [
+            1 => 'Low',
+            2 => 'Medium',
+            3 => 'High',
+            4 => 'Urgent'
+        ];
+        
+        return $labels[$priority] ?? 'Unknown';
+    }
+    
 }

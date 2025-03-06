@@ -98,8 +98,9 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('projects/{projectId}/task/{taskId}/download-attachment/{attachmentIndex}', [TaskController::class, 'downloadAttachment'])->name('tasks.download-attachment');
 
         Route::get('/projects/{projectId}/export', [ProjectExportController::class, 'exportProject'])->name('projects.export');
-Route::get('/projects/{projectId}/export-status', [ProjectExportController::class, 'checkExportStatus'])->name('projects.export-status');
-Route::get('/projects/download-export/{filename}', [ProjectExportController::class, 'downloadExport'])->name('projects.download-export');
+        Route::get('/projects/{projectId}/export-status', [ProjectExportController::class, 'checkExportStatus'])->name('projects.export-status');
+        Route::get('/projects/download-export/{projectId}/{filename}', [ProjectExportController::class, 'downloadExport'])->name('projects.download-export');
+
 
     });
 

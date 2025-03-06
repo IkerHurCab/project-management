@@ -344,7 +344,8 @@
                     @foreach(['to_do', 'in_progress', 'review', 'done'] as $status)
                     <tr>
                         <td><span class="status-badge {{ $status }}">{{ ucfirst($status) }}</span></td>
-                        <td>{{ count($tasksByStatus[$status]) }}</td>
+                        <td>{{ is_array($tasksByStatus[$status]) || $tasksByStatus[$status] instanceof Countable ? count($tasksByStatus[$status]) : 0 }}</td>
+
                         <td>
                             @if($status === 'done')
                                 100%
