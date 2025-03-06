@@ -8,7 +8,7 @@ use App\Models\User;
 class NotificationService
 {
     /**
-     * Crea una nueva notificación para un usuario.
+     * Creates a new notification for a user.
      *
      * @param User $user
      * @param string $type
@@ -29,38 +29,38 @@ class NotificationService
     }
 
     /**
-     * Notifica cuando un usuario ha sido asignado a un proyecto.
+     * Notifies when a user has been assigned to a project.
      */
     public function notifyAssignedToProject(User $user, $project)
     {
-        $message = "Se te ha asignado al proyecto: {$project->name}.";
+        $message = "You have been assigned to the project: {$project->name}.";
         $this->createNotification($user, 'assigned_to_project', $message, $project);
     }
 
     /**
-     * Notifica cuando una tarea ha sido asignada a un usuario.
+     * Notifies when a task has been assigned to a user.
      */
     public function notifyAssignedToTask(User $user, $task)
     {
-        $message = "Se te ha asignado una nueva tarea: {$task->name}.";
+        $message = "You have been assigned a new task: {$task->name}.";
         $this->createNotification($user, 'assigned_to_task', $message, $task);
     }
 
     /**
-     * Notifica cuando el estado de una tarea ha cambiado.
+     * Notifies when the status of a task has changed.
      */
     public function notifyTaskStatusChanged(User $user, $task)
     {
-        $message = "El estado de la tarea '{$task->name}' ha cambiado a: {$task->status}.";
+        $message = "The status of the task '{$task->name}' has changed to: {$task->status}.";
         $this->createNotification($user, 'task_status_changed', $message, $task);
     }
 
     /**
-     * Notifica cuando se ha añadido nueva documentación a un proyecto.
+     * Notifies when new documentation has been added to a project.
      */
     public function notifyNewDocumentation(User $user, $project)
     {
-        $message = "Se ha añadido nueva documentación al proyecto: {$project->name}.";
+        $message = "New documentation has been added to the project: {$project->name}.";
         $this->createNotification($user, 'new_documentation', $message, $project);
     }
 }

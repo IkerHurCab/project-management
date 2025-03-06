@@ -83,7 +83,8 @@ const isPopupVisible = ref(false);
 </script>
 
 <template>
-    <Layout pageTitle="Departments" class="px-8">
+    <Layout pageTitle="Departments" class="">
+        <div class="px-8">
         <h1 class="text-2xl">Your departments</h1>
         <div class="flex justify-between items-center mt-2">
             <InputWithIcon icon="search" placeholder="Search departments" @input.stop="searchMyDepartments"
@@ -206,5 +207,6 @@ const isPopupVisible = ref(false);
                 </div>
             </div>
         </div>
+    </div>
     </Layout>
 </template>

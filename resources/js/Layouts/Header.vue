@@ -1,7 +1,9 @@
 <script setup>
   import { ref } from 'vue';
   import NotificationsModal from '@/Components/NotificationsModal.vue';
-  
+    const props = defineProps({
+      page: String,
+    });
   // Estado reactivo para mostrar el modal de notificaciones
   const isNotificationsModalOpen = ref(false);
   
