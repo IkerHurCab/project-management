@@ -9,7 +9,8 @@
     notifications: Array,
   });
   const { notifications: initialNotifications } = usePage().props;
-const notifications = ref(initialNotifications);
+  const notifications = ref(initialNotifications);
+  const hasNewNotification = ref(false);
 
 
   // Estado reactivo para mostrar el modal de notificaciones
@@ -83,7 +84,9 @@ const notifications = ref(initialNotifications);
   };
 
   watch(() => usePage().props.notifications, (newNotifications) => {
-  notifications.value = newNotifications;  // Actualiza las notificaciones cuando cambian
+  notifications.value = newNotifications;  // Actualiza las notificaciones
+  // Verificar si hay nuevas notificaciones no leídas
+  hasNewNotification.value = newNotifications.some(notification => !notification.read);
 }, { immediate: true });
   </script>
   
@@ -99,6 +102,7 @@ const notifications = ref(initialNotifications);
             class="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-gray-800 transition-colors duration-200 cursor-pointer"
           >
             <box-icon name="bell" color="white"></box-icon>
+            <div v-if="hasNewNotification" class="absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full"></div>
           </button>
           <NotificationsModal :notifications="notifications" :is-open="isNotificationsModalOpen" @close="closeNotificationsModal" />
         </div>
