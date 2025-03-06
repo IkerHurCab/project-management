@@ -44,4 +44,9 @@ class Task extends Model
 {
     return $this->hasMany(TaskLog::class);
 }
+
+    public function notifications()
+    {
+        return $this->morphMany(Notification::class, 'notifiable');
+    }
 }
