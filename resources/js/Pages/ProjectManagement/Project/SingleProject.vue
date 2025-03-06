@@ -14,6 +14,7 @@
   import EditProjectModal from '@/Pages/ProjectManagement/Project/EditProjectModal.vue';
   import DeleteMemberModal from '@/Pages/ProjectManagement/Project/DeleteMemberModal.vue';
   import TaskList from '@/Pages/ProjectManagement/Task/TaskList.vue';
+  import ExportButton from '@/Components/ExportButton.vue';
 
   const props = defineProps({
     tasksCompleted: {
@@ -353,6 +354,7 @@ const series = computed(() => chartData.value.map(item => item.count));
           </div>
           <div class="flex items-center space-x-4">
             <StandardButton v-if="isProjectLeader && isUserInProject" @click="openCreateTaskModal">+ Create Task</StandardButton>
+            <ExportButton :projectId="project.id" v-if="isUserInProject" />
           </div>
         </div>
       </div>
