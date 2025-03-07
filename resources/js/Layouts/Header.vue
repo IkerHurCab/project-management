@@ -117,7 +117,7 @@ const formattedNotifications = computed(() => {
   
   <template>
     <header class="flex border-b border-gray-800 items-center justify-between py-3 px-6 bg-black w-full">
-      <h1 class="text-2xl font-bold text-white">{{ props.page }}</h1>
+      <h1 class="text-2xl px-5 font-bold text-white">{{ props.page }}</h1>
   
       <div class="flex items-center gap-5">
         <!-- Notification Bell -->
