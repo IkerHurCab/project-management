@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <script setup>
   import { ref, computed, watch, onMounted } from 'vue';
   import { usePage, useForm } from '@inertiajs/vue3';
@@ -12,6 +13,13 @@
   const { notifications: initialNotifications } = usePage().props;
   const notifications = ref(initialNotifications);
   const hasNewNotification = ref(false);
+=======
+<template>
+    <header class="flex items-center justify-between py-2  px-4 bg-black dark:bg-white w-full">
+        <h1 class="text-3xl font-bold  mb-4 px-8 py-1">{{ page }}</h1>
+        <div class="flex gap-4 items-center">
+
+>>>>>>> b0549af7531161155b5abdb380f92e4f5a0b5529
 
   onMounted(() => {
     console.log("Notificationes de Header: ", notifications.value);

@@ -15,17 +15,12 @@ export default {
         const form = useForm({
             email: '',
             password: '',
-
+            remember: false,
         });
 
         function login() {
             // Asegúrate de pasar 'remember' en los datos del POST
-            form.post('/login', {
-                data: {
-                    email: form.email,
-                    password: form.password,
-                },
-            });
+            form.post('/login');
         }
 
         return {
@@ -51,13 +46,13 @@ export default {
                     <span class="text-gray-400 text-xl font-bold">LOGO</span>
                 </div>
                 <h1 class="text-2xl font-bold text-white self-start mb-6">Login</h1>
-                <div v-if="typeof errors === 'string'" 
+                <div v-if="typeof errors === 'string'"
                     class="w-full bg-red-500/10 border border-red-500/50 rounded-lg p-4 mb-4">
                     <div class="flex items-center space-x-2">
                         <p class="text-red-500 text-sm font-medium">{{ errors }}</p>
                     </div>
                 </div>
-                <div v-if="typeof errors === 'object' && Object.keys(errors).length > 0" 
+                <div v-if="typeof errors === 'object' && Object.keys(errors).length > 0"
                     class="w-full bg-red-500/10 border border-red-500/50 rounded-lg p-4 mb-4">
                     <div class="flex items-center space-x-2">
                         <p class="text-red-500 text-sm font-medium">{{ errors }}</p>
@@ -69,9 +64,13 @@ export default {
                 <InputWithIcon v-model="form.password" icon="lock" placeholder="Password" type="password" class="w-full"
                     :toggleVisibility="true" required />
                 <SubmitButton variant="primary" type="submit" class="w-full">Login</SubmitButton>
-                <div class="flex items-center justify-end w-full">
-                    
-                    <a href="#" class="text-gray-400 hover:text-gray-200 hover:underline text-sm transition duration-150 ease-in-out">
+                <div class="flex items-center justify-between w-full">
+                    <div class="text-gray-400 text-sm flex items-center gap-2">
+                        <input type="checkbox" v-model="form.remember" /> Remember Me
+                    </div>
+
+                    <a href="#"
+                        class="text-gray-400 hover:text-gray-200 hover:underline text-sm transition duration-150 ease-in-out">
                         Forgot password?
                     </a>
                 </div>
