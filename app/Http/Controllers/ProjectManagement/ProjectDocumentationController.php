@@ -7,9 +7,19 @@ use App\Http\Controllers\Controller;
 use Inertia\Inertia;
 use App\Models\ProjectManagement\ProjectDocumentation;
 use App\Models\ProjectManagement\Project;
+use App\Services\NotificationService;
+use App\Models\User;
 
 class ProjectDocumentationController extends Controller
 {
+    protected $notificationService;
+
+    public function __construct(NotificationService $notificationService)
+    {
+        $this->notificationService = $notificationService;
+    }
+
+
     public function show(Request $request){
         return Inertia::render('ProjectManagement/Project/SingleDocumentation', [
                'user' => request()->user(),
@@ -21,10 +31,10 @@ class ProjectDocumentationController extends Controller
         // Verificar si los datos llegan correctamente
         // dd($request->all());
     
-        // Buscar el proyecto
+
         $project = Project::findOrFail($projectId);
     
-        // Crear el nuevo documento
+        
         $document = $project->documentation()->create([
             'title' => $request->input('title'),
             'summary' => $request->input('summary'),
@@ -33,14 +43,30 @@ class ProjectDocumentationController extends Controller
             'created_by' => auth()->user()->id,
         ]);
     
-        session()->flash('toast', [
-            'type' => 'success',
-            'message' => 'Document created successfully',
-        ]);
+    
+
+      
+
+        $this->sendDocumentNotification($project, $document);
 
         return Inertia::location("/projects/$projectId");
     }
+
+    public function sendDocumentNotification($project, $document)
+    {
     
+        $users = $project->users()->pluck('users.id')->toArray();  
+        
+        if (!empty($users)) {
+            $users = User::whereIn('id', $users)->get();
+            
+            foreach ($users as $user) {
+                $this->notificationService->notifyNewDocumentation($user, $project, $document);
+            }
+        }
+    }
+    
+
 
 
 

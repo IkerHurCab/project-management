@@ -12,11 +12,21 @@ use App\Models\User;
 use Spatie\Permission\Models\Role;
 use Inertia\Response;
 use Illuminate\Support\Facades\DB;
+use App\Services\NotificationService;
 
 
 
 class ProjectController extends Controller
 {
+    protected $notificationService;
+
+    public function __construct(NotificationService $notificationService)
+    {
+        $this->notificationService = $notificationService;
+    }
+
+
+
     public function index(Request $request)
     {
         // dd($request->user()->departments()->get());
@@ -292,10 +302,22 @@ class ProjectController extends Controller
     
         
         $project->users()->attach($usersId); 
-        
-        
-      
+
+        $this->sendProjectAssignedNotifications($usersId, $project);
+
     }
+
+    private function sendProjectAssignedNotifications($usersId, $project)
+{
+    $users = User::whereIn('id', $usersId)->get();
+
+  
+    foreach ($users as $user) {
+       
+        $this->notificationService->notifyAssignedToProject($user, $project);
+    }
+}
+
 
     public function update(Request $request, $projectId){
 

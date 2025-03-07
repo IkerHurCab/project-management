@@ -7,9 +7,18 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use App\Models\ProjectManagement\Task;
+use App\Services\NotificationService;
+use App\Models\User;
 
 class TaskController extends Controller
 {
+
+    protected $notificationService;
+
+    public function __construct(NotificationService $notificationService)
+    {
+        $this->notificationService = $notificationService;
+    }
 
     public function show(Request $request, $projectId, $taskId)
     {
@@ -124,6 +133,9 @@ class TaskController extends Controller
         $task->status = $request->status;
         $task->save();
     }
+    $user = User::find($task->user_id);
+
+    $this->notificationService->notifyTaskStatusChanged($user, $task);  
 }
 
     public function store(Request $request, $projectId)
@@ -152,7 +164,8 @@ class TaskController extends Controller
             'user_id' => $validated['user_id'],
             'attachments' => json_encode($validated['attachments']), 
         ]);
-
+        $user = User::find($validated['user_id']);
+        $this->notificationService->notifyAssignedToTask($user, $task);  
  
 
 

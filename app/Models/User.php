@@ -13,6 +13,7 @@ use App\Models\ProjectManagement\Comment;
 use App\Models\Role;
 use App\Models\Users\Department;
 use App\Models\ProjectManagement\Task;
+use App\Models\Notification;
 
 class User extends Authenticatable
 {
@@ -92,6 +93,11 @@ public function departments()
     {
         return $this->belongsToMany(Organization::class, 'organization_user')
                     ->wherePivot('is_current', 't');
+    }
+
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class);
     }
     
 

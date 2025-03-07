@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\ProjectManagement\Task;
 use App\Models\Users\Department;
 use App\Models\User;
+use App\Models\Notification;
 
 class Project extends Model
 {
@@ -41,4 +42,8 @@ class Project extends Model
         return $this->belongsToMany(Department::class, 'department_project', 'project_id', 'department_id');
     }
 
+    public function notifications()
+    {
+        return $this->morphMany(Notification::class, 'notifiable');
+    }
 }
