@@ -133,6 +133,9 @@ class TaskController extends Controller
         $task->status = $request->status;
         $task->save();
     }
+    $user = User::find($task->user_id);
+
+    $this->notificationService->notifyTaskStatusChanged($user, $task);  
 }
 
     public function store(Request $request, $projectId)

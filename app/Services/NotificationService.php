@@ -120,8 +120,8 @@ $notifications = collect($notifications)->map(function ($notification) {
      */
     public function notifyNewDocumentation(User $user, $project, $document)
     {
-        
-        $message = "{$document->name} document has been added to the project: {$project->name}.";
+    
+        $message = "{$document->title} document has been added to the project: {$project->name}.";
         $this->createNotification($user, 'new_documentation', $message, $project);
         
     }

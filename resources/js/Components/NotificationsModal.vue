@@ -99,8 +99,8 @@
         </div>
       </div>
   
-      <div v-if="props.notifications.length > 0" class="p-3 border-t border-gray-700">
-        <button class="w-full py-2 text-sm cursor-pointer text-center text-gray-300 hover:text-white transition-colors duration-200 rounded-lg hover:bg-gray-800" @click="viewAllNotifications">
+      <div  class="p-1 border-t border-gray-700">
+        <button class="w-full py-1 text-sm cursor-pointer text-center text-gray-300 hover:text-white transition-colors duration-200 rounded-lg hover:bg-gray-800" @click="viewAllNotifications">
           View all notifications
         </button>
       </div>

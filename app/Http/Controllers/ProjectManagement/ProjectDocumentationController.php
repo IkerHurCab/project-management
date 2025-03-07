@@ -54,12 +54,10 @@ class ProjectDocumentationController extends Controller
 
     public function sendDocumentNotification($project, $document)
     {
-        // Obtener los IDs de los usuarios asociados al proyecto (suponiendo que el proyecto tiene una relación con los usuarios)
-        $users = $project->users()->pluck('users.id')->toArray();  // Especifica que se quiere el 'id' de la tabla 'users'
     
-        // Verificar que $users contiene un array válido de IDs antes de realizar la consulta
+        $users = $project->users()->pluck('users.id')->toArray();  
+        
         if (!empty($users)) {
-            // Asegúrate de que los usuarios existen y no haya IDs nulos
             $users = User::whereIn('id', $users)->get();
             
             foreach ($users as $user) {

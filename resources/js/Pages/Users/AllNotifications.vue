@@ -309,7 +309,7 @@
                     <select
                       id="type-filter"
                       v-model="filterType"
-                      class="bg-gray-900 border border-gray-700 text-white rounded-md px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      class="bg-gray-900 border border-gray-700 text-white rounded-md px-4 py-2.5 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
                       <option v-for="type in notificationTypes" :key="type.value" :value="type.value">
                         {{ type.label }}
@@ -323,7 +323,7 @@
                     <select
                       id="read-filter"
                       v-model="filterRead"
-                      class="bg-gray-900 border border-gray-700 text-white rounded-md px-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      class="bg-gray-900 border border-gray-700 text-white rounded-md px-4 py-2.5 w-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
                       <option value="all">All</option>
                       <option value="read">Read</option>
@@ -336,7 +336,7 @@
                 <div class="flex justify-between mt-4">
                   <button
                     @click="resetFilters"
-                    class="px-4 py-2 bg-gray-800 text-white rounded-md hover:bg-gray-700 transition-colors flex items-center gap-2"
+                    class="px-4 py-2 bg-gray-800 text-white rounded-md hover:bg-gray-700 transition-colors cursor-pointer flex items-center gap-2"
                   >
                     <box-icon name='reset' color='#ffffff' size="sm"></box-icon>
                     Reset Filters
@@ -344,7 +344,7 @@
                   
                   <button
                     @click="markAllAsRead"
-                    class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors flex items-center gap-2"
+                    class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors cursor-pointer flex items-center gap-2"
                   >
                     <box-icon name='check-double' color='#ffffff' size="sm"></box-icon>
                     Mark All as Read
@@ -383,7 +383,7 @@
                 </p>
                 <button
                   @click="resetFilters"
-                  class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                  class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-md cursor-pointer hover:bg-blue-700 transition-colors"
                 >
                   Reset Filters
                 </button>
