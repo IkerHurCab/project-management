@@ -85,7 +85,7 @@
       :disabled="isExporting"
       class="flex items-center space-x-2"
     >
-      <box-icon name='download' color='#ffffff'></box-icon>
+      <box-icon name='download' ></box-icon>
       <span v-if="exportStatus === 'idle'">Export PDF Report</span>
       <span v-else-if="exportStatus === 'processing'">Generating PDF...</span>
       <span v-else>Download Report</span>

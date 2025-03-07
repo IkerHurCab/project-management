@@ -26,9 +26,13 @@ class AppServiceProvider extends ServiceProvider
         Inertia::share([
             'user' => fn () => auth()->user(),
             'notifications' => function () {
-                return auth()->check() ? auth()->user()->notifications()->latest()->take(3)->get() : [];
+                if (auth()->check()) {
+                    // Obtener notificaciones formateadas usando el servicio
+                    $notificationService = app(NotificationService::class);
+                    return $notificationService->getFormattedNotifications();
+                }
+                return [];
             }
         ]);
-        
     }
 }

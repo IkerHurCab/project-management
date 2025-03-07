@@ -1,7 +1,8 @@
 <script setup>
-  import { ref, computed, watch } from 'vue';
+  import { ref, computed, watch, onMounted } from 'vue';
   import { usePage, useForm } from '@inertiajs/vue3';
   import NotificationsModal from '@/Components/NotificationsModal.vue';
+  import moment from 'moment';
   
   // Recibimos el prop "page" de las vistas que usen este componente
   const props = defineProps({
@@ -11,6 +12,30 @@
   const { notifications: initialNotifications } = usePage().props;
   const notifications = ref(initialNotifications);
   const hasNewNotification = ref(false);
+
+  onMounted(() => {
+  notifications.value.forEach(notification => {
+    // Asegúrate de que la fecha sea tratada en UTC
+    const createdAt = moment.utc(notification.created_at.replace(' ', 'T'));
+
+    // Convertir a la hora local para mostrarla correctamente
+    notification.time = createdAt.local().fromNow();
+
+    console.log("Fecha convertida:", createdAt.toString());
+    console.log("Tiempo desde ahora:", notification.time);
+  });
+});
+
+
+
+const formattedNotifications = computed(() => {
+  return notifications.value.map(notification => {
+    // Convierte el formato de fecha de MySQL a ISO 8601 para que moment.js lo pueda interpretar
+    const createdAt = moment(notification.created_at.replace(' ', 'T')); // Reemplazamos el espacio con T para ISO 8601
+    notification.time = createdAt.isValid() ? createdAt.fromNow() : 'Invalid date'; // Calcula el tiempo desde ahora
+    return notification;
+  });
+});
 
 
   // Estado reactivo para mostrar el modal de notificaciones
@@ -104,7 +129,7 @@
             <box-icon name="bell" color="white"></box-icon>
             <div v-if="hasNewNotification" class="absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full"></div>
           </button>
-          <NotificationsModal :notifications="notifications" :is-open="isNotificationsModalOpen" @close="closeNotificationsModal" />
+          <NotificationsModal :notifications="formattedNotifications" :is-open="isNotificationsModalOpen" @close="closeNotificationsModal" />
         </div>
   
         <!-- User Avatar with Status -->

@@ -19,7 +19,8 @@ class NotificationService
      */
     public function createNotification(User $user, string $type, string $message, $notifiable)
     {
-        // Crear la notificación
+        
+        
         Notification::create([
             'user_id' => $user->id,
             'type' => $type,
@@ -29,13 +30,70 @@ class NotificationService
             'is_read' => false,
         ]);
     
-        // Obtener las últimas notificaciones
-        $notifications = auth()->user()->notifications()->latest()->take(3)->get();
-    
+        $notifications = auth()->user()->notifications()->latest()->take(3)->get()->toArray();
+
+$notifications = collect($notifications)->map(function ($notification) {
+    return [
+        'id' => $notification['id'],
+        'type' => $notification['type'],
+        'title' => $this->getNotificationTitle($notification['type']),
+        'icon' => $this->getNotificationIcon($notification['type']),
+        'message' => $notification['message'],
+        'is_read' => $notification['is_read'],
+        'created_at' => $notification['created_at'],
+    ];
+});
+
+
+        
+
+        
+       
         // Devolver solo las notificaciones actualizadas con Inertia
         return Inertia::render('Layouts/Header', [
             'notifications' => $notifications,
         ]);
+    }
+
+    public function getFormattedNotifications()
+    {
+        $notifications = auth()->user()->notifications()->latest()->take(3)->get();
+
+        return $notifications->map(function ($notification) {
+            return [
+                'id' => $notification->id,
+                'type' => $notification->type,
+                'title' => $this->getNotificationTitle($notification->type),
+                'icon' => $this->getNotificationIcon($notification->type),
+                'message' => $notification->message,
+                'is_read' => $notification->is_read,
+                'created_at' => $notification->created_at->toDateTimeString(), // Formatear la fecha si es necesario
+            ];
+        });
+    }
+
+    private function getNotificationIcon(string $type): string
+    {
+        $icons = [
+            'assigned_to_project' => 'briefcase',
+            'assigned_to_task' => 'task',
+            'task_status_changed' => 'clipboard',
+            'new_documentation' => 'file',
+        ];
+
+        return $icons[$type] ?? 'bell';
+    }
+
+    private function getNotificationTitle(string $type): string
+    {
+        $titles = [
+            'assigned_to_project' => 'Project Assignment',
+            'assigned_to_task' => 'Task Assignment',
+            'task_status_changed' => 'Task Status Updated',
+            'new_documentation' => 'New Project Documentation',
+        ];
+
+        return $titles[$type] ?? 'Notification';
     }
     
 

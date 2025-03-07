@@ -1,26 +1,12 @@
 <script setup>
-  import { ref, watch } from 'vue';
+  import { ref, watch, onMounted } from 'vue';
   
   const props = defineProps({
     isOpen: Boolean,
     notifications: Array,
   });
   
-  // Mapeo de tipos a iconos
-  const getIconByType = (type) => {
-    switch (type) {
-      case 'assigned_to_project':
-        return 'briefcase';
-      case 'assigned_to_task':
-        return 'task';
-      case 'task_status_changed':
-        return 'clipboard';
-      case 'new_documentation':
-        return 'file';
-      default:
-        return 'bell';
-    }
-  };
+ 
   
   // Marcar todas como leídas
   const markAllAsRead = () => {
@@ -63,7 +49,7 @@
             <div class="flex items-start gap-3">
               <div class="flex-shrink-0 mt-1">
                 <div class="w-8 h-8 rounded-lg bg-gray-700 flex items-center justify-center">
-                  <box-icon :name="getIconByType(notification.type)" color="white" size="sm"></box-icon>
+                  <box-icon :name="notification.icon" color="white"></box-icon>
                 </div>
               </div>
               <div class="flex-1 min-w-0">
