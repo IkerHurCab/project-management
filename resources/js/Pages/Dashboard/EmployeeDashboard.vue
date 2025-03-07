@@ -740,43 +740,7 @@
               </div>
             </div>
 
-            <!-- Notifications -->
-            <div class="bg-gray-950 rounded-lg overflow-hidden border border-gray-700">
-              <div class="border-b border-gray-700 px-6 py-4 flex justify-between items-center">
-                <h2 class="text-xl font-semibold text-white">Notifications</h2>
-                <button @click="markAllAsRead" class="text-sm text-blue-400 hover:text-blue-300">
-                  Mark all as read
-                </button>
-              </div>
-              <div class="p-4 max-h-80 overflow-y-auto">
-                <div class="space-y-3">
-                  <div v-for="notification in notifications" :key="notification.id" :class="[
-                             'bg-gray-900 p-3 rounded-lg transition-colors relative',
-                             notification.read ? 'opacity-70' : 'border-l-2 border-blue-500'
-                           ]">
-                    <div class="flex items-start">
-                      <div class="mr-3 mt-1">
-                        <box-icon v-if="notification.type === 'task_assigned'" name='task' color='#3B82F6'></box-icon>
-                        <box-icon v-else-if="notification.type === 'comment'" name='message-square-detail'
-                          color='#10B981'></box-icon>
-                        <box-icon v-else-if="notification.type === 'deadline'" name='alarm-exclamation'
-                          color='#F59E0B'></box-icon>
-                        <box-icon v-else-if="notification.type === 'review'" name='check-circle'
-                          color='#9810FA'></box-icon>
-                      </div>
-                      <div class="flex-1">
-                        <p class="text-gray-300">{{ notification.message }}</p>
-                        <p class="text-gray-500 text-xs mt-1">{{ notification.time }}</p>
-                      </div>
-                      <button v-if="!notification.read" @click.stop="markAsRead(notification.id)"
-                        class="text-gray-400 hover:text-white">
-                        <box-icon name='x' color='currentColor' size="sm"></box-icon>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            
           </div>
         </div>
       </div>
