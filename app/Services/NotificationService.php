@@ -43,16 +43,7 @@ $notifications = collect($notifications)->map(function ($notification) {
         'created_at' => $notification['created_at'],
     ];
 });
-
-
-        
-
-        
        
-        // Devolver solo las notificaciones actualizadas con Inertia
-        return Inertia::render('Layouts/Header', [
-            'notifications' => $notifications,
-        ]);
     }
 
     public function getFormattedNotifications()
@@ -127,9 +118,11 @@ $notifications = collect($notifications)->map(function ($notification) {
     /**
      * Notifies when new documentation has been added to a project.
      */
-    public function notifyNewDocumentation(User $user, $project)
+    public function notifyNewDocumentation(User $user, $project, $document)
     {
-        $message = "New documentation has been added to the project: {$project->name}.";
+        
+        $message = "{$document->name} document has been added to the project: {$project->name}.";
         $this->createNotification($user, 'new_documentation', $message, $project);
+        
     }
 }

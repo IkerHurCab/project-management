@@ -17,6 +17,7 @@ use App\Http\Controllers\Users\OrganizationController;
 use App\Http\Middleware\CheckDepartmentAccess;
 use App\Http\Middleware\CheckProjectAccess;
 use App\Http\Controllers\ProjectManagement\ProjectExportController;
+use App\Http\Controllers\NotificationController;
 
 
 use App\Models\User;
@@ -29,9 +30,11 @@ Route::middleware(['auth'])->group(function () {
             'user' => request()->user(),
         ]);
     });
-   
     Route::post('/update-status', [HeaderController::class, 'changeStatus']);
-
+    Route::put('/notifications/mark-all-as-read', [NotificationController::class, 'markAllAsRead']);
+    Route::put('/notifications/{id}/mark-as-read', [NotificationController::class, 'markAsRead']);
+    Route::get('/notifications', [NotificationController::class, 'viewAllNotifications']);
+    Route::delete('/notifications/{id}', [NotificationController::class, 'deleteNotification']);
 });
 
 Route::group(['middleware' => 'auth'], function () {

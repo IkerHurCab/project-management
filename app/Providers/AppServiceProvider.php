@@ -27,7 +27,7 @@ class AppServiceProvider extends ServiceProvider
             'user' => fn () => auth()->user(),
             'notifications' => function () {
                 if (auth()->check()) {
-                    // Obtener notificaciones formateadas usando el servicio
+                    
                     $notificationService = app(NotificationService::class);
                     return $notificationService->getFormattedNotifications();
                 }

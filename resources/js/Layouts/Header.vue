@@ -14,6 +14,7 @@
   const hasNewNotification = ref(false);
 
   onMounted(() => {
+    console.log("Notificationes de Header: ", notifications.value);
   notifications.value.forEach(notification => {
     // Asegúrate de que la fecha sea tratada en UTC
     const createdAt = moment.utc(notification.created_at.replace(' ', 'T'));
@@ -21,8 +22,7 @@
     // Convertir a la hora local para mostrarla correctamente
     notification.time = createdAt.local().fromNow();
 
-    console.log("Fecha convertida:", createdAt.toString());
-    console.log("Tiempo desde ahora:", notification.time);
+
   });
 });
 
