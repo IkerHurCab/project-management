@@ -354,7 +354,7 @@ const series = computed(() => chartData.value.map(item => item.count));
           </div>
           <div class="flex items-center space-x-4">
             <StandardButton v-if="isProjectLeader && isUserInProject" @click="openCreateTaskModal">+ Create Task</StandardButton>
-            <ExportButton :projectId="project.id" v-if="isUserInProject" />
+            <ExportButton v-if="isProjectLeader" :projectId="project.id"  />
           </div>
         </div>
       </div>
@@ -597,7 +597,7 @@ const series = computed(() => chartData.value.map(item => item.count));
     <div class="flex items-center space-x-3">
     
       
-      <button @click="openDeleteMemberModal(employee)" class=" text-red-500 cursor-pointer opacity-0 group-hover:opacity-100 mt-1 transition-opacity duration-300">
+      <button v-if="isProjectLeader" @click="openDeleteMemberModal(employee)" class=" text-red-500 cursor-pointer opacity-0 group-hover:opacity-100 mt-1 transition-opacity duration-300">
         <box-icon name='x' color='#ff0000' class="hover:text-red-700" ></box-icon>
       </button>
     </div>

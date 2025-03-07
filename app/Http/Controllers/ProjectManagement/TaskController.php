@@ -44,7 +44,7 @@ class TaskController extends Controller
     ->limit(3)  // Limita el número de tareas relacionadas
     ->get();
 
-
+        $isProjectLeader = $request->user()->isProjectLeader($task->project);
         return Inertia::render('ProjectManagement/Task/SingleTask', [
             'project' => $task->project,
             'task' => $task->toArray(),
@@ -52,6 +52,7 @@ class TaskController extends Controller
             'comments' => $task->comments,
             'taskLogs' => $taskLogs,
             'relatedTasks' => $relatedTasks,
+            'isProjectLeader' => $isProjectLeader,
         
         ]);
 

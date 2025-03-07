@@ -18,6 +18,7 @@
     comments: Array,
     relatedTasks: Array,
     taskLogs: Array,
+    isProjectLeader: Boolean,
   })
   const attachmentsTask = ref(false);
 
@@ -199,7 +200,7 @@ function getRandomColor(index) {
             <div class="col-span-2 bg-gray-950 rounded-lg overflow-hidden border border-gray-700">
               <div class="border-b border-gray-700 px-6 py-4 flex justify-between items-center">
                 <h2 class="text-2xl font-semibold text-white">Task Details</h2>
-                <Button @click="openEditTaskModal" size="sm" class="bg-blue-600 hover:bg-blue-700">Edit Task</Button>
+                <Button @click="openEditTaskModal" v-if="isProjectLeader" size="sm" class="bg-blue-600 hover:bg-blue-700">Edit Task</Button>
               </div>
               <div class="p-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
