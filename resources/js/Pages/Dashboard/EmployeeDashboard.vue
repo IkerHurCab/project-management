@@ -590,7 +590,7 @@
                     <div class="flex justify-between items-start">
                       <div>
                         <h3 class="text-white font-medium">{{ task.name }}</h3>
-                        <p class="text-gray-400 text-sm mt-1">{{ task.project?.name }}</p>
+                        <p class="text-gray-400 text-sm mt-1">{{ task.project.name }}</p>
                       </div>
                       <StatusBadge :status="task.status" class="ml-2" />
                    
