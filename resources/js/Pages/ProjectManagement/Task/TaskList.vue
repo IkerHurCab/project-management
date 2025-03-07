@@ -16,7 +16,12 @@ const props = defineProps({
   }
 });
 
+const isDarkMode = ref(false);
 
+function checkDarkMode() {
+  isDarkMode.value = document.documentElement.classList.contains('dark');
+  return isDarkMode.value;
+}
 
 const emit = defineEmits(['updateTaskStatus']);
 
@@ -26,8 +31,6 @@ const tasksList = ref({
   review: props.tasksByStatus.review || [],
   done: props.tasksByStatus.done || []
 });
-
-
 
 const onMove = (e) => {
 
@@ -82,15 +85,15 @@ const getStatusColor = (status) => {
   <div
     v-for="(tasks, status) in tasksList"
     :key="status"
-    class="bg-gray-950 rounded-lg overflow-hidden border border-gray-700"
+    class="bg-gray-950 dark:bg-white dark:border-none dark:shadow-xl rounded-lg overflow-hidden border border-gray-700"
   >
-  <div class="bg-gray-800 p-4">
-    <h3 class="text-white font-medium flex items-center justify-between">
+  <div class="bg-gray-800 dark:bg-gray-200 p-4">
+    <h3 class="text-white dark:text-black font-medium flex items-center justify-between">
       <span class="flex items-center">
         <div :class="[getStatusColor(status), 'w-3 h-3 rounded-full mr-2']"></div>
         {{ status.toUpperCase().replace('_', ' ') }}
       </span>
-      <span class="bg-gray-700 text-xs px-2 py-1 rounded-full">{{ tasks.length }}</span>
+      <span class="bg-gray-700 dark:bg-gray-300 text-xs px-2 py-1 rounded-full">{{ tasks.length }}</span>
     </h3>
   </div>
 

@@ -1,59 +1,52 @@
 <script setup>
-  import { defineProps } from 'vue';
-  import Markdown from 'vue3-markdown-it';  
-  import hljs from 'highlight.js';  
+import { defineProps, ref, watchEffect } from 'vue';
+import Markdown from 'vue3-markdown-it';
+import hljs from 'highlight.js';
 
-  import 'highlight.js/styles/github.css'; 
+import 'highlight.js/styles/github.css';
 
+const props = defineProps({
+  selectedDocumentation: {
+    type: Object,
+    required: true,
+  }
+});
 
-  const props = defineProps({
-    selectedDocumentation: {
-      type: Object,
-      required: true,
-    }
-  });
+const isDarkMode = ref(false);
 
-  const source = props.selectedDocumentation.content;
+watchEffect(() => {
+  isDarkMode.value = document.documentElement.classList.contains('dark');
+});
 
+const source = props.selectedDocumentation.content;
 
-  const options = {
-    highlight: (str, lang) => {
-      if (lang && hljs.getLanguage(lang)) {
-        try {
-          return hljs.highlight(str, { language: lang }).value;
-        } catch (err) {
-          console.error(err);
-        }
+const options = {
+  highlight: (str, lang) => {
+    if (lang && hljs.getLanguage(lang)) {
+      try {
+        return hljs.highlight(str, { language: lang }).value;
+      } catch (err) {
+        console.error(err);
       }
-      return '';
     }
-  };
-
- 
+    return '';
+  }
+};
 </script>
 
 <template>
-  <div>
+  <div :class="{ 'dark-mode': isDarkMode }">
     <Markdown :source="source" :options="options" class="prose max-w-5xl" />
   </div>
 </template>
 
 <style scoped>
- 
-  .prose * {
-    color: #ffffff;
-  }
 
+.prose * {
+  color: #ffffff;
+}
 
-  pre {
-    background-color: #282c34;  
-    padding: 16px;
-    border-radius: 8px;
-    overflow-x: auto;
-  }
-
-  
-  code {
-    font-family: 'Courier New', Courier, monospace;
-  }
+.dark-mode .prose * {
+  color: #000000; 
+}
 </style>

@@ -92,29 +92,29 @@
   <div>
     <form @submit.prevent="submitForm" class="space-y-4">
       <div>
-        <label for="title" class="block text-sm font-medium text-gray-400 mb-1">Title</label>
+        <label for="title" class="block text-sm font-medium text-gray-400 dark:text-gray-700 mb-1">Title</label>
         <input v-model="form.title" id="title" type="text"
-          class="w-full bg-gray-900 text-white border border-gray-700 rounded-md p-2" required />
+          class="w-full bg-gray-900 dark:bg-gray-100 dark:text-black text-white border border-gray-700 rounded-md p-2" required />
       </div>
 
       <!-- Summary -->
       <div>
-        <label for="summary" class="block text-sm font-medium text-gray-400 mb-1">Summary</label>
+        <label for="summary" class="block text-sm font-medium text-gray-400 dark:text-gray-700 mb-1">Summary</label>
         <input v-model="form.summary" id="summary" type="text"
-          class="w-full bg-gray-900 text-white border border-gray-700 rounded-md p-2" required />
+          class="w-full bg-gray-900 text-white dark:bg-gray-100 dark:text-black border border-gray-700 rounded-md p-2" required />
       </div>
 
       <!-- Content input (Markdown) -->
       <div>
-        <label for="content" class="block text-sm font-medium text-gray-400 mb-1">Content (Markdown)</label>
+        <label for="content" class="block text-sm font-medium text-gray-400 dark:text-gray-700 mb-1">Content (Markdown)</label>
         <textarea v-model="form.content" id="content" rows="12"
-          class="w-full bg-gray-900 text-white border border-gray-700 rounded-md p-2" required></textarea>
+          class="w-full bg-gray-900 text-white dark:bg-gray-100 dark:text-black border border-gray-700 rounded-md p-2" required></textarea>
       </div>
 
 
       <div class="flex items-center">
         <input v-model="form.is_public" id="is_public" type="checkbox" class="mr-2">
-        <label for="is_public" class="text-sm font-medium text-gray-400">Make public</label>
+        <label for="is_public" class="text-sm font-medium text-gray-400 dark:text-gray-700">Make public</label>
       </div>
       <div :class="['flex', props.isEdit ? 'justify-between' : 'justify-end']">
         <button v-if="props.isEdit" @click="deleteDocument" type="button"

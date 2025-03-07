@@ -66,10 +66,10 @@
     
     <template>
       <div v-if="isOpen" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
-        <div class="bg-gray-950 rounded-lg w-full max-w-md h-auto border border-gray-700 shadow-lg">
-          <div class="border-b border-gray-700 px-6 py-4 flex justify-between items-center bg-gray-950 rounded-t-lg">
-            <h2 class="text-2xl font-semibold text-white">Add Members</h2>
-            <button @click="emit('close')" class="text-gray-400 cursor-pointer hover:text-white transition-colors">
+        <div class="bg-gray-950 dark:bg-white dark:border-none dark:shadow-xl rounded-lg w-full max-w-md h-auto border border-gray-700 shadow-lg">
+          <div class="border-b border-gray-700 dark:bg-gray-100 px-6 py-4 flex justify-between items-center bg-gray-950 rounded-t-lg">
+            <h2 class="text-2xl font-semibold text-white dark:text-black">Add Members</h2>
+            <button @click="emit('close')" class="text-gray-400 dark:text-black dark:hover:text-gray-700 cursor-pointer hover:text-white transition-colors">
               <box-icon name='x' color='currentColor'></box-icon>
             </button>
           </div>
@@ -87,15 +87,15 @@
             
             <!-- Selected Members Cards -->
             <div v-if="form.selectedMembers.length > 0" class="space-y-2">
-              <h3 class="text-lg font-semibold text-white">Selected Members</h3>
+              <h3 class="text-lg font-semibold text-white dark:text-black">Selected Members</h3>
               <div class="grid overflow-y-auto max-h-20 grid-cols-2 gap-2">
                 <div v-for="member in form.selectedMembers" :key="member.id" 
-                     class="bg-gray-800 rounded-lg p-2 flex items-center justify-between">
+                     class="bg-gray-800 dark:bg-gray-100 dark:shadow-xl rounded-lg p-2 flex items-center justify-between">
                   <div class="flex items-center space-x-2">
                     <div class="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center text-white text-sm font-semibold">
                       {{ member.name.charAt(0) }}
                     </div>
-                    <span class="text-white text-sm">{{ member.name }}</span>
+                    <span class="text-white dark:text-black text-sm">{{ member.name }}</span>
                   </div>
                   <button @click="removeMember(member)" class="cursor-pointer mt-1 text-red-500 hover:text-red-700">
                     <box-icon name='x' size="sm" color='currentColor'></box-icon>
@@ -111,13 +111,13 @@
                     v-for="user in filteredAllUsers" 
                     :key="user.id"
                     @click="toggleMemberSelection(user)"
-                    class="flex cursor-pointer items-center justify-between p-2 hover:bg-gray-700 rounded-lg transition-colors"
+                    class="flex cursor-pointer items-center justify-between p-2 dark:hover:bg-gray-100 hover:bg-gray-700 rounded-lg transition-colors"
                   >
                     <div class="flex items-center space-x-3">
                       <div class="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center text-white">
                         {{ user.name.charAt(0) }}
                       </div>
-                      <span class="text-white">{{ user.name }}</span>
+                      <span class="text-white dark:text-black">{{ user.name }}</span>
                     </div>
                     <span class="text-gray-400 text-sm">{{ user.role }}</span>
                     <div v-if="isMemberSelected(user)" class="text-green-500">

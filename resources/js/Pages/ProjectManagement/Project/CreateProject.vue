@@ -96,43 +96,50 @@
       addDepartment();
     }
   };
+
+const isDarkMode = ref(false);
+
+function checkDarkMode() {
+  isDarkMode.value = document.documentElement.classList.contains('dark');
+  return isDarkMode.value;
+}
 </script>
   
   <template>
     <Layout pageTitle="Project Management">
 
-      <div class="flex flex-col bg-black text-gray-300 min-h-screen px-6 py-4">
+      <div class="flex flex-col bg-gray-900 dark:bg-gray-100 dark:border-none rounded-lg border border-gray-600 text-gray-300 dark:text-gray-700 min-h-screen px-6 py-4">
         <div class="flex flex-row  gap-x-4 ">
           <div class="cursor-pointer gap-x-2 flex items-center " @click="$inertia.visit('/projects')">
 
 
-            <box-icon name='arrow-back' color='#fffdfd'></box-icon> Back to Projects
+            <box-icon name='arrow-back' :color="checkDarkMode() ? '#000000' : '#fffdfd'"></box-icon> Back to Projects
           </div>
-          <h1 class="text-2xl font-bold text-white ">Create Project</h1>
+          <h1 class="text-2xl font-bold text-white dark:text-gray-700">Create Project</h1>
         </div>
-        <div class="bg-gray-950 border border-gray-700 mt-5 rounded-lg overflow-hidden">
+        <div class="bg-gray-950 dark:bg-white dark:border-none dark:shadow-xl border border-gray-700 mt-5 rounded-lg overflow-hidden">
           <div class="border-b border-gray-700 p-6">
-            <h3 class="text-xl font-semibold text-white">Project Details</h3>
+            <h3 class="text-xl font-semibold">Project Details</h3>
           </div>
 
           <form @submit.prevent="createProject" class="p-6">
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <div class="col-span-1 md:col-span-2 lg:col-span-3">
-                <label for="projectName" class="block text-sm font-medium text-gray-400 mb-2">Project Name</label>
+                <label for="projectName" class="block text-sm font-medium text-gray-400 dark:text-gray-600 mb-2">Project Name</label>
                 <InputWithIcon v-model="projectName" icon="folder" placeholder="Enter project name" class="w-full" />
               </div>
 
               <div class="col-span-1 md:col-span-2 lg:col-span-3">
-                <label for="department" class="block text-sm font-medium text-gray-400 mb-2">Departments</label>
+                <label for="department" class="block text-sm font-medium text-gray-400 dark:text-gray-600 mb-2">Departments</label>
                 <div class="relative">
                   <InputWithIcon v-model="departmentInput" icon="group" placeholder="Select departments" class="w-full"
                     @keydown="handleKeydown" />
-                  <div v-if="filteredDepartments.length > 0" class="absolute z-10 w-full mt-1 bg-gray-900 border border-gray-700 rounded-lg shadow-lg">
+                  <div v-if="filteredDepartments.length > 0" class="absolute z-10 w-full mt-1 bg-gray-900 dark:bg-gray-300 border border-gray-700 rounded-lg shadow-lg">
                     <div
                       v-for="dept in filteredDepartments"
                       :key="dept.id"
                       @click="selectedDepartments.push(dept.id); departmentInput = ''"
-                      class="px-4 py-2 hover:bg-gray-800 cursor-pointer"
+                      class="px-4 py-2 hover:bg-gray-800 dark:hover:bg-gray-200 cursor-pointer"
                     >
                       {{ dept.name }}
                     </div>
@@ -142,18 +149,18 @@
                   <div
                     v-for="deptId in selectedDepartments"
                     :key="deptId"
-                    class="bg-gray-900 text-gray-200 border border-gray-600 px-4 py-1 rounded-full text-sm flex items-center"
+                    class="bg-gray-900 dark:bg-gray-300 dark:text-gray-700 text-gray-200 border border-gray-600 px-4 py-1 rounded-full text-sm flex items-center"
                   >
                     {{ props.userDepartments.find(d => d.id === deptId).name }}
                     <button @click="removeDepartment(deptId)" class="ml-2 mt-1 cursor-pointer focus:outline-none">
-                      <box-icon name='x' color='#ffffff' size="sm"></box-icon>
+                      <box-icon name='x' :color="checkDarkMode() ? '#000000' : '#ffffff'" size="sm"></box-icon>
                     </button>
                   </div>
                 </div>
               </div>
               <div class="flex col-span-3 space-x-5">
               <div class="w-1/2">
-                <label for="projectLeader" class="block text-sm font-medium text-gray-400 mb-2">Project Leader</label>
+                <label for="projectLeader" class="block text-sm font-medium text-gray-400 mb-2 dark:text-gray-600">Project Leader</label>
                 <SelectWithIcon v-model="projectLeader" icon="user" placeholder="Select project leader" class="w-full"
                   :options="[
                     { label: 'Select the project leader', value: '' },
@@ -161,7 +168,7 @@
                   ]" />
               </div>
               <div class="w-1/2"> 
-                <label for="priority" class="block text-sm font-medium text-gray-400 mb-2">Priority</label>
+                <label for="priority" class="block text-sm font-medium text-gray-400 mb-2 dark:text-gray-600">Priority</label>
                 <SelectWithIcon v-model="priority" icon="flag" placeholder="Select priority" class="w-full" :options="[
                   { label: 'Low', value: 1 },
                   { label: 'Medium', value: 2 },
@@ -175,19 +182,19 @@
               <!-- Agrupar estos campos en una fila -->
               <div class="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-3 gap-6 col-span-1 md:col-span-1 lg:col-span-3">
                 <div>
-                  <label for="startDate" class="block text-sm font-medium text-gray-400 mb-2">Start Date</label>
+                  <label for="startDate" class="block text-sm font-medium text-gray-400 mb-2 dark:text-gray-600">Start Date</label>
                   <InputWithIcon v-model="startDate" icon="calendar" placeholder="Select start date" class="w-full"
                     type="date" />
                 </div>
 
                 <div>
-                  <label for="endDate" class="block text-sm font-medium text-gray-400 mb-2">End Date</label>
+                  <label for="endDate" class="block text-sm font-medium text-gray-400 mb-2 dark:text-gray-600">End Date</label>
                   <InputWithIcon v-model="endDate" icon="calendar" placeholder="Select end date" class="w-full"
                     type="date" />
                 </div>
 
                 <div>
-                  <label for="assignedHours" class="block text-sm font-medium text-gray-400 mb-2">Assigned Hours</label>
+                  <label for="assignedHours" class="block text-sm font-medium text-gray-400 mb-2 dark:text-gray-600">Assigned Hours</label>
                   <InputWithIcon v-model="assignedHours" icon="time" placeholder="Enter assigned hours" class="w-full"
                     type="number" />
                 </div>
@@ -202,15 +209,15 @@
 
 
               <div class="col-span-1 md:col-span-2 lg:col-span-3">
-                <label class="block text-sm font-medium text-gray-400 mb-2">Description</label>
+                <label class="block text-sm font-medium text-gray-400 mb-2 dark:text-gray-600">Description</label>
                 <textarea v-model="description"
-                  class="w-full h-32 bg-gray-900 p-3 border border-gray-700 rounded-lg focus:outline-none focus:border-gray-300 text-white placeholder-gray-500"
+                  class="w-full h-32 bg-gray-900 dark:bg-white p-3 border border-gray-700 rounded-lg focus:outline-none focus:border-gray-300 text-white placeholder-gray-500"
                   placeholder="Enter project description"></textarea>
               </div>
               <div class="col-span-1 md:col-span-2 lg:col-span-3">
 
                 <div v-if="attachments.length > 0" class="mt-2">
-                  <p class="text-sm text-gray-400">{{ attachments.length }} file(s) selected</p>
+                  <p class="text-sm text-gray-400 dark:text-gray-600">{{ attachments.length }} file(s) selected</p>
                 </div>
               </div>
             </div>
@@ -222,14 +229,14 @@
                     <div class="flex items-center space-x-1">
                       <box-icon name='lock-alt' color="#99A1AF"></box-icon>
                       <span
-                        class="text-sm mt-1 text-gray-400 group-hover:text-gray-300 transition-colors duration-200 ease-in-out">
+                        class="text-sm mt-1 text-gray-400 group-hover:text-gray-300 dark:group-hover:text-gray-600 transition-colors duration-200 ease-in-out">
                         Private
                       </span>
                     </div>
                     <div class="relative">
                       <input type="checkbox" v-model="is_private" class="sr-only" />
                       <div
-                        class="w-5 h-5 bg-gray-700 border-2 border-gray-600 rounded-md transition-all duration-200 ease-in-out group-hover:border-gray-500">
+                        class="w-5 h-5 bg-gray-700 dark:bg-white border-2 border-gray-600 rounded-md transition-all duration-200 ease-in-out group-hover:border-gray-500">
                         <svg
                           class="w-3 h-3 text-blue-500 opacity-0 transition-opacity duration-200 ease-in-out absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
                           :class="{ 'opacity-100': is_private }" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -241,7 +248,7 @@
                   </label>
                 </div>
               </div>
-              <StandardButton type="submit" class="bg-blue-600 hover:bg-blue-700">
+              <StandardButton type="submit">
                 Create Project
               </StandardButton>
             </div>

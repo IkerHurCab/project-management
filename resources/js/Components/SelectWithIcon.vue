@@ -12,7 +12,7 @@
         :value="modelValue"
         @change="handleInput"
     
-        class="p-2 ml-2 h-10 w-full bg-gray-950  outline-none"
+        class="p-2 ml-2 h-10 w-full bg-gray-950 dark:bg-white  outline-none"
       >
         <option v-for="(option, index) in options" :key="index" :value="option.value">
           {{ option.label }}

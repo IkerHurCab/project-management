@@ -4,27 +4,51 @@
 @custom-variant dark (&:where(.dark, .dark *));
 @source "../views";
 
-
 @theme {
-    --font-apple: 'Archivo', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-apple: 'Archivo', -apple-system, BlinkMacSystemFont, sans-serif;
 }
-*{
-    font-family: 'Archivo', sans-serif;
+
+* {
+  font-family: 'Archivo', sans-serif;
 }
 
 @layer utilities {
-    ::-webkit-scrollbar-track {
-        background: #1E1E1E; /* Dark grey color, you can choose any color you like */
-      }
-      
-      /* This part changes the scrollbar handle */
-      ::-webkit-scrollbar-thumb {
-        background: #555; /* Medium grey color, this is the actual scrollbar */
-      }
-      
-      /* You can also change the scrollbar width and height */
-      ::-webkit-scrollbar {
-        width: 12px; /* Width of the vertical scrollbar */
-        height: 12px; /* Height of the horizontal scrollbar */
-      }
+
+  /* Light mode scrollbar */
+  ::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
   }
+
+  .dark ::-webkit-scrollbar-track {
+    background: #f0f0f0;
+    /* Light mode track */
+  }
+
+  .dark ::-webkit-scrollbar-thumb {
+    background: #a3a3a3;
+    /* Light mode thumb */
+  }
+
+  .dark ::-webkit-scrollbar-thumb:hover {
+    background: #7e7e7e;
+    cursor: pointer;
+    /* Darker on hover */
+  }
+
+  /* Dark mode scrollbar */
+  ::-webkit-scrollbar-track {
+    background: #1E1E1E;
+    /* Dark mode track */
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #444;
+    /* Dark mode thumb */
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #666;
+    /* Lighter on hover */
+  }
+}

@@ -82,33 +82,33 @@ return `${year}-${month}-${day}`;
     
     <template>
         <div v-if="isOpen" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
-          <div class="bg-gray-950 rounded-lg w-full max-w-5xl h-auto border border-gray-700 shadow-lg">
-            <div class="border-b border-gray-700 px-6 py-4 flex justify-between items-center bg-gray-950 rounded-t-lg">
-              <h2 class="text-2xl font-semibold text-white">Create New Task</h2>
-              <button @click="emit('close')" class="text-gray-400 cursor-pointer hover:text-white transition-colors">
+          <div class="bg-gray-950 dark:bg-white rounded-lg w-full max-w-5xl h-auto border border-gray-700 shadow-lg">
+            <div class="border-b border-gray-700 dark:bg-gray-100 px-6 py-4 flex justify-between items-center bg-gray-950 rounded-t-lg">
+              <h2 class="text-2xl font-semibold text-white dark:text-black">Create New Task</h2>
+              <button @click="emit('close')" class="text-gray-400 dark:hover:text-black dark:text-gray-700 cursor-pointer hover:text-white transition-colors">
                 <box-icon name='x' color='currentColor'></box-icon>
               </button>
             </div>
             <form @submit.prevent="submitForm" class="p-6 space-y-6">
               <div class="space-y-4">
                 <div>
-                  <label for="name" class="block text-sm font-medium text-gray-300 mb-1">Task Name</label>
-                  <InputWithIcon v-model="form.name" id="name" type="text" icon="task" placeholder="Enter task name" class="bg-gray-950 border-gray-700 text-white" />
+                  <label for="name" class="block text-sm font-medium text-gray-300 mb-1 dark:text-gray-700 ">Task Name</label>
+                  <InputWithIcon v-model="form.name" id="name" type="text" icon="task" placeholder="Enter task name" class="bg-gray-950 dark:bg-gray-100 dark:text-black border-gray-700 text-white" />
                 </div>
                 <div>
-                  <label for="description" class="block text-sm font-medium text-gray-300 mb-1">Description</label>
+                  <label for="description" class="block text-sm font-medium text-gray-300 mb-1 dark:text-gray-700 ">Description</label>
                   <textarea v-model="form.description" id="description" rows="4" 
-                            class="w-full bg-gray-800 border border-gray-700 rounded-md text-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                            class="w-full dark:bg-gray-100 dark:text-black bg-gray-800 border border-gray-700 rounded-md text-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
                             placeholder="Enter task description"></textarea>
                 </div>
               </div>
               <div class="grid grid-cols-3 gap-6">
                 <div>
-                  <label for="estimated_hours" class="block text-sm font-medium text-gray-300 mb-1">Estimated Hours</label>
+                  <label for="estimated_hours" class="block text-sm font-medium text-gray-300 mb-1 dark:text-gray-700 ">Estimated Hours</label>
                   <InputWithIcon v-model="form.estimated_hours" id="estimated_hours" type="number" icon="time" placeholder="Enter estimated hours" class="border-gray-700 w-full text-white" />
                 </div>
                 <div>
-                  <label for="status" class="block text-sm font-medium text-gray-300 mb-1">Status</label>
+                  <label for="status" class="block text-sm font-medium text-gray-300 mb-1 dark:text-gray-700 ">Status</label>
                   <SelectWithIcon v-model="form.status" icon="check-square" placeholder="Select status" class="w-full" :options="[
                     { label: 'To Do', value: 'to_do'},
                     { label: 'In Progress', value: 'in_progress'},
@@ -116,7 +116,7 @@ return `${year}-${month}-${day}`;
                   ]" />
                 </div>
                 <div>
-                    <label for="priority" class="block text-sm font-medium  text-gray-400 mb-2">Priority</label>
+                    <label for="priority" class="block text-sm font-medium  text-gray-400 mb-2 dark:text-gray-700 ">Priority</label>
                     <SelectWithIcon  v-model="form.priority" icon="flag" placeholder="Select priority" class="w-full " :options="[
                       { label: 'Low', value: 1 },
                       { label: 'Medium', value: 2 },
@@ -125,25 +125,25 @@ return `${year}-${month}-${day}`;
                     ]" />
                 </div>
                 <div >
-                  <label for="user_id" class="block text-sm  font-medium text-gray-300 mb-1">Assign To</label>
+                  <label for="user_id" class="block text-sm  font-medium text-gray-300 mb-1 dark:text-gray-700 ">Assign To</label>
                   <SelectWithIcon v-model="form.user_id" icon="user" placeholder="Select employee" class="w-full"  :options="[
                   { label: 'Assign the employee', value: '' },
                   ...employees.map(employee => ({ label: employee['name'], value: employee['id'] }))
                 ]"  />
                 </div>
                 <div>
-                  <label for="start_date" class="block text-sm font-medium text-gray-300 mb-1">Start Date</label>
+                  <label for="start_date" class="block text-sm font-medium text-gray-300 mb-1 dark:text-gray-700 ">Start Date</label>
                   <InputWithIcon v-model="form.start_date" id="start_date" type="date" icon="calendar" class=" border-gray-700 w-full text-white" />
                 </div>
                 <div>
-                  <label for="end_date" class="block text-sm font-medium text-gray-300 mb-1">End Date</label>
+                  <label for="end_date" class="block text-sm font-medium text-gray-300 mb-1 dark:text-gray-700 ">End Date</label>
                   <InputWithIcon v-model="form.end_date" id="end_date" type="date" icon="calendar" class="w-full border-gray-700 text-white" />
                 </div>
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-300 mb-1">Attachments</label>
+                <label class="block text-sm font-medium text-gray-300 mb-1 dark:text-gray-700 ">Attachments</label>
                 <div class="flex items-center justify-center w-full">
-                  <label for="dropzone-file" class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-600 border-dashed rounded-lg cursor-pointer bg-gray-800 hover:bg-gray-700 transition-all">
+                  <label for="dropzone-file" class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-600 dark:bg-gray-100 dark:hover:bg-gray-200 dark:text-black border-dashed rounded-lg cursor-pointer bg-gray-800 hover:bg-gray-700 transition-all">
                     <div class="flex flex-col items-center justify-center pt-5 pb-6">
                       <box-icon name='cloud-upload' color='#9CA3AF'></box-icon>
                       <p class="mb-2 text-sm text-gray-400"><span class="font-semibold">Click to upload</span> or drag and drop</p>
