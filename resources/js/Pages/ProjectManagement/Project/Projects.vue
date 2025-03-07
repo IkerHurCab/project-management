@@ -201,12 +201,12 @@
                     <div v-if="isUserInProject(project)" class="mr-2 flex-shrink-0">
                       <div class="w-2 h-2 rounded-full bg-blue-500"></div>
                     </div>
-                    <span :class="{'font-medium text-white': isUserInProject(project)}">
+                    <span :class="{'text-gray-500': !isUserInProject(project), 'text-gray-300': isUserInProject(project)}">
                       {{ project.name || 'No hay texto' }}
                     </span>
                   </div>
                 </td>
-                <td class="p-4 text-gray-400">
+                <td :class="{'text-gray-500': !isUserInProject(project), 'text-gray-300': isUserInProject(project)}" class="p-4">
                   <span v-if="project.departments && project.departments.length > 0">
                     <ul>
                       <li v-for="department in project.departments" :key="department.id">
@@ -216,16 +216,16 @@
                   </span>
                   <span v-else>No hay texto</span>
                 </td>
-                <td class="p-4" :class="{'text-gray-400': !isUserInProject(project), 'text-gray-300': isUserInProject(project)}">
+                <td class="p-4" :class="{'text-gray-500': !isUserInProject(project), 'text-gray-300': isUserInProject(project)}">
                   {{ project.leader?.name ?? 'No asignado' }}
                 </td>
-                <td class="p-4" :class="{'text-gray-400': !isUserInProject(project), 'text-gray-300': isUserInProject(project)}">
+                <td class="p-4" :class="{'text-gray-500': !isUserInProject(project), 'text-gray-300': isUserInProject(project)}">
                   {{ project.start_date || 'No hay texto' }}
                 </td>
-                <td class="p-4" :class="{'text-gray-400': !isUserInProject(project), 'text-gray-300': isUserInProject(project)}">
+                <td class="p-4" :class="{'text-gray-500': !isUserInProject(project), 'text-gray-300': isUserInProject(project)}">
                   {{ project.end_date || 'No hay texto' }}
                 </td>
-                <td class="p-4" :class="{'text-gray-400': !isUserInProject(project), 'text-gray-300': isUserInProject(project)}">
+                <td class="p-4" :class="{'text-gray-500': !isUserInProject(project), 'text-gray-300': isUserInProject(project)}">
                   {{ project.assigned_hours ? project.assigned_hours + ' h' : 'No hay texto' }}
                 </td>
                 <td class="p-4 flex">

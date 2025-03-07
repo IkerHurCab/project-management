@@ -110,16 +110,17 @@ const formattedNotifications = computed(() => {
 
   watch(() => usePage().props.notifications, (newNotifications) => {
   notifications.value = newNotifications;  // Actualiza las notificaciones
+
   // Verificar si hay nuevas notificaciones no leídas
-  hasNewNotification.value = newNotifications.some(notification => !notification.read);
+  hasNewNotification.value = newNotifications.some(notification => !notification.is_read);
 }, { immediate: true });
   </script>
   
   <template>
     <header class="flex border-b border-gray-800 items-center justify-between py-3 px-6 bg-black w-full">
-      <h1 class="text-2xl px-5 font-bold text-white">{{ props.page }}</h1>
+      <h1 class="text-2xl mx-5 font-bold text-white">{{ props.page }}</h1>
   
-      <div class="flex items-center gap-5">
+      <div class="flex items-center gap-5 mx-5">
         <!-- Notification Bell -->
         <div class="relative group">
           <button
