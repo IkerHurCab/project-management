@@ -460,7 +460,7 @@ const teamPerformance = computed(() => {
       <div class="p-6">
         <!-- Stats Overview -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-          <div class="bg-gray-900 dark:bg-white dark:border-none dark:shadow-xl rounded-lg p-6 border border-gray-700">
+          <div class="bg-gray-950 dark:bg-white dark:border-none dark:shadow-xl rounded-lg p-6 border border-gray-700">
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-gray-400 dark:text-gray-700 text-sm">Total Projects</p>
@@ -483,7 +483,7 @@ const teamPerformance = computed(() => {
             </div>
           </div>
 
-          <div class="bg-gray-900 dark:bg-white dark:border-none dark:shadow-xl rounded-lg p-6 border border-gray-700">
+          <div class="bg-gray-950 dark:bg-white dark:border-none dark:shadow-xl rounded-lg p-6 border border-gray-700">
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-gray-400 text-sm dark:text-gray-700">Total Tasks</p>
@@ -506,7 +506,7 @@ const teamPerformance = computed(() => {
             </div>
           </div>
 
-          <div class="bg-gray-900 dark:bg-white rounded-lg p-6 dark:border-none dark:shadow-xl border border-gray-700">
+          <div class="bg-gray-950 dark:bg-white rounded-lg p-6 dark:border-none dark:shadow-xl border border-gray-700">
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-gray-400 dark:text-gray-700 text-sm">Team Members</p>
@@ -524,7 +524,7 @@ const teamPerformance = computed(() => {
             </div>
           </div>
 
-          <div class="bg-gray-900 dark:bg-white rounded-lg p-6 dark:border-none dark:shadow-xl border border-gray-700">
+          <div class="bg-gray-950 dark:bg-white rounded-lg p-6 dark:border-none dark:shadow-xl border border-gray-700">
             <div class="flex items-center justify-between">
               <div>
                 <p class="text-gray-400 dark:text-gray-700 text-sm">Overall Progress</p>
@@ -549,7 +549,7 @@ const teamPerformance = computed(() => {
             <div class="border-b-2 border-dashed border-gray-700 dark:border-none px-6 py-4">
               <h2 class="text-xl font-semibold text-white dark:text-black">Project Status</h2>
             </div>
-            <div class="p-6 bg-gray-900 dark:bg-white h-full">
+            <div class="p-6 bg-gray-950 dark:bg-white h-full">
               <VueApexCharts type="donut" height="300" :options="projectStatusChartOptions"
                 :series="projectStatusSeries" />
             </div>
@@ -560,7 +560,7 @@ const teamPerformance = computed(() => {
             <div class="border-b-2 border-dashed border-gray-700 dark:border-none px-6 py-4">
               <h2 class="text-xl font-semibold text-white dark:text-black">Task Priority Distribution</h2>
             </div>
-            <div class="p-6 bg-gray-900 dark:bg-white">
+            <div class="p-6 bg-gray-950 dark:bg-white">
               <VueApexCharts type="bar" height="300" :options="taskPriorityChartOptions" :series="taskPrioritySeries" />
             </div>
           </div>
@@ -570,7 +570,7 @@ const teamPerformance = computed(() => {
             <div class="border-b-2 border-dashed border-gray-700 dark:border-none px-6 py-4">
               <h2 class="text-xl font-semibold text-white dark:text-black">Urgent Tasks</h2>
             </div>
-            <div class="p-6 bg-gray-900 dark:bg-white h-full">
+            <div class="p-6 bg-gray-950 dark:bg-white h-full">
               <div v-if="urgentTasks.length > 0" class="space-y-4 shadow-lg">
                 <div v-for="task in urgentTasks" :key="task.id"
                   class="bg-gray-900 p-4 rounded-lg cursor-pointer hover:bg-gray-800  dark:bg-gray-200 dark:hover:bg-gray-100 transition-colors"
@@ -616,7 +616,7 @@ const teamPerformance = computed(() => {
           <div class="border-b border-gray-700 px-6 py-4">
             <h2 class="text-xl font-semibold text-white dark:text-black">Project Timeline</h2>
           </div>
-          <div class="p-6 bg-gray-900 dark:bg-white">
+          <div class="p-6 bg-gray-950 dark:bg-white">
             <VueApexCharts type="rangeBar" height="350" :options="timelineChartOptions" :series="timelineSeries" />
           </div>
         </div>
@@ -638,7 +638,7 @@ const teamPerformance = computed(() => {
           <div class="overflow-x-auto">
             <table class="w-full">
               <thead>
-                <tr class="bg-gray-900 dark:bg-gray-100 text-left">
+                <tr class="bg-gray-800 dark:bg-gray-100 border-b border-gray-700 text-left">
                   <th class="p-4 font-semibold text-gray-400 dark:text-gray-700">Project Name</th>
                   <th class="p-4 font-semibold text-gray-400 dark:text-gray-700">Status</th>
                   <th class="p-4 font-semibold text-gray-400 dark:text-gray-700">Priority</th>
@@ -649,7 +649,7 @@ const teamPerformance = computed(() => {
               </thead>
               <tbody>
                 <tr v-for="project in paginatedProjects" :key="project.id" @click="navigateToProject(project.id)"
-                  class="border-b border-gray-800 bg-gray-900 dark:bg-white dark:hover:bg-gray-200 hover:bg-gray-900 cursor-pointer transition-colors">
+                  class="border-b border-gray-800 bg-gray-950 dark:bg-white dark:hover:bg-gray-200 hover:bg-gray-900 cursor-pointer transition-colors">
                   <td class="p-4 text-white dark:text-black font-medium">{{ project.name }}</td>
                   <td class="p-4">
                     <StatusBadge :status="project.status" />
@@ -719,7 +719,7 @@ const teamPerformance = computed(() => {
           <div class="overflow-x-auto">
             <table class="w-full">
               <thead>
-                <tr class="bg-gray-900 dark:bg-gray-200 text-left">
+                <tr class="bg-gray-800 border-b border-gray-700 dark:bg-gray-200 text-left">
                   <th class="p-4 font-semibold text-gray-400 dark:text-gray-700">Team Member</th>
                   <th class="p-4 font-semibold text-gray-400 dark:text-gray-700">Projects Assigned</th>
                   <th class="p-4 font-semibold text-gray-400 dark:text-gray-700">Tasks Assigned</th>
@@ -729,7 +729,7 @@ const teamPerformance = computed(() => {
               </thead>
               <tbody>
                 <tr v-for="member in paginatedTeamMembers" :key="member.id"
-                  class="border-b border-gray-800 bg-gray-900 dark:bg-white hover:bg-gray-900 dark:hover:bg-gray-100 transition-colors">
+                  class="border-b border-gray-800 bg-gray-950 dark:bg-white hover:bg-gray-900 dark:hover:bg-gray-100 transition-colors">
                   <td class="p-4">
                     <div class="flex items-center space-x-3">
                       <div
