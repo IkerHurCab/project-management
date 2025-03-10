@@ -66,9 +66,19 @@ const props = defineProps({
   userDepartments: {
     type: Array
   },
-
 });
 
+const isMobile = ref(false);
+
+// Check if device is mobile
+const checkMobile = () => {
+  isMobile.value = window.innerWidth < 768;
+};
+
+onMounted(() => {
+  checkMobile();
+  window.addEventListener('resize', checkMobile);
+});
 
 const isDarkMode = ref(false);
 
@@ -77,11 +87,7 @@ function checkDarkMode() {
   return isDarkMode.value;
 }
 
-
-
-
 const taskCount = computed(() => props.tasks.length);
-
 
 const formatDate = (date) => {
   return new Date(date).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
@@ -92,11 +98,8 @@ const projectProgress = computed(() => {
   return Math.round((props.project.completed_tasks / props.project.total_tasks) * 100)
 })
 
-
 const activeTab = ref(props.activeTab || 'overview');
 const memberToDelete = ref(null);
-
-
 
 const tasksByStatus = computed(() => {
   if (!Array.isArray(props.tasks)) {
@@ -115,8 +118,6 @@ const tasksByStatus = computed(() => {
   };
 });
 
-
-
 const totalTasks = computed(() => props.tasks.length);
 const completedTasks = computed(() => props.tasks.filter(task => task.status === 'done').length);
 const progressPercentage = computed(() => (completedTasks.value / totalTasks.value) * 100 || 0);
@@ -128,14 +129,10 @@ const priorityTasks = computed(() =>
     .slice(0, 3)
 );
 
-
-
 const leader = computed(() => {
   return props.project.users.find(user => user.id === props.project.project_leader_id)
 })
 const searchQuery = ref(usePage().props.searchQuery || '');
-
-
 
 watch(searchQuery, () => {
   applyFilters();
@@ -158,7 +155,6 @@ const applyFilters = () => {
     queryParams.append('searchMember', searchQuery.value);
   }
 
-
   const url = queryParams.toString()
     ? `${props.project.id}/?${queryParams.toString()}`
     : `${props.project.id}`;
@@ -169,7 +165,6 @@ const applyFilters = () => {
     replace: true,
   });
 };
-
 
 const isCreateTaskModalOpen = ref(false);
 const isEditProjectModalOpen = ref(false);
@@ -182,18 +177,15 @@ const openDeleteMemberModal = (member) => {
   isDeleteMemberModalOpen.value = true;
 };
 
-
 const closeDeleteMemberModal = () => {
   isDeleteMemberModalOpen.value = false;
 }
-
 
 const openEditProjectModal = () => {
   isEditProjectModalOpen.value = true;
 }
 const closeEditProjectModal = () => {
   isEditProjectModalOpen.value = false;
-
 }
 
 const openCreateTaskModal = () => {
@@ -210,7 +202,6 @@ const openModal = () => {
 const closeModal = () => {
   isModalOpen.value = false;
 }
-
 
 const handleAddMembers = (newEmployees) => {
   router.post(`/projects/${props.project.id}/new-members`, { users: newEmployees }, {
@@ -340,23 +331,20 @@ const chartOptions = computed(() => ({
 }));
 
 const series = computed(() => chartData.value.map(item => item.count));
-
-
-
 </script>
 
 <template>
   <Layout pageTitle="Project Management">
-    <div class="min-h-screen bg-black dark:bg-gray-100 text-gray-300 dark:text-gray-700 ">
-      <div class="border-b border-gray-800 px-6 py-4 dark:border-gray-400">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center space-x-8">
+    <div class="min-h-screen bg-black dark:bg-gray-100 text-gray-300 dark:text-gray-700">
+      <div class="border-b border-gray-800 px-3 sm:px-6 py-4 dark:border-gray-400">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div class="flex items-center space-x-4 sm:space-x-8">
             <a @click="$inertia.visit('/projects')"
               class="hover:text-white dark:hover:text-black cursor-pointer flex items-center space-x-2 transition-colors">
               <box-icon name='arrow-back' :color="checkDarkMode() ? '#000000' : '#E5E7EB'"></box-icon>
-              <span>Back to Projects</span>
+              <span>Back</span>
             </a>
-            <h1 class="text-xl font-semibold text-white dark:text-black">{{ project.name }}</h1>
+            <h1 class="text-lg sm:text-xl font-semibold text-white dark:text-black">{{ project.name }}</h1>
           </div>
           <div class="flex items-center space-x-4">
             <StandardButton v-if="isProjectLeader && isUserInProject" @click="openCreateTaskModal">+ Create Task
@@ -365,45 +353,45 @@ const series = computed(() => chartData.value.map(item => item.count));
         </div>
       </div>
 
-      <div class="bg-gray-950 dark:bg-white dark:bg-none dark:border-gray-400 px-6 py-2 border-b border-gray-700">
-        <div class="flex space-x-6">
+      <div class="bg-gray-950 dark:bg-white dark:bg-none dark:border-gray-400 px-3 sm:px-6 py-2 border-b border-gray-700 overflow-x-auto">
+        <div class="flex space-x-3 sm:space-x-6">
           <button v-for="tab in ['Overview', 'Tasks', 'Documentation']" :key="tab"
             v-show="tab !== 'Tasks' || isUserInProject" @click="activeTab = tab.toLowerCase()" :class="[
-              'px-4 py-2 text-sm cursor-pointer font-medium rounded-md transition-colors',
+              'px-2 sm:px-4 py-2 text-xs sm:text-sm cursor-pointer font-medium rounded-md transition-colors whitespace-nowrap',
               activeTab === tab.toLowerCase()
                 ? 'bg-blue-500 text-white'
                 : 'text-gray-400 hover:text-white dark:text-gray-700 dark:hover:text-black'
             ]">
             {{ tab }}
           </button>
-
         </div>
       </div>
 
       <!-- Main Content -->
-      <div class="flex min-h-[80vh]">
+      <div class="flex flex-col lg:flex-row min-h-[80vh]">
         <!-- Left Panel -->
-        <div class="flex-1 p-6 overflow-auto">
-          <div v-if="activeTab === 'tasks' && isUserInProject" class="grid grid-cols-4 gap-6 ">
+        <div class="w-full lg:flex-1 p-3 sm:p-6 overflow-auto">
+          <div v-if="activeTab === 'tasks' && isUserInProject" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             <!-- Task Columns -->
             <TaskList ref="taskContainer" :projectId="project.id" :tasksByStatus="tasksByStatus" />
           </div>
 
-          <div v-if="activeTab === 'overview'" class="grid grid-cols-3  gap-6">
+          <div v-if="activeTab === 'overview'" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             <!-- Project Details -->
             <div
-              class="col-span-2 bg-gray-950 dark:bg-white dark:border-none dark:shadow-xl rounded-lg overflow-hidden border border-gray-700">
-              <div class="border-b border-gray-700 px-6 py-4 flex justify-between items-center">
-                <h2 class="text-2xl font-semibold text-white dark:text-black">Project Details</h2>
-                <StandardButton v-if="isProjectLeader && isUserInProject" @click="openEditProjectModal" size="sm"
-                  class="">Edit Project</StandardButton>
+              class="col-span-1 md:col-span-2 bg-gray-950 dark:bg-white dark:border-none dark:shadow-xl rounded-lg overflow-hidden border border-gray-700">
+              <div class="border-b border-gray-700 px-4 sm:px-6 py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                <h2 class="text-xl sm:text-2xl font-semibold text-white dark:text-black">Project Details</h2>
+                <StandardButton v-if="isProjectLeader && isUserInProject" @click="openEditProjectModal" size="sm">
+                  Edit Project
+                </StandardButton>
               </div>
-              <div class="p-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div class="p-4 sm:p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                   <div class="bg-gray-900 dark:bg-gray-100 dark:shadow-xl rounded-lg p-4 flex flex-col justify-between">
                     <div class="flex flex-col">
                       <span class="text-sm font-medium text-gray-400 dark:text-gray-700">Status</span>
-                      <StatusBadge :status="project.status" class="mt-2  w-fit" />
+                      <StatusBadge :status="project.status" class="mt-2 w-fit" />
                     </div>
                     <div class="mt-4">
                       <span class="text-sm font-medium text-gray-400 dark:text-gray-700">Priority</span>
@@ -437,7 +425,7 @@ const series = computed(() => chartData.value.map(item => item.count));
                   </div>
 
                   <div
-                    class="bg-gray-900 dark:bg-gray-100 dark:border-none dark:shadow-xl rounded-lg p-4 col-span-2 flex justify-between">
+                    class="bg-gray-900 dark:bg-gray-100 dark:border-none dark:shadow-xl rounded-lg p-4 col-span-1 md:col-span-2 flex flex-col sm:flex-row justify-between gap-4">
                     <div>
                       <span class="text-sm font-medium text-gray-400 dark:text-gray-700">Total Tasks</span>
                       <div class="flex items-center mt-1">
@@ -457,13 +445,13 @@ const series = computed(() => chartData.value.map(item => item.count));
                       <span class="text-sm font-medium text-gray-400 dark:text-gray-700">Team Members</span>
                       <div class="flex items-center mt-1">
                         <box-icon name='group' :color="checkDarkMode() ? '#000000' : '#9CA3AF'" class="mr-2"></box-icon>
-                        <span class="text-lg text-white dark:text-black  font-light">{{ employees.length }}</span>
+                        <span class="text-lg text-white dark:text-black font-light">{{ employees.length }}</span>
                       </div>
                     </div>
                   </div>
                 </div>
                 <div class="mt-6 bg-gray-900 dark:bg-gray-100 dark:shadow-xl rounded-lg p-4">
-                  <span class="text-sm font-medium text-gray-400 dark:text-gray-700 ">Description</span>
+                  <span class="text-sm font-medium text-gray-400 dark:text-gray-700">Description</span>
                   <p class="text-white dark:text-black text-lg leading-relaxed mt-2 break-words">
                     {{ project.description }}
                   </p>
@@ -474,78 +462,64 @@ const series = computed(() => chartData.value.map(item => item.count));
             <!-- Hours Chart -->
             <div
               class="col-span-1 bg-gray-950 dark:bg-white dark:border-none dark:shadow-xl rounded-lg overflow-hidden border border-gray-700">
-              <div class="border-b border-gray-700 px-6 py-4">
+              <div class="border-b border-gray-700 px-4 sm:px-6 py-4">
                 <h2 class="text-xl font-bold text-white dark:text-black">Tasks Overview</h2>
               </div>
-              <div class="p-6">
+              <div class="p-4 sm:p-6">
                 <VueApexCharts type="donut" height="350" :options="chartOptions" :series="series" />
               </div>
             </div>
 
-
             <div v-if="isUserInProject"
-              class="col-span-3 bg-gray-950 dark:bg-white dark:border-none dark:shadow-xl rounded-lg overflow-hidden border border-gray-700 ">
-              <div class="border-b border-gray-700 px-6 py-4">
-                <h2 class="text-2xl font-semibold text-white dark:text-black">Your Tasks</h2>
+              class="col-span-1 md:col-span-2 lg:col-span-3 bg-gray-950 dark:bg-white dark:border-none dark:shadow-xl rounded-lg overflow-hidden border border-gray-700">
+              <div class="border-b border-gray-700 px-4 sm:px-6 py-4">
+                <h2 class="text-xl sm:text-2xl font-semibold text-white dark:text-black">Your Tasks</h2>
               </div>
-              <div class="">
-                <div class="bg-gray-900 dark:bg-gray-200 overflow-hidden">
-                  <table class="w-full">
+              <div class="overflow-x-auto">
+                <div class="bg-gray-900 dark:bg-gray-200">
+                  <table class="w-full min-w-[800px]">
                     <thead>
                       <tr class="bg-gray-800 dark:bg-gray-200 text-left">
-                        <th class="p-4 font-semibold text-gray-400 dark:text-gray-600">Task Name</th>
-                        <th class="p-4 font-semibold text-gray-400 dark:text-gray-600">Description</th>
-                        <th class="p-4 font-semibold text-gray-400 dark:text-gray-600">Priority</th>
-                        <th class="p-4 font-semibold text-gray-400 dark:text-gray-600 w-30">Start Date</th>
-                        <th class="p-4 font-semibold text-gray-400 dark:text-gray-600 w-30">End Date</th>
-                        <th class="p-4 font-semibold text-gray-400 dark:text-gray-600">Completed Hours</th>
-                        <th class="p-4 font-semibold text-gray-400 dark:text-gray-600 w-30">Status</th>
+                        <th class="p-3 sm:p-4 font-semibold text-gray-400 dark:text-gray-600">Task Name</th>
+                        <th class="p-3 sm:p-4 font-semibold text-gray-400 dark:text-gray-600">Description</th>
+                        <th class="p-3 sm:p-4 font-semibold text-gray-400 dark:text-gray-600">Priority</th>
+                        <th class="p-3 sm:p-4 font-semibold text-gray-400 dark:text-gray-600 w-30">Start Date</th>
+                        <th class="p-3 sm:p-4 font-semibold text-gray-400 dark:text-gray-600 w-30">End Date</th>
+                        <th class="p-3 sm:p-4 font-semibold text-gray-400 dark:text-gray-600">Completed Hours</th>
+                        <th class="p-3 sm:p-4 font-semibold text-gray-400 dark:text-gray-600 w-30">Status</th>
                       </tr>
                     </thead>
                     <tbody>
-
                       <!-- Si no hay tareas pendientes -->
                       <tr v-if="tasks.length === 0" class="bg-gray-950 dark:bg-white">
                         <td colspan="7" class="p-4 text-center text-gray-400">There are no pending tasks</td>
                       </tr>
-
 
                       <tr v-for="(task, index) in tasks" :key="task.id"
                         @click="router.get(`/projects/${project.id}/task/${task.id}`)" :class="{
                           'bg-gray-950 hover:bg-gray-900 dark:bg-white dark:hover:bg-gray-100 transition duration-300 cursor-pointer': true,
                           'border-b border-gray-700': index !== tasks.length - 1
                         }">
-                        <td class="p-4 text-white dark:text-black">{{ task.name }}</td>
-                        <td class="p-4 text-gray-400 dark:text-gray-500">{{ task.description }}</td>
-
-                        <!-- Aquí envuelves el contenido en un <td> -->
-                        <td class="p-4">
+                        <td class="p-3 sm:p-4 text-white dark:text-black">{{ task.name }}</td>
+                        <td class="p-3 sm:p-4 text-gray-400 dark:text-gray-500">{{ task.description }}</td>
+                        <td class="p-3 sm:p-4">
                           <div class="flex justify-center items-center">
                             <div :class="`w-3 h-3 flex flex-row rounded-full ${getPriorityColor(task.priority)} mr-2`">
                             </div>
-                            <span class="text-lg text-white dark:text-black font-light">{{ getPriorityLabel(task.priority) }}</span>
+                            <span class="text-sm sm:text-lg text-white dark:text-black font-light">{{ getPriorityLabel(task.priority) }}</span>
                           </div>
                         </td>
-
-                        <td class="p-4 text-gray-400 dark:text-gray-500">{{ task.start_date }}</td>
-                        <td class="p-4 text-gray-400 dark:text-gray-500">{{ task.end_date }}</td>
-                        <td class="p-4 text-gray-400 dark:text-gray-500">{{ task.completed_hours || 0 }} h</td>
-                        <td class="p-4 text-gray-400 dark:text-gray-500">
+                        <td class="p-3 sm:p-4 text-gray-400 dark:text-gray-500">{{ task.start_date }}</td>
+                        <td class="p-3 sm:p-4 text-gray-400 dark:text-gray-500">{{ task.end_date }}</td>
+                        <td class="p-3 sm:p-4 text-gray-400 dark:text-gray-500">{{ task.completed_hours || 0 }} h</td>
+                        <td class="p-3 sm:p-4 text-gray-400 dark:text-gray-500">
                           <StatusBadge :status="task.status || {}" />
                         </td>
-
                       </tr>
-
-
-
-
-
                     </tbody>
                   </table>
                 </div>
               </div>
-
-
             </div>
           </div>
 
@@ -556,9 +530,9 @@ const series = computed(() => chartData.value.map(item => item.count));
           </div>
         </div>
 
-        <!-- Right Sidebar -->
-        <div class="w-[20%] bg-gray-950 dark:bg-white dark:border-gray-500 right-0 border-l border-gray-700 overflow-y-auto">
-          <div class="p-6 space-y-8">
+        <!-- Right Sidebar - Becomes bottom section on mobile -->
+        <div class="w-full lg:w-[300px] xl:w-[350px] bg-gray-950 dark:bg-white dark:border-gray-500 border-t lg:border-t-0 lg:border-l border-gray-700 overflow-y-auto">
+          <div class="p-4 sm:p-6 space-y-6 sm:space-y-8">
             <div>
               <h3 class="text-lg font-semibold text-white dark:text-black mb-4">Project Progress</h3>
               <div class="bg-gray-700 dark:bg-gray-300 h-2 rounded-full">
@@ -597,33 +571,25 @@ const series = computed(() => chartData.value.map(item => item.count));
                   <InputWithIcon icon="search" v-model="searchQuery" placeholder="Search members..." class="h-10 w-full"
                     type="text" />
                 </div>
-                <div class="overflow-y-auto max-h-70 scrollbar">
+                <div class="overflow-y-auto max-h-[200px] lg:max-h-[300px] scrollbar">
                   <div v-for="employee in employees" :key="employee.id"
                     class="flex cursor-pointer items-center justify-between p-2 hover:bg-gray-700 dark:hover:bg-gray-100 rounded-lg transition-colors group">
-
                     <div class="flex items-center space-x-3">
-                      <div class="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center text-white ">
+                      <div class="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center text-white">
                         {{ employee.name.charAt(0) }}
                       </div>
                       <span class="text-white dark:text-black">{{ employee.name }}</span>
                     </div>
-
                     <div class="flex items-center space-x-3">
-
-
                       <button @click="openDeleteMemberModal(employee)"
-                        class=" text-red-500 cursor-pointer opacity-0 group-hover:opacity-100 mt-1 transition-opacity duration-300">
+                        class="text-red-500 cursor-pointer opacity-0 group-hover:opacity-100 mt-1 transition-opacity duration-300">
                         <box-icon name='x' color='#ff0000' class="hover:text-red-700"></box-icon>
                       </button>
                     </div>
                   </div>
                 </div>
-
               </div>
             </div>
-
-
-
           </div>
         </div>
       </div>
@@ -636,6 +602,5 @@ const series = computed(() => chartData.value.map(item => item.count));
       :departmentHead="departmentHead" @close="closeEditProjectModal" />
     <DeleteMemberModal :is-open="isDeleteMemberModalOpen" :memberToDelete="memberToDelete" :project="project"
       @close="closeDeleteMemberModal" />
-
   </Layout>
 </template>

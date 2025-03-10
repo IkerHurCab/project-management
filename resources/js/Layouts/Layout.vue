@@ -4,8 +4,8 @@
       <Sidebar v-if="sidebar" />
     </aside>
 
-    <div class="flex flex-col flex-grow overflow-hidden">
-      <header :class="[header ? 'h-16' : 'h-0', 'transition-all duration-300 ease-in-out']">
+    <div class="flex flex-col flex-grow overflow-x-auto">
+      <header :class="[header ? 'h-16' : 'h-0', 'transition-all duration-300 ease-in-out ml-6 sm:ml-0']">
         <Header v-if="header" :page="pageTitle" />
       </header>
 

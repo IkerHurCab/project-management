@@ -33,7 +33,8 @@
     
     <template>
       <div v-if="isOpen" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
-        <div class="bg-gray-950 dark:bg-white rounded-lg w-full max-w-md h-auto border border-gray-700 shadow-lg">
+        <div class="bg-gray-950 dark:bg-white rounded-lg w-full max-w-lg sm:max-w-xs md:max-w-md lg:max-w-lg h-auto border border-gray-700 shadow-lg 
+        max-h-[90vh] overflow-y-auto">
           <div class="border-b border-gray-700 dark:bg-gray-100 px-6 py-4 flex justify-between items-center bg-gray-950 rounded-t-lg">
             <h2 class="text-2xl font-semibold text-white dark:text-black">Add Attachment</h2>
             <button @click="emit('close')" class="text-gray-400 dark:text-gray-700 dark:hover:text-black cursor-pointer hover:text-white transition-colors">

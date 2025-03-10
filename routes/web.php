@@ -84,6 +84,8 @@ Route::group(['middleware' => 'auth'], function () {
 
     Route::post('/departments/{id}/addUser', [DepartmentController::class, 'addUser'])
     ->middleware(CheckDepartmentAccess::class);
+    Route::post('/departments/{department}/removeUser', [DepartmentController::class, 'kickMember'])
+    ->name('departments.kickMember');
 
     
   

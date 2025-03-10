@@ -63,7 +63,7 @@ watch(() => props.notifications, (newNotifications) => {
 
 <template>
   <div v-if="isOpen"
-    class="absolute dark:border-none right-0 top-12 mt-2 bg-gray-900 dark:bg-white dark:shadow-xl text-white dark:text-black rounded-lg shadow-lg w-80 z-20 border border-gray-700 overflow-hidden">
+    class="absolute max-h-[55vh] h-fit overflow-y-auto dark:border-none right-0 top-12 mt-2 bg-gray-900 dark:bg-white dark:shadow-xl text-white dark:text-black rounded-lg shadow-lg w-80 z-20 border border-gray-700">
     <div class="flex items-center justify-between p-3 border-b border-gray-700">
       <h3 class="font-bold text-sm">Notifications</h3>
       <div v-if="props.notifications.length > 0" class="flex items-center gap-2">

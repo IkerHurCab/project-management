@@ -168,7 +168,7 @@ const handleKeydown = (e) => {
 <template>
   <div v-if="isOpen" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
     <div
-      class="bg-gray-950 dark:bg-white dark:border-none dark:shadow-xl rounded-lg w-full max-w-6xl h-auto border border-gray-700 shadow-lg">
+      class="bg-gray-950 max-h-[90vh] overflow-y-auto dark:bg-white dark:border-none dark:shadow-xl rounded-lg w-full max-w-6xl h-auto border border-gray-700 shadow-lg">
       <div
         class="border-b border-gray-700 dark:bg-gray-100 px-6 py-4 flex justify-between items-center bg-gray-950 rounded-t-lg">
         <h2 class="text-2xl font-semibold text-white dark:text-black">Edit Project</h2>
