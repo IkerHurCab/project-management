@@ -97,7 +97,7 @@ const bottomLineStyle = createLineStyle(activeBottomIndex);
 </script>
 
 <template>
-  <div class="fixed top-0 left-0 h-full w-16 flex flex-col justify-between py-4 bg-black dark:bg-white text-white dark:text-gray-300 z-10">
+  <div class="fixed top-0 left-0 h-full w-16 flex flex-col justify-between py-4 bg-black dark:bg-white text-white dark:text-gray-300 z-10 overflow-y-auto">
     <!-- Logo de la organización -->
     <div class="flex justify-center cursor-pointer" @click="isPopupOpen = true">
       <template v-if="currentOrganization?.organization_logo">
