@@ -35,7 +35,7 @@ const logoPreviewModal = ref(false);
 <template>
     <Layout pageTitle="Home">
         <template v-if="currentOrganization">
-            <div class="bg-gray-900 rounded-2xl max-w-[1000px] mx-auto pb-4">
+            <div class="bg-gray-900 dark:bg-white dark:shadow-xl rounded-2xl max-w-[1000px] mx-auto pb-4">
                 <!-- Banner container con aspect ratio fijo -->
                 <div class="relative w-full" style="aspect-ratio: 1000/300;">
                     <img v-if="currentOrganization.organization_banner"
@@ -76,11 +76,11 @@ const logoPreviewModal = ref(false);
                     <p class="text-base sm:text-lg mt-3">{{ currentOrganization.description }}</p>
 
                     <!-- Departments section -->
-                    <div class="bg-gray-800 rounded-lg p-2 mt-4">
+                    <div class="bg-gray-800 rounded-lg p-2 mt-4 dark:bg-gray-200">
                         <h2 class="text-2xl sm:text-2xl font-bold border-b-2 border-gray-600 p-2">Organization departments</h2>
                         <div v-if="organization_departments.length > 0">
                             <div v-for="department in organization_departments" :key="department.id"
-                                :class="isUserInDepartment(department.id) ? 'bg-gray-900 hover:bg-gray-700 cursor-pointer' : 'bg-gray-700 opacity-50 cursor-not-allowed'"
+                                :class="isUserInDepartment(department.id) ? 'bg-gray-900 hover:bg-gray-700 cursor-pointer dark:bg-gray-300 dark:hover:bg-gray-400' : 'dark:bg-gray-500 dark:hover:bg-gray-600 bg-gray-700 opacity-50 cursor-not-allowed'"
                                 class="mt-2 p-2 transition duration-300" @click="handleDepartmentClick(department.id)">
                                 <h3 class="text-lg sm:text-xl">{{ department.name }}</h3>
                             </div>
@@ -100,18 +100,18 @@ const logoPreviewModal = ref(false);
     <transition name="fade">
         <div v-if="logoPreviewModal" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50"
             @click.self="logoPreviewModal = false">
-            <div class="relative bg-gray-900 p-6 rounded-lg shadow-lg max-w-3xl">
+            <div class="relative bg-gray-900 p-6 rounded-lg shadow-lg max-w-3xl dark:bg-gray-300">
                 <h1 class="font-bold text-xl">{{ currentOrganization.name }}</h1>
 
                 <button @click="logoPreviewModal = false"
-                    class="absolute text-xl top-2 right-2 text-white hover:text-gray-300 transition duration-300 cursor-pointer">
+                    class="absolute text-xl top-2 right-2 text-white hover:text-gray-300 dark:text-black dark:hover:text-gray-700 transition duration-300 cursor-pointer">
                     &times;
                 </button>
                 <img v-if="currentOrganization.organization_logo"
                     :src="`/storage/${currentOrganization.organization_logo}`" alt="Org Logo"
                     class="mt-3 mx-auto rounded-lg" />
 
-                <div v-else class="mt-3 text-7xl rounded-lg bg-gray-800 flex items-center justify-center min-w-[250px] min-h-[250px]">
+                <div v-else class="mt-3 text-7xl rounded-lg bg-gray-800 text-white flex items-center justify-center min-w-[250px] min-h-[250px]">
                     {{ organizationInitials }}
                 </div>
             </div>

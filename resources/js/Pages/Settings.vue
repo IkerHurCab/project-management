@@ -29,7 +29,6 @@ const toggleDarkMode = () => {
         document.documentElement.classList.remove('dark');
     }
 
-    console.log("Nuevo theme:", localStorage.getItem('theme'));
 };
 
 onMounted(() => {
@@ -166,8 +165,8 @@ const handle2FAButtonClick = () => {
 </script>
 
 <template>
-    <Layout pageTitle="Settings">
-        <div class="bg-gray-950 dark:bg-gray-200 rounded-lg h-full border border-gray-500">
+    <Layout pageTitle="Settings" class="transition duration-200">
+        <div class="bg-gray-950 dark:bg-gray-200 rounded-lg h-full border border-gray-500 ml-6 transition duration-200">
 
             <h1 class="border-b border-gray-500 p-2 rounded-t-lg dark:text-gray-500">ACCOUNT</h1>
             <p class="px-4 mt-4">Manage your account information.</p>
@@ -194,7 +193,7 @@ const handle2FAButtonClick = () => {
                     <InputWithIcon icon="envelope" :placeholder="user.email" v-model="email" class="w-full" type="email" required />
                     <p v-if="updateErrors.email" class="text-red-500 text-sm mt-1">{{ updateErrors.email }}</p>
                 </div>
-                <div class="grid grid-cols-2 gap-2 w-2/3">
+                <div class="grid grid-cols-2 gap-2 ">
                     <button 
                         @click="updateUserInfo" 
                         :disabled="isUpdating"

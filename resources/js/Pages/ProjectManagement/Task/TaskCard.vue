@@ -48,13 +48,13 @@
 
 <template>
   <div
-    class="bg-gray-800 p-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 cursor-move border border-gray-700 hover:border-gray-600"
+    class="bg-gray-800 dark:bg-gray-200 dark:border-none dark:shadow-xl p-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 cursor-move border border-gray-700 hover:border-gray-600"
   >
     <div class="flex justify-between items-start mb-3">
-      <h3 class="text-white font-medium text-lg">{{ task.name }}</h3>
+      <h3 class="text-white dark:text-black font-medium text-lg">{{ task.name }}</h3>
     
     </div>
-    <p class="text-gray-300 text-sm mb-4 line-clamp-2">{{ task.description }}</p>
+    <p class="text-gray-300 dark:text-gray-700 text-sm mb-4 line-clamp-2">{{ task.description }}</p>
     <div class="flex justify-between items-center">
       <div class="flex items-center space-x-3">
         <div

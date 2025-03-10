@@ -6,6 +6,12 @@ import { toast } from 'vue3-toastify';
 import { ref } from 'vue';
 import { usePage } from '@inertiajs/vue3';
 import { router } from '@inertiajs/vue3';
+const isDarkMode = ref(false);
+
+function checkDarkMode() {
+    isDarkMode.value = document.documentElement.classList.contains('dark');
+    return isDarkMode.value;
+}
 
 const user_departments = ref(usePage().props.user_departments);
 const other_departments = ref(usePage().props.other_departments);
@@ -49,7 +55,7 @@ function searchMyDepartments(event) {
             preserveState: true,
             preserveScroll: true,
             onSuccess: (page) => {
-                
+
                 user_departments.value = page.props.user_departments;
             }
         });
@@ -83,21 +89,20 @@ const isPopupVisible = ref(false);
 </script>
 
 <template>
-    <Layout pageTitle="Departments" class="">
-        <div class="px-8">
-        <h1 class="text-2xl">Your departments</h1>
+    <Layout pageTitle="Departments">
+        <h1 class="text-2xl mt-5">Your departments</h1>
         <div class="flex justify-between items-center mt-2">
             <InputWithIcon icon="search" placeholder="Search departments" @input.stop="searchMyDepartments"
                 class="focus:border-white" />
             <div class="flex gap-2">
-                <h1 class="bg-white text-black py-2 px-4 rounded-lg mb-2 cursor-pointer transition duration-300"
+                <h1 class="bg-white text-black dark:bg-blue-500 dark:hover:bg-blue-600 dark:text-white py-2 px-4 rounded-lg mb-2 cursor-pointer transition duration-300"
                     @click="modalCreateDepartment = true">Create department</h1>
             </div>
         </div>
 
-        <div class="overflow-x-auto rounded-lg mt-4">
+        <div class="overflow-x-auto rounded-lg mt-4 border dark:border-none dark:shadow-xl">
             <table class="w-full">
-                <thead class="bg-gray-800 text-gray-400 font-normal">
+                <thead class="bg-gray-800 dark:bg-gray-200 dark:text-gray-700 text-gray-400 font-normal">
                     <tr>
                         <th class="p-4 text-left">Department Name</th>
                         <th class="p-4 text-left">Description</th>
@@ -106,12 +111,12 @@ const isPopupVisible = ref(false);
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-if="user_departments.length === 0" class="border-b border-gray-900 bg-gray-950">
-                        <td class="p-4" colspan="4">No departments found.</td>
+                    <tr v-if="user_departments.length === 0" class="border-gray-900 bg-gray-950 dark:bg-white">
+                        <td class="p-4 text-center" colspan="4">No departments found.</td>
                     </tr>
                     <tr v-else v-for="department in user_departments" :key="department.id"
                         @click="singleDepartment(department.id)"
-                        class="hover:bg-gray-900 transition duration-300 hover:cursor-pointer border-b border-gray-900 bg-gray-950">
+                        class="hover:bg-gray-900 dark:bg-white dark:hover:bg-gray-100  transition duration-300 hover:cursor-pointer border-b border-gray-900 dark:border-gray-200 bg-gray-950">
                         <td class="p-4">{{ department.name }}</td>
                         <td class="p-4">{{ department.description }}</td>
                         <td class="p-4">{{ department.users_count }}</td>
@@ -127,9 +132,9 @@ const isPopupVisible = ref(false);
             <InputWithIcon icon="search" placeholder="Search departments" @input.stop="searchOtherDepartments"
                 class="focus:border-white focus:ring-white" />
         </div>
-        <div class="overflow-x-auto rounded-lg mt-4">
+        <div class="overflow-x-auto rounded-lg dark:border-none dark:shadow-xl mt-4">
             <table class="w-full">
-                <thead class="bg-gray-800 text-gray-400 font-normal">
+                <thead class="bg-gray-800 text-gray-400 dark:bg-gray-200 dark:text-gray-700 font-normal">
                     <tr>
                         <th class="p-4 text-left">Department Name</th>
                         <th class="p-4 text-left">Description</th>
@@ -138,12 +143,12 @@ const isPopupVisible = ref(false);
                     </tr>
                 </thead>
                 <tbody class="bg-gray-950 ">
-                    <tr v-if="other_departments.length === 0" class="border-b border-gray-900 bg-gray-950">
-                        <td class="p-4" colspan="4">No departments found.</td>
+                    <tr v-if="other_departments.length === 0" class="dark:bg-white bg-gray-950">
+                        <td class="p-4 text-center" colspan="4">No departments found.</td>
                     </tr>
                     <tr v-else v-for="department in other_departments" :key="department.id"
                         @click="isPopupVisible = true"
-                        class="hover:bg-gray-900 transition duration-300 hover:cursor-pointer border-b border-gray-900">
+                        class="hover:bg-gray-900 dark:bg-white dark:hover:bg-gray-100 transition duration-300 hover:cursor-pointer border-b border-gray-900">
                         <td class="p-4">{{ department.name }}</td>
                         <td class="p-4">{{ department.description }}</td>
                         <td class="p-4">{{ department.users_count }}</td>
@@ -157,7 +162,7 @@ const isPopupVisible = ref(false);
 
         <div v-if="isPopupVisible">
             <div class="fixed inset-0 flex items-center justify-center bg-black/50" @click="isPopupVisible = false">
-                <div class="bg-gray-800 p-8 rounded-lg shadow-lg w-1/3">
+                <div class="bg-gray-800 p-8 rounded-lg shadow-lg w-1/3 dark:bg-white">
                     <h2 class="text-xl font-bold mb-4">Access Denied</h2>
                     <p class="mb-4">You do not have access to this department.</p>
                     <div class="grid grid-cols-2 gap-4">
@@ -175,25 +180,29 @@ const isPopupVisible = ref(false);
             <div v-if="modalCreateDepartment"
                 class="fixed inset-0 flex items-center justify-center bg-black/50 transition duration-300"
                 @click.stop="modalCreateDepartment = false" @esc.ctrl="modalCreateDepartment = false">
-                <div class="bg-gray-800 p-8 rounded-lg shadow-lg w-1/3" @click.stop="modalCreateDepartment = true">
+                <div class="bg-gray-800 dark:bg-white p-8 rounded-lg shadow-lg w-1/3"
+                    @click.stop="modalCreateDepartment = true">
                     <h2 class="text-xl font-bold mb-4">Create Department</h2>
                     <p class="mb-4">Fill in the details to create a new department.</p>
                     <div class="mb-4">
-                        <label for="name" class="block text-sm font-medium text-gray-300">Name</label>
+                        <label for="name"
+                            class="block text-sm font-medium text-gray-300 dark:text-gray-700">Name</label>
                         <input v-model="newDepartmentName" id="name" type="text" placeholder="Department name"
-                            class="mt-1 p-1 block w-full rounded-md border-gray-700 bg-gray-700 text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
+                            class="mt-1 p-1 block w-full rounded-md border-gray-700 border dark:bg-gray-100 dark:text-black bg-gray-700 text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
                     </div>
                     <div class="mb-4">
-                        <label for="description" class="block text-sm font-medium text-gray-300">Description</label>
+                        <label for="description"
+                            class="block text-sm font-medium text-gray-300 dark:text-gray-700">Description</label>
                         <textarea v-model="newDepartmentDescription" id="description" rows="3"
                             placeholder="Department description"
-                            class="mt-1 p-1 block w-full rounded-md border-gray-700 bg-gray-700 text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500"></textarea>
+                            class="mt-1 p-1 block w-full rounded-md border border-gray-700 bg-gray-700 dark:bg-gray-100 dark:text-black text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500"></textarea>
                     </div>
                     <div class="mb-4">
-                        <label for="department_head" class="block text-sm font-medium text-gray-300">Department
+                        <label for="department_head"
+                            class="block text-sm font-medium text-gray-300 dark:text-gray-700">Department
                             Head</label>
                         <select v-model="departmentHead" id="department_head"
-                            class="mt-1 p-1 block w-full rounded-md border-gray-700 bg-gray-700 text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                            class="mt-1 p-1 block w-full dark:bg-gray-100 border dark:text-black rounded-md border-gray-700 bg-gray-700 text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                             <option disabled value="">Select a department head</option>
                             <option v-for="user in users" :key="user.id" :value="user.id">{{ user.name }}</option>
                         </select>
@@ -207,6 +216,5 @@ const isPopupVisible = ref(false);
                 </div>
             </div>
         </div>
-    </div>
     </Layout>
 </template>

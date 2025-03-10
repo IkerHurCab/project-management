@@ -38,7 +38,7 @@ export default {
     <div class="min-h-screen w-full flex">
         <div class="relative hidden md:flex w-2/3 min-h-screen text-black items-center justify-center">
             <img class="absolute top-0 left-0 w-full h-full object-cover"
-                :src="'https://static.vecteezy.com/system/resources/previews/015/450/233/non_2x/tropical-leaves-black-background-elegant-hand-drawn-natural-botanical-leaves-with-faded-background-design-illustration-for-decoration-wall-decor-wallpaper-cover-banner-poster-card-vector.jpg'">
+                :src="'/storage/images/fondo.jpg'">
         </div>
         <div class="w-full md:w-1/3 bg-gray-950 border-l border-gray-600 min-h-screen flex items-center justify-center">
             <form @submit.prevent="login" class="space-y-6 w-full max-w-md flex flex-col items-center p-8">

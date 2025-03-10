@@ -27,6 +27,14 @@
 });
 
 
+const isDarkMode = ref(false);
+
+function checkDarkMode() {
+    isDarkMode.value = document.documentElement.classList.contains('dark');
+    return isDarkMode.value;
+}
+
+
 
 const formattedNotifications = computed(() => {
   return notifications.value.map(notification => {
@@ -117,17 +125,17 @@ const formattedNotifications = computed(() => {
   </script>
   
   <template>
-    <header class="flex border-b border-gray-800 items-center justify-between py-3 px-6 bg-black w-full">
-      <h1 class="text-2xl mx-5 font-bold text-white">{{ props.page }}</h1>
+    <header class="flex shadow-xl dark:bg-white items-center justify-between py-3 px-6 bg-black w-full">
+      <h1 class="text-2xl mx-5 font-bold text-white dark:text-black">{{ props.page }}</h1>
   
       <div class="flex items-center gap-5 mx-5">
         <!-- Notification Bell -->
         <div class="relative group">
           <button
             @click="changeNotificationsModal"
-            class="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-gray-800 transition-colors duration-200 cursor-pointer"
+            class="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors duration-200 cursor-pointer"
           >
-            <box-icon name="bell" color="white"></box-icon>
+            <box-icon name="bell" :color="checkDarkMode() ? 'black' : 'white'"></box-icon>
             <div v-if="hasNewNotification" class="absolute top-0 right-0 w-3 h-3 bg-red-500 rounded-full"></div>
           </button>
           <NotificationsModal :notifications="formattedNotifications" :is-open="isNotificationsModalOpen" @close="closeNotificationsModal" />
@@ -136,9 +144,9 @@ const formattedNotifications = computed(() => {
         <!-- User Avatar with Status -->
         <div
           @click="togglePopup"
-          class="relative w-10 h-10 flex items-center justify-center rounded-lg hover:bg-gray-800 transition-colors duration-200 cursor-pointer"
+          class="relative w-10 h-10 flex items-center justify-center rounded-lg hover:bg-gray-800 dark:hover:bg-gray-200 transition-colors duration-200 cursor-pointer"
         >
-          <box-icon name="user" color="white"></box-icon>
+          <box-icon name="user" :color="checkDarkMode() ? 'black' : 'white'"></box-icon>
           <div
             class="absolute w-3 h-3 rounded-full border-2 border-black right-0 bottom-0"
             :class="statusColor"
@@ -147,27 +155,27 @@ const formattedNotifications = computed(() => {
   
         <div
           v-if="isPopupVisible"
-          class="absolute right-4 top-16 mt-2 bg-gray-900 text-white rounded-lg shadow-lg p-2 w-64 z-10 border border-gray-700"
+          class="absolute right-4 top-16 mt-2 bg-gray-900 dark:bg-white dark:border-none dark:shadow-xl rounded-lg shadow-lg p-2 w-64 z-10 border border-gray-700"
         >
-          <h3 class="font-bold p-2 text-sm">Estado</h3>
+          <h3 class="font-bold p-2 text-sm">Status</h3>
           <ul class="space-y-1">
             <li
               @click="changeStatus('online')"
-              class="flex items-center gap-3 cursor-pointer hover:bg-gray-700 p-2 rounded-lg transition duration-200"
+              class="flex items-center gap-3 cursor-pointer hover:bg-gray-700 dark:hover:bg-gray-200 p-2 rounded-lg transition duration-200"
             >
               <div class="bg-green-500 w-3 h-3 rounded-full"></div>
-              <span class="text-sm">Conectado</span>
+              <span class="text-sm">Online</span>
             </li>
             <li
               @click="changeStatus('away')"
-              class="flex items-center gap-3 cursor-pointer hover:bg-gray-700 p-2 rounded-lg transition duration-200"
+              class="flex items-center gap-3 cursor-pointer hover:bg-gray-700 dark:hover:bg-gray-200 p-2 rounded-lg transition duration-200"
             >
               <div class="bg-yellow-500 w-3 h-3 rounded-full"></div>
-              <span class="text-sm">Ausente</span>
+              <span class="text-sm">Away</span>
             </li>
             <li
               @click="changeStatus('offline')"
-              class="flex items-center gap-3 cursor-pointer hover:bg-gray-700 p-2 rounded-lg transition duration-200"
+              class="flex items-center gap-3 cursor-pointer hover:bg-gray-700 dark:hover:bg-gray-200 p-2 rounded-lg transition duration-200"
             >
               <div class="bg-gray-500 w-3 h-3 rounded-full"></div>
               <span class="text-sm">Invisible</span>

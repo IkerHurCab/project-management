@@ -31,6 +31,13 @@ const props = defineProps({
     totalUsers: Number
 });
 
+const isDarkMode = ref(false);
+
+function checkDarkMode() {
+    isDarkMode.value = document.documentElement.classList.contains('dark');
+    return isDarkMode.value;
+}
+
 const filteredUsers = ref(props.users);
 const filteredAvailableUsers = ref(props.filteredAvailableUsers);
 const pagination = ref(props.pagination);
@@ -144,15 +151,15 @@ const modalKickMember = ref(false);
 </script>
 
 <template>
-    <Layout :pageTitle="department.name" class="px-8">
+    <Layout :pageTitle="department.name">
         <div class="flex justify-end items-center mt-2">
             <div class="flex gap-2">
-                <h1 class="bg-white text-black py-2 px-4 rounded-lg mb-2 cursor-pointer transition duration-300 hover:bg-gray-300"
+                <h1 class="bg-white dark:bg-black dark:text-white dark:hover:bg-gray-800 text-black py-2 px-4 rounded-lg mb-2 cursor-pointer transition duration-300 hover:bg-gray-300"
                     @click="modalAddMember = true">Add member</h1>
             </div>
         </div>
         <div class="grid grid-cols-3 grid-rows-2 gap-4">
-            <div class="col-span-2 rounded-2xl bg-gray-900 p-4 row-span-1">
+            <div class="col-span-2 rounded-2xl bg-gray-900 dark:bg-white dark:shadow-xl p-4 row-span-1">
                 <h1 class="text-lg">{{ department.description }}</h1>
                 <h2 class="mt-4">Department heads:
                     <span v-for="(manager, index) in department_managers" :key="manager.id">
@@ -161,9 +168,9 @@ const modalKickMember = ref(false);
                 </h2>
             </div>
 
-            <div class="rounded-2xl bg-gray-900 p-4 row-span-2  max-h-186 flex flex-col">
+            <div class="rounded-2xl bg-gray-900 dark:bg-white dark:shadow-xl  p-4 row-span-2  max-h-186 flex flex-col">
                 <div class="flex gap-4 items-center justify-center mb-4">
-                    <box-icon name='user' color="white" class="w-5 h-5"></box-icon>
+                    <box-icon name='user' :color="checkDarkMode() ? 'black' : 'white'" class="w-5 h-5"></box-icon>
                     <h1 class="text-xl text-center">Members</h1>
                 </div>
                 <InputWithIcon v-model="searchQuery" icon="search" placeholder="Search members" class="h-10 w-full"
@@ -176,7 +183,7 @@ const modalKickMember = ref(false);
                     </li>
                     <div v-else>
                         <li v-for="user in filteredUsers" :key="user.id"
-                            class="mt-2 hover:bg-gray-800 p-1 transition duration-300 hover:cursor-pointer"
+                            class="mt-2 hover:bg-gray-800 dark:hover:bg-gray-200 p-1 transition duration-300 hover:cursor-pointer"
                             @mouseover.stop="[showActions = true, hoveredUserId = user.id]"
                             @mouseleave.stop="showActions = false">
                             <div class="flex items-center justify-between">
@@ -212,19 +219,19 @@ const modalKickMember = ref(false);
                     <div class="flex gap-2 items-center">
                         <input type="number" v-model.number="pagination.current_page"
                             @input="changePage(pagination.current_page)"
-                            class="w-16 text-center bg-gray-800 text-white rounded" :max="pagination.last_page"
+                            class="w-16 text-center bg-gray-800 text-white rounded dark:bg-gray-100 dark:text-black" :max="pagination.last_page"
                             :min="1" />
                         <div class="grid grid-cols-2 gap-2">
                             <button :disabled="pagination.current_page <= 1"
                                 @click="changePage(pagination.current_page - 1)"
                                 :class="['px-4 py-2 rounded transition duration-300',
-                                    pagination.current_page <= 1 ? 'bg-gray-700 text-gray-500 cursor-not-allowed' : 'bg-gray-800 text-white hover:bg-gray-700 cursor-pointer']">
+                                    pagination.current_page <= 1 ? 'bg-gray-700 dark:bg-gray-500 dark:text-gray-600 text-gray-500 cursor-not-allowed' : 'bg-gray-800 dark:bg-gray-500 text-white hover:bg-gray-700 cursor-pointer']">
                                 Previous
                             </button>
                             <button :disabled="pagination.current_page >= pagination.last_page"
                                 @click="changePage(pagination.current_page + 1)"
                                 :class="['px-4 py-2 rounded transition duration-300 ',
-                                    pagination.current_page >= pagination.last_page ? 'bg-gray-700 text-gray-500 cursor-not-allowed' : 'bg-gray-800 text-white hover:bg-gray-700 cursor-pointer']">
+                                    pagination.current_page >= pagination.last_page ? 'bg-gray-700 dark:bg-gray-500 dark:text-gray-600 text-gray-500 cursor-not-allowed' : 'dark:bg-gray-500 bg-gray-800 text-white hover:bg-gray-700 cursor-pointer']">
                                 Next
                             </button>
                         </div>
@@ -234,7 +241,7 @@ const modalKickMember = ref(false);
             </div>
             <div class="col-span-2 rounded-2xl pb-40">
                 <div class="flex items-center gap-4 border-b pb-2">
-                    <box-icon name='folder' color="white" class="w-5 h-5"></box-icon>
+                    <box-icon name='folder' :color="checkDarkMode() ? 'black' : 'white'" class="w-5 h-5"></box-icon>
                     <h1 class="text-2xl">Projects</h1>
                 </div>
                 <ul class="mt-4">
@@ -245,7 +252,7 @@ const modalKickMember = ref(false);
                         class="mt-2 hover:bg-secondary-light p-1 rounded transition duration-300 hover:cursor-pointer"
                         @click="router.visit(`/projects/${project.id}`)">
 
-                        <div class="flex items-center gap-4 p-2 bg-gray-900 rounded">
+                        <div class="flex items-center gap-4 p-2 bg-gray-900 dark:bg-white dark:shadow-xl rounded">
                             <div>
                                 <div class="flex items-center gap-2">
                                     <p class="text-sm sm:text-base">{{ project.name }}</p>
@@ -281,13 +288,13 @@ const modalKickMember = ref(false);
         <!--modals-->
         <div v-if="modalAddMember">
             <div class="fixed inset-0 flex items-center justify-center bg-black/50" @click="closeAddMemberModal">
-                <div class="bg-gray-800 p-8 rounded-lg shadow-lg w-2/3" @click.stop>
+                <div class="bg-gray-800 p-8 rounded-lg shadow-lg w-2/3 dark:bg-white" @click.stop>
                     <h2 class="text-xl font-bold mb-4">Add Member</h2>
                     <p class="mb-4">Select the members you want to add</p>
 
                     <div class="flex gap-4 flex-wrap items-center mb-4 ">
                         <div v-for="user in selectedUsers" :key="user.id"
-                            class="flex  items-center gap-1 bg-gray-700 p-1 rounded-full min-w-fit">
+                            class="flex  items-center gap-1 bg-gray-700 dark:bg-gray-200 p-1 rounded-full min-w-fit">
 
                             <div
                                 class="border border-gray-700 rounded-full h-7 w-7 flex items-center justify-center bg-gray-600">
@@ -295,7 +302,7 @@ const modalKickMember = ref(false);
                                     }}</span>
                             </div>
                             <span class="text-xs sm:text-sm">{{ user.name }}</span>
-                            <box-icon name="x" color="white" size="sm" class="cursor-pointer"
+                            <box-icon name="x" color="white" size="sm" class="cursor-pointer dark:bg-gray-400 rounded-full"
                                 @click="removeSelectedUser(user)"></box-icon>
 
                         </div>
@@ -306,13 +313,13 @@ const modalKickMember = ref(false);
 
                     <ul class="my-4 max-h-52 overflow-y-auto custom-scrollbar">
                         <li v-if="filteredAvailableUsers.length === 0"
-                            class="text-gray-400 flex items-center justify-center gap-2 overflow-hidden">
+                            class="text-gray-400 dark:text-gray-500 flex items-center justify-center gap-2 overflow-hidden">
                             <box-icon name='error-circle' color="#9CA3AF"></box-icon>
                             No members found.
                         </li>
                         <div v-else>
                             <li v-for="user in filteredAvailableUsers" :key="user.id"
-                                class="mt-2 hover:bg-gray-700 p-1 transition duration-300 hover:cursor-pointer"
+                                class="mt-2 hover:bg-gray-700 dark:hover:bg-gray-200 p-1 transition duration-300 hover:cursor-pointer"
                                 @click="addUser(user)">
                                 <div class="flex items-center gap-4">
                                     <div

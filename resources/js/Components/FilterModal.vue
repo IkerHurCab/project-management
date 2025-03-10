@@ -79,7 +79,12 @@ const updateFilterTags = () => {
    
   }
 };
+const isDarkMode = ref(false);
 
+function checkDarkMode() {
+  isDarkMode.value = document.documentElement.classList.contains('dark');
+  return isDarkMode.value;
+}
 const removeFilter = (filterType) => {
   if (filterType === 'dateRange') {
     selectedFilters.value.dateRange = { start: '', end: '' };
@@ -105,9 +110,9 @@ watch(activeFilterTags, (newTags) => {
 </script>
 
 <template>
-  <div class="flex flex-col bg-gray-900 shadow-xl rounded-lg overflow-hidden">
+  <div class="flex flex-col bg-gray-900 dark:bg-gray-50 dark:border-none dark:shadow-xl rounded-lg overflow-hidden">
     <div class="flex items-center justify-between p-4 border-b border-gray-800">
-      <h2 class="text-xl font-semibold text-white">Filters</h2>
+      <h2 class="text-xl font-semibold">Filters</h2>
       <button @click="closeModal" class="cursor-pointer text-gray-400 hover:text-white">
         <box-icon name='x' color='#ffffff'></box-icon>
       </button>
@@ -115,35 +120,35 @@ watch(activeFilterTags, (newTags) => {
 
     <div class="flex">
       <!-- Menú secundario (a la izquierda, condicional) -->
-      <div v-if="activeMenu" class="w-64 p-4 bg-gray-800 rounded-l-lg" @mouseenter="isHoveringSecondary = true">
-        <h3 class="text-lg font-semibold text-white mb-4">{{ activeMenu }}</h3>
+      <div v-if="activeMenu" class="w-64 p-4 bg-gray-800 dark:bg-white rounded-l-lg" @mouseenter="isHoveringSecondary = true">
+        <h3 class="text-lg font-semibold mb-4">{{ activeMenu }}</h3>
         <div v-if="activeMenu === 'dateRange'" class="space-y-4">
           <div>
-            <label class="block text-sm text-gray-400 mb-1">Start Date</label>
+            <label class="block text-sm text-gray-400 dark:text-gray-600 mb-1">Start Date</label>
             <input v-model="selectedFilters.dateRange.start" type="date"
-              class="w-full bg-gray-700 text-white p-2 rounded-lg border border-gray-600 focus:outline-none focus:border-gray-500"
+              class="w-full bg-gray-700 text-white p-2 border border-gray-600 dark:bg-gray-100 dark:text-black focus:outline-none focus:border-gray-500"
               @change="updateFilters">
           </div>
           <div>
-            <label class="block text-sm text-gray-400 mb-1">End Date</label>
+            <label class="block text-sm text-gray-400 mb-1 dark:text-gray-600">End Date</label>
             <input v-model="selectedFilters.dateRange.end" type="date"
-              class="w-full bg-gray-700 text-white p-2 rounded-lg border border-gray-600 focus:outline-none focus:border-gray-500"
+              class="w-full bg-gray-700 text-white p-2 border dark:bg-gray-100 dark:text-black border-gray-600 focus:outline-none focus:border-gray-500"
               @change="updateFilters">
           </div>
         </div>
         <div v-else-if="activeMenu === 'status'" class="space-y-2">
           <button v-for="status in statuses" :key="status.value"
             @click="selectedFilters.status = status.value; updateFilters()"
-            class="w-full text-left p-2 rounded-lg hover:bg-gray-700 text-white"
-            :class="{ 'bg-gray-700': selectedFilters.status === status.value }">
+            class="w-full text-left p-2 hover:bg-gray-700 dark:hover:bg-blue-200"
+            :class="{ 'bg-gray-700 dark:bg-blue-200': selectedFilters.status === status.value }">
             {{ status.label }}
           </button>
         </div>
         <div v-else-if="activeMenu === 'user'" class="space-y-2">
           <button v-for="user in props.departmentHeads" :key="user.id"
             @click="selectedFilters.user = user; updateFilters()"
-            class="w-full text-left p-2 rounded-lg hover:bg-gray-700 text-white"
-            :class="{ 'bg-gray-700': selectedFilters.user === user }">
+            class="w-full text-left p-2 hover:bg-gray-700 dark:hover:bg-blue-200"
+            :class="{ 'bg-gray-700 dark:bg-blue-200': selectedFilters.user === user }">
             {{ user.name }}
           </button>
         </div>
@@ -151,13 +156,13 @@ watch(activeFilterTags, (newTags) => {
       </div>
 
       <!-- Menú principal -->
-      <div class="w-64 bg-gray-900">
+      <div class="w-64 bg-gray-900 dark:bg-white">
         <div class="">
           <button v-for="item in menuItems" :key="item.id" 
             @click="item.value === 'myProjects' ? toggleMyProjects() : showMenu(item.value)"
-            class="w-full cursor-pointer flex items-center justify-between px-5 py-3 hover:bg-gray-800 text-white">
+            class="w-full cursor-pointer flex items-center justify-between px-5 py-3 hover:bg-gray-800 dark:hover:bg-blue-200">
             <div class="flex items-center gap-x-2">
-              <box-icon :name="item.icon" color='#ffffff'></box-icon>
+              <box-icon :name="item.icon" :color="checkDarkMode() ? '#3690ff' : '#ffffff'"></box-icon>
               <span>{{ item.label }}</span>
             </div>
             <box-icon v-if="item.value === 'myProjects' && selectedFilters.myProjects" name="check" color="#4CAF50"></box-icon>

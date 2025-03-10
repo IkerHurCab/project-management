@@ -33,18 +33,18 @@
     
     <template>
       <div v-if="isOpen" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
-        <div class="bg-gray-950 rounded-lg w-full max-w-md h-auto border border-gray-700 shadow-lg">
-          <div class="border-b border-gray-700 px-6 py-4 flex justify-between items-center bg-gray-950 rounded-t-lg">
-            <h2 class="text-2xl font-semibold text-white">Add Attachment</h2>
-            <button @click="emit('close')" class="text-gray-400 cursor-pointer hover:text-white transition-colors">
+        <div class="bg-gray-950 dark:bg-white rounded-lg w-full max-w-md h-auto border border-gray-700 shadow-lg">
+          <div class="border-b border-gray-700 dark:bg-gray-100 px-6 py-4 flex justify-between items-center bg-gray-950 rounded-t-lg">
+            <h2 class="text-2xl font-semibold text-white dark:text-black">Add Attachment</h2>
+            <button @click="emit('close')" class="text-gray-400 dark:text-gray-700 dark:hover:text-black cursor-pointer hover:text-white transition-colors">
               <box-icon name='x' color='currentColor'></box-icon>
             </button>
           </div>
           <form @submit.prevent="submitForm" class="p-6 space-y-6">
             <div>
-              <label class="block text-sm font-medium text-gray-300 mb-1">Attachments</label>
+              <label class="block text-sm font-medium text-gray-300 dark:text-gray-700 mb-1">Attachments</label>
               <div class="flex items-center justify-center w-full">
-                <label for="dropzone-file" class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-600 border-dashed rounded-lg cursor-pointer bg-gray-800 hover:bg-gray-700 transition-all">
+                <label for="dropzone-file" class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-600 border-dashed rounded-lg cursor-pointer bg-gray-800 dark:bg-gray-100 dark:hover:bg-gray-200 hover:bg-gray-700 transition-all">
                   <div class="flex flex-col items-center justify-center pt-5 pb-6">
                     <box-icon name='cloud-upload' color='#9CA3AF'></box-icon>
                     <p class="mb-2 text-sm text-gray-400"><span class="font-semibold">Click to upload</span> or drag and drop</p>
