@@ -12,6 +12,8 @@
       employees: Array,
     });
     
+    const errors = ref({});
+
     const emit = defineEmits(['close']);
     onMounted(() => {
       form.start_date = getCurrentDate();
@@ -53,14 +55,15 @@
     };
     
     const submitForm = () => {
-  router.post(`/projects/${props.projectId}/tasks`, form, {
+    router.post(`/projects/${props.projectId}/tasks`, form, {
     onSuccess: () => {
   
       router.visit(`/projects/${props.projectId}`);
       toast.success('Task created successfully');
     },
-    onError: (errors) => {
+    onError: (err) => {
       toast.error('An error occurred while creating the task.');
+      errors.value = err;
     }
   });
 
@@ -78,6 +81,10 @@ return `${year}-${month}-${day}`;
 
 }
 
+const closeModal = () => {
+    errors.value = {};
+    emit('close');
+  };
     </script>
     
     <template>
@@ -85,7 +92,7 @@ return `${year}-${month}-${day}`;
           <div class="bg-gray-950 dark:bg-white rounded-lg w-full max-w-5xl h-auto border border-gray-700 shadow-lg">
             <div class="border-b border-gray-700 dark:bg-gray-100 px-6 py-4 flex justify-between items-center bg-gray-950 rounded-t-lg">
               <h2 class="text-2xl font-semibold text-white dark:text-black">Create New Task</h2>
-              <button @click="emit('close')" class="text-gray-400 dark:hover:text-black dark:text-gray-700 cursor-pointer hover:text-white transition-colors">
+              <button @click="closeModal" class="text-gray-400 dark:hover:text-black dark:text-gray-700 cursor-pointer hover:text-white transition-colors">
                 <box-icon name='x' color='currentColor'></box-icon>
               </button>
             </div>
@@ -94,6 +101,7 @@ return `${year}-${month}-${day}`;
                 <div>
                   <label for="name" class="block text-sm font-medium text-gray-300 mb-1 dark:text-gray-700 ">Task Name</label>
                   <InputWithIcon v-model="form.name" id="name" type="text" icon="task" placeholder="Enter task name" class="bg-gray-950 dark:bg-gray-100 dark:text-black border-gray-700 text-white" />
+                  <p v-if="errors.name" class="text-red-500 text-sm mt-1">{{ errors.name }}</p>
                 </div>
                 <div>
                   <label for="description" class="block text-sm font-medium text-gray-300 mb-1 dark:text-gray-700 ">Description</label>
@@ -106,6 +114,7 @@ return `${year}-${month}-${day}`;
                 <div>
                   <label for="estimated_hours" class="block text-sm font-medium text-gray-300 mb-1 dark:text-gray-700 ">Estimated Hours</label>
                   <InputWithIcon v-model="form.estimated_hours" id="estimated_hours" type="number" icon="time" placeholder="Enter estimated hours" class="border-gray-700 w-full text-white" />
+                  <p v-if="errors.estimated_hours" class="text-red-500 text-sm mt-1">{{ errors.estimated_hours }}</p>
                 </div>
                 <div>
                   <label for="status" class="block text-sm font-medium text-gray-300 mb-1 dark:text-gray-700 ">Status</label>
@@ -130,14 +139,17 @@ return `${year}-${month}-${day}`;
                   { label: 'Assign the employee', value: '' },
                   ...employees.map(employee => ({ label: employee['name'], value: employee['id'] }))
                 ]"  />
+                <p v-if="errors.user_id" class="text-red-500 text-sm mt-1">{{ errors.user_id }}</p>
                 </div>
                 <div>
                   <label for="start_date" class="block text-sm font-medium text-gray-300 mb-1 dark:text-gray-700 ">Start Date</label>
                   <InputWithIcon v-model="form.start_date" id="start_date" type="date" icon="calendar" class=" border-gray-700 w-full text-white" />
+                  <p v-if="errors.start_date" class="text-red-500 text-sm mt-1">{{ errors.start_date }}</p>
                 </div>
                 <div>
                   <label for="end_date" class="block text-sm font-medium text-gray-300 mb-1 dark:text-gray-700 ">End Date</label>
                   <InputWithIcon v-model="form.end_date" id="end_date" type="date" icon="calendar" class="w-full border-gray-700 text-white" />
+                  <p v-if="errors.end_date" class="text-red-500 text-sm mt-1">{{ errors.end_date }}</p>
                 </div>
               </div>
               <div>

@@ -147,14 +147,19 @@ class TaskController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'estimated_hours' => 'nullable|numeric',
+            'estimated_hours' => 'nullable|numeric|min:0',
             'status' => 'required|string',
             'priority' => 'required|string',
             'start_date' => 'nullable|date',
-            'end_date' => 'nullable|date',
-            'user_id' => 'nullable|integer',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
+            'user_id' => 'required|integer',
             'attachments' => 'nullable|array',
           
+        ], [
+            'name.required' => 'The task name is required',
+            'user_id.required' => 'You have to assign the task to a user',
+            'end_date.after_or_equal' => 'The end date must be after or equal to the start date',
+            'estimated_hours.min' => 'The estimated hours must be a positive number',
         ]);
         $task = Task::create([
             'name' => $validated['name'],
