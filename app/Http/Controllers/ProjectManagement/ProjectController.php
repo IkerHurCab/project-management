@@ -198,7 +198,6 @@ class ProjectController extends Controller
     ->get(['id', 'name']);
 
 
-
     return Inertia::render('ProjectManagement/Project/SingleProject', [
         'project' => $project,
         'user' => $user,
@@ -237,7 +236,7 @@ class ProjectController extends Controller
         ->where('organization_id', request()->user()->currentOrganization()->first()->id)
         ->get(['id', 'name']);
 
-        
+ 
 
         return Inertia::render('ProjectManagement/Project/CreateProject', [
             'users' => $users,

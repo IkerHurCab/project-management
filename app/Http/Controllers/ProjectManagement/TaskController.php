@@ -48,6 +48,21 @@ class TaskController extends Controller
 
     $isProjectLeader = ($projectLeaderId === $request->user()->id); 
 
+    $user = request()->user();
+ 
+    $projectUsers = $task->project->users;
+
+    $members = $projectUsers->map(function ($user) {
+        return [
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+        ];
+    });
+
+
+
+
         return Inertia::render('ProjectManagement/Task/SingleTask', [
             'project' => $task->project,
             'task' => $task->toArray(),
@@ -56,6 +71,7 @@ class TaskController extends Controller
             'taskLogs' => $taskLogs,
             'relatedTasks' => $relatedTasks,
             'isProjectLeader' => $isProjectLeader,
+            'employees' => $members,
         
         ]);
 
@@ -64,9 +80,27 @@ class TaskController extends Controller
     public function update(Request $request, $projectId, $taskId)
     {
        
-      
+    
  
         $task = Task::find($taskId);
+
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'estimated_hours' => 'nullable|numeric|min:0',
+            'user_id' => 'required|integer',
+            'start_date' => 'nullable|date',
+            'end_date' => 'nullable|date|after_or_equal:start_date',
+       
+        ], [
+            'name.required' => 'The task name is required',
+            'user_id.required' => 'You have to assign the task to a user',
+            'end_date.after_or_equal' => 'The end date must be after or equal to the start date',
+            'estimated_hours.min' => 'The estimated hours must be a positive number',
+            
+            
+        ]);  
 
         if ($request->hasFile('attachments')) {
             $files = $request->file('attachments');
@@ -107,6 +141,8 @@ class TaskController extends Controller
 
         } else {
 
+            $userIdHasChanged = $task->user_id != $request->input('user_id');
+          
             $task->update([
                 'name' => $request['name'],
                 'description' => $request['description'],
@@ -115,7 +151,18 @@ class TaskController extends Controller
                 'status' => $request['status'],
                 'start_date' => $request['start_date'],
                 'end_date' => $request['end_date'],
+                'user_id' => $request->input('user_id'),
             ]);
+        
+
+            if($userIdHasChanged)
+            {
+                $user = User::find($request->input('user_id'));
+                $this->notificationService->notifyAssignedToTask($user, $task);  
+            }
+         
+
+
 
         }
        
