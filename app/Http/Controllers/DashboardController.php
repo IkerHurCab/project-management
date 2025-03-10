@@ -28,6 +28,7 @@ $tasks = Task::whereHas('project.departments', function ($query) use ($organizat
     $query->where('organization_id', $organization->id);
 })
 ->where('user_id', $user->id)
+->with(['project', 'logs'])
 ->get();
        
         $projects = Project::whereHas('departments', function ($query) use ($organization) {

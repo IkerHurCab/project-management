@@ -594,8 +594,13 @@ watch(props.taskLogs, (newTaskLogs) => {
                     @click="navigateToTask(task.project_id, task.id)">
                     <div class="flex justify-between items-start">
                       <div>
+<<<<<<< HEAD
                         <h3 class="text-white dark:text-black font-medium">{{ task.name }}</h3>
                         <p class="text-gray-400 dark:bg-gray-700 text-sm mt-1">{{ task.project?.name }}</p>
+=======
+                        <h3 class="text-white font-medium">{{ task.name }}</h3>
+                        <p class="text-gray-400 text-sm mt-1">{{ task.project.name }}</p>
+>>>>>>> d3e6d6cea4f18c9ea922b6ad7f2fd5e13ad133bb
                       </div>
                       <StatusBadge :status="task.status" class="ml-2" />
 
@@ -789,6 +794,7 @@ watch(props.taskLogs, (newTaskLogs) => {
                 </div>
               </div>
             </div>
+            
           </div>
         </div>
       </div>
