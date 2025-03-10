@@ -43,7 +43,8 @@ export default {
         <div class="w-full md:w-1/3 bg-gray-950 border-l border-gray-600 min-h-screen flex items-center justify-center">
             <form @submit.prevent="login" class="space-y-6 w-full max-w-md flex flex-col items-center p-8">
                 <div class="w-24 h-24 border-2 border-gray-700 rounded-full flex items-center justify-center mb-4">
-                    <span class="text-gray-400 text-xl font-bold">LOGO</span>
+                    <img src="/storage/images/PMLogo.jpg" alt="logo"
+                        class="w-20 h-20 rounded-full">
                 </div>
                 <h1 class="text-2xl font-bold text-white self-start mb-6">Login</h1>
                 <div v-if="typeof errors === 'string'"
