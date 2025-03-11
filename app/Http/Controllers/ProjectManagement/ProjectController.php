@@ -367,7 +367,7 @@ class ProjectController extends Controller
             return response()->json(['error' => 'Proyecto no encontrado'], 404);
         }  
         
-        
+   
 
         $project->update([
             'name' => $request['projectName'],
@@ -380,6 +380,7 @@ class ProjectController extends Controller
             'description' => $request['description'],
             'attachments' => $request['attachments'],
             'is_public' => $request['isPublic'],
+            'status' => $request['status'],
         ]);
   
         $project->departments()->sync($request->department_ids);

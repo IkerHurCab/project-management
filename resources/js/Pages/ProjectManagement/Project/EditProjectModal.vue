@@ -50,6 +50,7 @@
   const attachments = ref([]);
   const isPrivate = ref(false);
   const showDeleteModal = ref(false);
+  const status = ref('');
   
   
   watchEffect(() => {
@@ -63,6 +64,7 @@
       assignedHours.value = props.project.assigned_hours || '';
       description.value = props.project.description || '';
       isPrivate.value = !props.project.is_public;
+      status.value = props.project.status || '';
     }
   
   
@@ -95,7 +97,8 @@
       assignedHours: assignedHours.value,
       description: description.value,
       attachments: attachments.value,
-      isPublic: !isPrivate.value
+      isPublic: !isPrivate.value,
+      status: status.value
     };
   
     router.put(`/projects/${props.project.id}`, data, {
@@ -274,6 +277,14 @@
               <InputWithIcon v-model="assignedHours" icon="time" placeholder="Enter assigned hours" class="w-full"
                 type="number" />
                 <p v-if="errors.assignedHours" class="text-red-500 text-sm mt-1">{{ errors.assignedHours }}</p>
+            </div>
+            <div>
+              <label for="assignedHours" class="block text-sm font-medium text-gray-400 mb-2">Status</label>
+              <SelectWithIcon v-model="status" icon="check-square" placeholder="Select status" class="w-full" :options="[
+                { label: 'In Progress', value: 'in_progress' },
+                { label: 'Finished', value: 'finished' },
+                { label: 'Suspended', value: 'suspended' },
+              ]" />
             </div>
   
             <div class="col-span-1 md:col-span-2 lg:col-span-3">
