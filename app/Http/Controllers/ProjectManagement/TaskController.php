@@ -61,7 +61,7 @@ class TaskController extends Controller
     });
 
 
-
+    
 
         return Inertia::render('ProjectManagement/Task/SingleTask', [
             'project' => $task->project,
@@ -90,14 +90,15 @@ class TaskController extends Controller
             'description' => 'nullable|string',
             'estimated_hours' => 'nullable|numeric|min:0',
             'user_id' => 'required|integer',
-            'start_date' => 'nullable|date',
-            'end_date' => 'nullable|date|after_or_equal:start_date',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date',
        
         ], [
             'name.required' => 'The task name is required',
             'user_id.required' => 'You have to assign the task to a user',
             'end_date.after_or_equal' => 'The end date must be after or equal to the start date',
             'estimated_hours.min' => 'The estimated hours must be a positive number',
+
             
             
         ]);  
@@ -197,8 +198,8 @@ class TaskController extends Controller
             'estimated_hours' => 'nullable|numeric|min:0',
             'status' => 'required|string',
             'priority' => 'required|string',
-            'start_date' => 'nullable|date',
-            'end_date' => 'nullable|date|after_or_equal:start_date',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date|after_or_equal:start_date',
             'user_id' => 'required|integer',
             'attachments' => 'nullable|array',
           

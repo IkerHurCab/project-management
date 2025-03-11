@@ -84,9 +84,11 @@
   
   
   const formatDate = (date) => {
-    if (!date) return 'No end date'; // Retorna vacío si no hay fecha
+    if (!date) return 'No end date'; 
   
     const parsedDate = new Date(date);
+    if (parsedDate.getFullYear() === 1970) return 'No end date';
+
     if (isNaN(parsedDate)) return 'No end date'; // Verifica si la fecha es válida
   
     return parsedDate.toLocaleDateString('en-US', { 

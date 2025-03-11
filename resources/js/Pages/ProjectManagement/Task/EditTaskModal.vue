@@ -25,7 +25,7 @@
     priority: props.task?.priority || '1',
     start_date: props.task?.start_date || '',
     end_date: props.task?.end_date || '',
-    user_id: props.task?.user || '',
+    user_id: props.task?.user.id || '',
   });
   
   const priorities = [
