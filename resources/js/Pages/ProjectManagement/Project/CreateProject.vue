@@ -15,6 +15,8 @@ const props = defineProps({
   userDepartments: Array,
 });
 
+const errors = ref({});
+
 const selectedDepartments = ref([]);
 const departmentInput = ref('');
 
@@ -39,8 +41,9 @@ const createProject = () => {
     onSuccess: () => {
       toast.success('Project created successfully');
     },
-    onError: (errors) => {
+    onError: (err) => {
       toast.error('An error occurred while creating the project');
+      errors.value = err
     }
   });
 };
@@ -109,7 +112,7 @@ function checkDarkMode() {
   <Layout pageTitle="Project Management">
 
     <div
-      class="flex flex-col bg-gray-900 dark:bg-gray-100 dark:border-none rounded-lg border border-gray-600 text-gray-300 dark:text-gray-700 min-h-screen px-6 py-4">
+      class="flex flex-col  dark:bg-gray-100 dark:border-none rounded-lg  text-gray-300 dark:text-gray-700 min-h-screen px-6 py-4">
       <div class="flex flex-row  gap-x-4 ">
         <div class="cursor-pointer gap-x-2 flex items-center " @click="$inertia.visit('/projects')">
 
@@ -130,6 +133,7 @@ function checkDarkMode() {
               <label for="projectName" class="block text-sm font-medium text-gray-400 dark:text-gray-600 mb-2">Project
                 Name</label>
               <InputWithIcon v-model="projectName" icon="folder" placeholder="Enter project name" class="w-full" />
+              <p v-if="errors.name" class="text-red-500 text-sm mt-1">{{ errors.name }}</p>
             </div>
 
             <div class="col-span-1 md:col-span-2 lg:col-span-3">
@@ -146,6 +150,7 @@ function checkDarkMode() {
                     {{ dept.name }}
                   </div>
                 </div>
+                <p v-if="errors.department_ids" class="text-red-500 text-sm mt-1">{{ errors.department_ids }}</p>
               </div>
               <div class="flex flex-wrap gap-2 mt-2">
                 <div v-for="deptId in selectedDepartments" :key="deptId"
@@ -165,6 +170,7 @@ function checkDarkMode() {
                   { label: 'Select the project leader', value: '' },
                   ...departmentHead.map(leader => ({ label: leader.label, value: leader.value }))
                 ]" />
+                <p v-if="errors.project_leader_id" class="text-red-500 text-sm mt-1">{{ errors.project_leader_id }}</p>
             </div>
             <div class="">
               <label for="priority"
@@ -175,15 +181,17 @@ function checkDarkMode() {
                 { label: 'High', value: 3 },
                 { label: 'Urgent', value: 4 }
               ]" />
+              <p v-if="errors.priority" class="text-red-500 text-sm mt-1">{{ errors.priority }}</p>
             </div>
 
 
-            <!-- Agrupar estos campos en una fila -->
+            
             <div>
               <label for="startDate" class="block text-sm font-medium text-gray-400 mb-2 dark:text-gray-600">Start
                 Date</label>
               <InputWithIcon v-model="startDate" icon="calendar" placeholder="Select start date" class="w-full"
                 type="date" />
+                <p v-if="errors.start_date" class="text-red-500 text-sm mt-1">{{ errors.start_date }}</p>
             </div>
 
             <div>
@@ -191,6 +199,7 @@ function checkDarkMode() {
                 Date</label>
               <InputWithIcon v-model="endDate" icon="calendar" placeholder="Select end date" class="w-full"
                 type="date" />
+                <p v-if="errors.end_date" class="text-red-500 text-sm mt-1">{{ errors.end_date }}</p>
             </div>
 
             <div>
@@ -198,6 +207,7 @@ function checkDarkMode() {
                 class="block text-sm font-medium text-gray-400 mb-2 dark:text-gray-600">Assigned Hours</label>
               <InputWithIcon v-model="assignedHours" icon="time" placeholder="Enter assigned hours" class="w-full"
                 type="number" />
+                <p v-if="errors.assigned_hours" class="text-red-500 text-sm mt-1">{{ errors.assigned_hours }}</p>
             </div>
 
 

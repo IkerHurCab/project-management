@@ -60,6 +60,12 @@ class DepartmentController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'department_head' => 'required|exists:users,id',
+        ], [
+            'department_head.exists' => 'The selected department head is invalid.',
+            'department_head.required' => 'The department head field is required.',
+            'name.required' => 'The name field is required.',
+            'name.max' => 'The name may not be greater than 255 characters.',
+            'description.string' => 'The description must be a text.',
         ]);
 
         $department = Department::create([

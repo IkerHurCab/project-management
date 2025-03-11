@@ -5,7 +5,7 @@ const props = defineProps({
   status: {
     type: String,
     required: true,
-    validator: (value) => ['pending', 'in_progress', 'finished', 'inactive', 'to_do', 'review', 'done'].includes(value)
+    validator: (value) => ['pending', 'in_progress', 'finished', 'suspended', 'to_do', 'review', 'done'].includes(value)
   }
 });
 
@@ -36,10 +36,10 @@ const statusConfig = computed(() => {
       bgColor: 'bg-green-500',
       textColor: 'text-green-900'
     },
-    inactive: {
-      text: 'Inactive',
-      bgColor: 'bg-gray-500',
-      textColor: 'text-gray-900'
+    suspended: {
+      text: 'Suspended',
+      bgColor: 'bg-red-500',
+      textColor: 'text-white-500'
     },
     review: {
       text: 'Review',

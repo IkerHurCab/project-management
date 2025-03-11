@@ -18,6 +18,7 @@ const props = defineProps({
   comments: Array,
   relatedTasks: Array,
   taskLogs: Array,
+  employees: Array,
 })
 
 const isDarkMode = ref(false);
@@ -402,7 +403,7 @@ const addComment = async () => {
         </div>
       </div>
     </div>
-    <EditTaskModal :is-open="isEditTaskModalOpen" :task="task" :project="project" @close="closeEditTaskModal" />
+    <EditTaskModal :is-open="isEditTaskModalOpen" :task="task" :project="project" @close="closeEditTaskModal" :employees="employees" />
     <LogTimeModal :is-open="isLogTimeModalOpen" :task="task" :user="user" :project="project" @close="closeLogTimeModal"
       @log-time="logTime" />
     <AddAttachmentModal :is-open="isAddAttachmentModalOpen" :task-id="task.id" @close="closeAddAttachmentModal"
