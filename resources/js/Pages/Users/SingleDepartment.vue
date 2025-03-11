@@ -5,7 +5,7 @@ import StandardButton from '@/Components/StandardButton.vue';
 import EditDepartmentModal from '@/Pages/Users/EditDepartmentModal.vue';
 import 'boxicons';
 import { ref, onMounted } from 'vue';
-import { computed } from 'vue'; 
+import { computed } from 'vue';
 import { toast } from 'vue3-toastify';
 import { router } from '@inertiajs/vue3';
 import { usePage } from '@inertiajs/vue3';
@@ -69,9 +69,9 @@ const searchAvailableUsersQuery = ref('');
 const selectedUsers = ref([]);
 const user = computed(() => auth.user);
 const isDepartmentHead = computed(() => {
-  console.log('User ID:', user.value.id);
-  console.log('Department managers:', props.department_managers);
-  return props.department_managers.some(manager => manager.id === user.value.id);
+    console.log('User ID:', user.value.id);
+    console.log('Department managers:', props.department_managers);
+    return props.department_managers.some(manager => manager.id === user.value.id);
 });
 const showActions = ref(false);
 const hoveredUserId = ref(null);
@@ -224,8 +224,13 @@ const formatProjectStatus = (status) => {
 <template>
     <Layout :pageTitle="department.name">
         <div class="p-4 md:p-6 max-w-7xl mx-auto">
-            <!-- Header with Department Info and Add Member Button -->
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+            <a @click="$inertia.visit('/departments')"
+                class="hover:text-white dark:hover:text-black cursor-pointer flex items-center space-x-2 transition-colors">
+                <box-icon name='arrow-back' :color="checkDarkMode() ? '#000000' : '#E5E7EB'"></box-icon>
+                <span>Back to Departments</span>
+            </a>
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6 mt-4">
+
                 <div>
                     <h1 class="text-2xl md:text-3xl font-bold text-white dark:text-gray-800">{{ department.name }}</h1>
                 </div>
@@ -605,13 +610,8 @@ const formatProjectStatus = (status) => {
         </div>
     </Layout>
 
-    <EditDepartmentModal 
-        :is-open="isEditDepartmentModalOpen" 
-        :departmentHead="department_managers" 
-        :department="department" 
-        :users="filteredUsers" 
-        @close="closeEditDepartmentModal" 
-    />
+    <EditDepartmentModal :is-open="isEditDepartmentModalOpen" :departmentHead="department_managers"
+        :department="department" :users="filteredUsers" @close="closeEditDepartmentModal" />
 
 </template>
 
