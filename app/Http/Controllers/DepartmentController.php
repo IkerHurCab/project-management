@@ -67,19 +67,22 @@ class DepartmentController extends Controller
             'description' => $request->input('description'),
             'organization_id' => $request->user()->currentOrganization()->first()->id,
         ]);
-
         // Asignar al usuario actual al departamento
         $department->users()->attach($request->user()->id);
 
         // Invitar al department_head al departamento
         $departmentHeadId = $request->input('department_head');
-        $department->users()->attach($departmentHeadId);
+        if ($request->user()->id != $departmentHeadId) {
+            $department->users()->attach($departmentHeadId);
+        }
 
-        // Insertar en la tabla pivot 'department_manager'
-        \DB::table('department_manager')->insert([
-            'manager_id' => $departmentHeadId,
-            'department_id' => $department->id,
-        ]);
+        \DB::table('department_manager')->updateOrInsert(
+            [
+                'manager_id' => $departmentHeadId,
+                'department_id' => $department->id,
+            ],
+            []
+        );
 
         $projectsCountByDepartment = Department::withCount(['projects'])->get()->mapWithKeys(function ($department) {
             return [$department->name => $department->projects_count];
@@ -187,6 +190,66 @@ class DepartmentController extends Controller
         return $this->showSingle($department->id);
     } catch (\Exception $e) {
         return response()->json(['message' => 'Failed to remove user from department', 'error' => $e->getMessage()], 500);
+    }
+}
+
+public function update(Request $request, $id)
+{
+    $department = Department::findOrFail($id);
+    
+    // Validate the request
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'description' => 'nullable|string',
+        'department_head_ids' => 'required|array',
+        'department_head_ids.*' => 'exists:users,id',
+    ]);
+
+    // Update department details
+    $department->update([
+        'name' => $request->input('name'),
+        'description' => $request->input('description'),
+    ]);
+
+    // Update department managers
+    // First, remove all current managers
+    \DB::table('department_manager')->where('department_id', $department->id)->delete();
+    
+    // Then add the new managers
+    foreach ($request->input('department_head_ids') as $managerId) {
+        // Make sure the manager is a member of the department
+        if (!$department->users()->where('user_id', $managerId)->exists()) {
+            $department->users()->attach($managerId);
+        }
+        
+        // Add as department manager
+        \DB::table('department_manager')->updateOrInsert(
+            [
+                'manager_id' => $managerId,
+                'department_id' => $department->id,
+            ],
+            []
+        );
+    }
+
+    return $this->showSingle($department->id);
+}
+
+
+public function destroy($id)
+{
+    $department = Department::findOrFail($id);
+    
+    try {
+        \DB::beginTransaction();
+        \DB::table('department_manager')->where('department_id', $department->id)->delete();
+        $department->users()->detach();
+        $department->delete();
+        \DB::commit();
+        return redirect()->route('departments');
+    } catch (\Exception $e) {
+        \DB::rollBack();
+        return response()->json(['message' => 'Failed to delete department', 'error' => $e->getMessage()], 500);
     }
 }
     

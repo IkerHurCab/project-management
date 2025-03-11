@@ -81,6 +81,8 @@ Route::group(['middleware' => 'auth'], function () {
     
     Route::get('/departments/{id}', [DepartmentController::class, 'showSingle'])->name('departments.showSingle')
     ->middleware(CheckDepartmentAccess::class);
+    Route::put('/departments/{id}', [DepartmentController::class, 'update'])->name('departments.update');
+    Route::delete('/departments/{id}', [DepartmentController::class, 'destroy'])->name('departments.destroy');
 
     Route::post('/departments/{id}/addUser', [DepartmentController::class, 'addUser'])
     ->middleware(CheckDepartmentAccess::class);

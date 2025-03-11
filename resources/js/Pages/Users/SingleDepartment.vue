@@ -1,10 +1,16 @@
 <script setup>
 import Layout from '@/Layouts/Layout.vue';
 import InputWithIcon from '@/Components/InputWithIcon.vue';
+import StandardButton from '@/Components/StandardButton.vue';
+import EditDepartmentModal from '@/Pages/Users/EditDepartmentModal.vue';
 import 'boxicons';
 import { ref, onMounted } from 'vue';
+import { computed } from 'vue'; 
 import { toast } from 'vue3-toastify';
 import { router } from '@inertiajs/vue3';
+import { usePage } from '@inertiajs/vue3';
+const auth = usePage().props.auth;
+
 
 const props = defineProps({
     department: {
@@ -30,10 +36,16 @@ const props = defineProps({
     pagination: Object,
     totalUsers: Number
 });
-
+const isEditDepartmentModalOpen = ref(false);
 const isDarkMode = ref(false);
 const isMobile = ref(false);
+const openEditDepartmentModal = () => {
+    isEditDepartmentModalOpen.value = true;
+}
 
+const closeEditDepartmentModal = () => {
+    isEditDepartmentModalOpen.value = false;
+}
 function checkDarkMode() {
     isDarkMode.value = document.documentElement.classList.contains('dark');
     return isDarkMode.value;
@@ -41,12 +53,12 @@ function checkDarkMode() {
 
 // Check if device is mobile
 const checkMobile = () => {
-  isMobile.value = window.innerWidth < 768;
+    isMobile.value = window.innerWidth < 768;
 };
 
 onMounted(() => {
-  checkMobile();
-  window.addEventListener('resize', checkMobile);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
 });
 
 const filteredUsers = ref(props.users);
@@ -55,7 +67,12 @@ const pagination = ref(props.pagination);
 const searchQuery = ref('');
 const searchAvailableUsersQuery = ref('');
 const selectedUsers = ref([]);
-
+const user = computed(() => auth.user);
+const isDepartmentHead = computed(() => {
+  console.log('User ID:', user.value.id);
+  console.log('Department managers:', props.department_managers);
+  return props.department_managers.some(manager => manager.id === user.value.id);
+});
 const showActions = ref(false);
 const hoveredUserId = ref(null);
 
@@ -95,7 +112,7 @@ function addMembers(members) {
         toast.warning('Please select at least one member to add');
         return;
     }
-    
+
     members.forEach(member => {
         router.post(`${url}/addUser`, { user_id: member.id }, {
             preserveState: true,
@@ -156,7 +173,7 @@ function kickMember(userId) {
 
 function confirmKickMember() {
     if (!userToKick.value) return;
-    
+
     router.post(`${url}/removeUser`, { user_id: userToKick.value.id }, {
         preserveState: true,
         preserveScroll: true,
@@ -180,7 +197,7 @@ const userToKick = ref(null);
 
 // Status badge colors
 const getStatusColor = (status) => {
-    switch(status) {
+    switch (status) {
         case 'online': return 'bg-green-500';
         case 'away': return 'bg-yellow-500';
         case 'offline': return 'bg-gray-500';
@@ -190,7 +207,7 @@ const getStatusColor = (status) => {
 
 // Project status badge colors
 const getProjectStatusColor = (status) => {
-    switch(status) {
+    switch (status) {
         case 'pending': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300';
         case 'completed': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
         case 'in_progress': return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300';
@@ -212,21 +229,27 @@ const formatProjectStatus = (status) => {
                 <div>
                     <h1 class="text-2xl md:text-3xl font-bold text-white dark:text-gray-800">{{ department.name }}</h1>
                 </div>
-                <button 
-                    @click="modalAddMember = true"
-                    class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg transition duration-300 text-sm md:text-base flex items-center"
-                >
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                        <path d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6zM16 7a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V7z" />
-                    </svg>
-                    Add Member
-                </button>
+                <div class="flex gap-1">
+                    <button @click="modalAddMember = true"
+                        class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg transition duration-300 text-sm md:text-base flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20"
+                            fill="currentColor">
+                            <path
+                                d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6zM18 7a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V7z" />
+                        </svg>
+                        Add Member
+                    </button>
+                    <StandardButton v-if="isDepartmentHead" @click="openEditDepartmentModal" size="sm">
+                        Edit Department
+                    </StandardButton>
+                </div>
             </div>
 
             <!-- Main Content Grid -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <!-- Department Info Card -->
-                <div class="lg:col-span-2 bg-gray-900 dark:bg-white rounded-xl shadow-lg border border-gray-800 dark:border-none dark:shadow-xl overflow-hidden">
+                <div
+                    class="lg:col-span-2 bg-gray-900 dark:bg-white rounded-xl shadow-lg border border-gray-800 dark:border-none dark:shadow-xl overflow-hidden">
                     <div class="bg-gray-800 dark:bg-gray-100 p-4 border-b border-gray-700 dark:border-gray-200">
                         <h2 class="text-xl font-bold text-white dark:text-gray-800">Department Information</h2>
                     </div>
@@ -238,9 +261,10 @@ const formatProjectStatus = (status) => {
                         <div>
                             <h3 class="text-sm font-medium text-gray-400 dark:text-gray-600 mb-2">Department Heads</h3>
                             <div class="flex flex-wrap gap-2">
-                                <div v-for="manager in department_managers" :key="manager.id" 
+                                <div v-for="manager in department_managers" :key="manager.id"
                                     class="flex items-center gap-2 bg-gray-800 dark:bg-gray-100 p-2 rounded-lg border border-gray-700 dark:border-gray-300">
-                                    <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold">
+                                    <div
+                                        class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold">
                                         {{ manager.name.charAt(0).toUpperCase() }}
                                     </div>
                                     <span class="text-white dark:text-gray-800">{{ manager.name }}</span>
@@ -254,29 +278,30 @@ const formatProjectStatus = (status) => {
                 </div>
 
                 <!-- Members Card -->
-                <div class="lg:row-span-2 bg-gray-900 dark:bg-white rounded-xl shadow-lg border border-gray-800 dark:border-none dark:shadow-xl overflow-hidden flex flex-col">
+                <div
+                    class="lg:row-span-2 bg-gray-900 dark:bg-white rounded-xl shadow-lg border border-gray-800 dark:border-none dark:shadow-xl overflow-hidden flex flex-col">
                     <div class="bg-gray-800 dark:bg-gray-100 p-4 border-b border-gray-700 dark:border-gray-200">
                         <div class="flex items-center gap-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 dark:text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 dark:text-gray-600"
+                                fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                             </svg>
                             <h2 class="text-xl font-bold text-white dark:text-gray-800">Members</h2>
                         </div>
                     </div>
                     <div class="p-4 flex-grow flex flex-col">
-                        <InputWithIcon 
-                            v-model="searchQuery" 
-                            icon="search" 
-                            placeholder="Search members" 
-                            class="h-10 w-full mb-4"
-                            @input="searchUsers($event, 'members')" 
-                        />
-                        
+                        <InputWithIcon v-model="searchQuery" icon="search" placeholder="Search members"
+                            class="h-10 w-full mb-4" @input="searchUsers($event, 'members')" />
+
                         <div class="flex-grow overflow-hidden">
                             <ul class="overflow-y-auto h-full custom-scrollbar">
-                                <li v-if="filteredUsers.length === 0" class="flex flex-col items-center justify-center h-32 text-gray-400 dark:text-gray-600">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                                <li v-if="filteredUsers.length === 0"
+                                    class="flex flex-col items-center justify-center h-32 text-gray-400 dark:text-gray-600">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mb-2" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                                     </svg>
                                     <p>No members found</p>
                                 </li>
@@ -287,7 +312,8 @@ const formatProjectStatus = (status) => {
                                     <div class="flex items-center justify-between">
                                         <div class="flex items-center gap-3">
                                             <div class="relative">
-                                                <div class="w-10 h-10 rounded-full bg-gray-600 flex items-center justify-center text-white font-bold border border-gray-700">
+                                                <div
+                                                    class="w-10 h-10 rounded-full bg-gray-600 flex items-center justify-center text-white font-bold border border-gray-700">
                                                     {{ user.name.charAt(0).toUpperCase() }}
                                                 </div>
                                                 <div class="absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-gray-800 dark:border-gray-100"
@@ -300,11 +326,13 @@ const formatProjectStatus = (status) => {
                                             </div>
                                         </div>
                                         <transition name="fade">
-                                            <button v-if="showActions && user.id === hoveredUserId" 
+                                            <button v-if="showActions && user.id === hoveredUserId"
                                                 @click.stop="kickMember(user.id)"
                                                 class="p-1 bg-red-500 hover:bg-red-600 text-white rounded-full transition-colors">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                                                    viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                                                 </svg>
                                             </button>
                                         </transition>
@@ -312,48 +340,45 @@ const formatProjectStatus = (status) => {
                                 </li>
                             </ul>
                         </div>
-                        
+
                         <!-- Pagination Controls -->
-                        <div class="mt-4 border-t border-gray-800 dark:border-gray-200 pt-4 flex flex-col sm:flex-row justify-between items-center gap-3">
+                        <div
+                            class="mt-4 border-t border-gray-800 dark:border-gray-200 pt-4 flex flex-col sm:flex-row justify-between items-center gap-3">
                             <span class="text-sm text-gray-400 dark:text-gray-600">
                                 Showing {{ filteredUsers.length }} of {{ props.totalUsers }} members
                             </span>
                             <div class="flex items-center gap-2">
-                                <button 
-                                    :disabled="pagination.current_page <= 1"
+                                <button :disabled="pagination.current_page <= 1"
                                     @click="changePage(pagination.current_page - 1)"
                                     class="p-2 rounded-lg transition-colors"
-                                    :class="pagination.current_page <= 1 
-                                        ? 'bg-gray-700 text-gray-500 cursor-not-allowed dark:bg-gray-200 dark:text-gray-400' 
-                                        : 'bg-gray-700 text-white hover:bg-gray-600 dark:bg-gray-200 dark:text-gray-800 dark:hover:bg-gray-300'"
-                                >
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                                    :class="pagination.current_page <= 1
+                                        ? 'bg-gray-700 text-gray-500 cursor-not-allowed dark:bg-gray-200 dark:text-gray-400'
+                                        : 'bg-gray-700 text-white hover:bg-gray-600 dark:bg-gray-200 dark:text-gray-800 dark:hover:bg-gray-300'">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15 19l-7-7 7-7" />
                                     </svg>
                                 </button>
-                                
+
                                 <div class="flex items-center gap-1">
-                                    <input 
-                                        type="number" 
-                                        v-model.number="pagination.current_page"
+                                    <input type="number" v-model.number="pagination.current_page"
                                         @input="changePage(pagination.current_page)"
-                                        class="w-12 h-9 text-center bg-gray-700 text-white rounded-lg border border-gray-600 dark:bg-gray-100 dark:text-gray-800 dark:border-gray-300" 
-                                        :max="pagination.last_page"
-                                        :min="1" 
-                                    />
+                                        class="w-12 h-9 text-center bg-gray-700 text-white rounded-lg border border-gray-600 dark:bg-gray-100 dark:text-gray-800 dark:border-gray-300"
+                                        :max="pagination.last_page" :min="1" />
                                     <span class="text-gray-400 dark:text-gray-600">of {{ pagination.last_page }}</span>
                                 </div>
-                                
-                                <button 
-                                    :disabled="pagination.current_page >= pagination.last_page"
+
+                                <button :disabled="pagination.current_page >= pagination.last_page"
                                     @click="changePage(pagination.current_page + 1)"
                                     class="p-2 rounded-lg transition-colors"
-                                    :class="pagination.current_page >= pagination.last_page 
-                                        ? 'bg-gray-700 text-gray-500 cursor-not-allowed dark:bg-gray-200 dark:text-gray-400' 
-                                        : 'bg-gray-700 text-white hover:bg-gray-600 dark:bg-gray-200 dark:text-gray-800 dark:hover:bg-gray-300'"
-                                >
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                    :class="pagination.current_page >= pagination.last_page
+                                        ? 'bg-gray-700 text-gray-500 cursor-not-allowed dark:bg-gray-200 dark:text-gray-400'
+                                        : 'bg-gray-700 text-white hover:bg-gray-600 dark:bg-gray-200 dark:text-gray-800 dark:hover:bg-gray-300'">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 5l7 7-7 7" />
                                     </svg>
                                 </button>
                             </div>
@@ -362,19 +387,25 @@ const formatProjectStatus = (status) => {
                 </div>
 
                 <!-- Projects Card -->
-                <div class="lg:col-span-2 bg-gray-900 dark:bg-white rounded-xl shadow-lg border border-gray-800 dark:border-none dark:shadow-xl overflow-hidden">
+                <div
+                    class="lg:col-span-2 bg-gray-900 dark:bg-white rounded-xl shadow-lg border border-gray-800 dark:border-none dark:shadow-xl overflow-hidden">
                     <div class="bg-gray-800 dark:bg-gray-100 p-4 border-b border-gray-700 dark:border-gray-200">
                         <div class="flex items-center gap-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 dark:text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 dark:text-gray-600"
+                                fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
                             </svg>
                             <h2 class="text-xl font-bold text-white dark:text-gray-800">Projects</h2>
                         </div>
                     </div>
                     <div class="p-4 md:p-6">
-                        <div v-if="projects.length === 0" class="flex flex-col items-center justify-center py-12 text-gray-400 dark:text-gray-600">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+                        <div v-if="projects.length === 0"
+                            class="flex flex-col items-center justify-center py-12 text-gray-400 dark:text-gray-600">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mb-4" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
                             </svg>
                             <p class="text-lg">No active projects in this department</p>
                             <p class="text-sm mt-2">Projects assigned to this department will appear here</p>
@@ -386,23 +417,33 @@ const formatProjectStatus = (status) => {
                                 <div class="flex justify-between items-start mb-3">
                                     <h3 class="font-bold text-white dark:text-gray-800 text-lg">{{ project.name }}</h3>
                                     <div class="flex items-center">
-                                        <span class="px-2 py-1 text-xs rounded-full" :class="getProjectStatusColor(project.status)">
+                                        <span class="px-2 py-1 text-xs rounded-full"
+                                            :class="getProjectStatusColor(project.status)">
                                             {{ formatProjectStatus(project.status) }}
                                         </span>
                                     </div>
                                 </div>
-                                <p class="text-gray-400 dark:text-gray-600 text-sm mb-3 line-clamp-2">{{ project.description }}</p>
+                                <p class="text-gray-400 dark:text-gray-600 text-sm mb-3 line-clamp-2">{{
+                                    project.description }}</p>
                                 <div class="flex flex-wrap gap-3 mt-2">
                                     <div class="flex items-center text-xs text-gray-400 dark:text-gray-600">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none"
+                                            viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                         </svg>
                                         {{ project.assigned_hours || 0 }} hours
                                     </div>
                                     <div class="flex items-center text-xs text-gray-400 dark:text-gray-600">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" :class="project.is_public ? 'text-green-500' : 'text-red-500'">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" :class="project.is_public ? 'hidden' : ''" />
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" :class="project.is_public ? '' : 'hidden'" />
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none"
+                                            viewBox="0 0 24 24" stroke="currentColor"
+                                            :class="project.is_public ? 'text-green-500' : 'text-red-500'">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                                                :class="project.is_public ? 'hidden' : ''" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"
+                                                :class="project.is_public ? '' : 'hidden'" />
                                         </svg>
                                         {{ project.is_public ? 'Public' : 'Private' }}
                                     </div>
@@ -421,29 +462,39 @@ const formatProjectStatus = (status) => {
                 @click.stop>
                 <div class="flex items-center justify-between mb-6">
                     <h2 class="text-xl font-bold text-white dark:text-gray-800">Add Members to Department</h2>
-                    <button @click.stop="closeAddMemberModal" class="text-gray-400 hover:text-white dark:hover:text-gray-800 transition-colors">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    <button @click.stop="closeAddMemberModal"
+                        class="text-gray-400 hover:text-white dark:hover:text-gray-800 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </button>
                 </div>
 
                 <!-- Selected Users -->
                 <div class="mb-4">
-                    <h3 class="text-sm font-medium text-gray-400 dark:text-gray-600 mb-2">Selected Members ({{ selectedUsers.length }})</h3>
-                    <div class="flex flex-wrap gap-2 min-h-12 p-2 bg-gray-700 dark:bg-gray-100 rounded-lg border border-gray-600 dark:border-gray-300">
-                        <div v-if="selectedUsers.length === 0" class="text-gray-500 dark:text-gray-400 text-sm flex items-center justify-center w-full">
+                    <h3 class="text-sm font-medium text-gray-400 dark:text-gray-600 mb-2">Selected Members ({{
+                        selectedUsers.length }})</h3>
+                    <div
+                        class="flex flex-wrap gap-2 min-h-12 p-2 bg-gray-700 dark:bg-gray-100 rounded-lg border border-gray-600 dark:border-gray-300">
+                        <div v-if="selectedUsers.length === 0"
+                            class="text-gray-500 dark:text-gray-400 text-sm flex items-center justify-center w-full">
                             No members selected
                         </div>
                         <div v-for="user in selectedUsers" :key="user.id"
                             class="flex items-center gap-2 bg-gray-600 dark:bg-gray-200 px-2 py-1 rounded-full">
-                            <div class="w-6 h-6 rounded-full bg-gray-500 flex items-center justify-center text-white text-xs font-bold">
+                            <div
+                                class="w-6 h-6 rounded-full bg-gray-500 flex items-center justify-center text-white text-xs font-bold">
                                 {{ user.name.charAt(0).toUpperCase() }}
                             </div>
                             <span class="text-white dark:text-gray-800 text-sm">{{ user.name }}</span>
-                            <button @click="removeSelectedUser(user)" class="text-gray-300 dark:text-gray-600 hover:text-white dark:hover:text-gray-800">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            <button @click="removeSelectedUser(user)"
+                                class="text-gray-300 dark:text-gray-600 hover:text-white dark:hover:text-gray-800">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M6 18L18 6M6 6l12 12" />
                                 </svg>
                             </button>
                         </div>
@@ -453,29 +504,29 @@ const formatProjectStatus = (status) => {
                 <!-- Search Available Users -->
                 <div class="mb-4">
                     <h3 class="text-sm font-medium text-gray-400 dark:text-gray-600 mb-2">Available Members</h3>
-                    <InputWithIcon 
-                        v-model="searchAvailableUsersQuery" 
-                        icon="search" 
-                        placeholder="Search available members" 
-                        class="h-10 w-full" 
-                        @input="searchUsers($event, 'available')" 
-                    />
+                    <InputWithIcon v-model="searchAvailableUsersQuery" icon="search"
+                        placeholder="Search available members" class="h-10 w-full"
+                        @input="searchUsers($event, 'available')" />
                 </div>
 
                 <!-- Available Users List -->
-                <div class="max-h-60 overflow-y-auto custom-scrollbar mb-6 bg-gray-700 dark:bg-gray-100 rounded-lg border border-gray-600 dark:border-gray-300">
-                    <div v-if="filteredAvailableUsers.length === 0" class="flex flex-col items-center justify-center h-32 text-gray-400 dark:text-gray-600">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                <div
+                    class="max-h-60 overflow-y-auto custom-scrollbar mb-6 bg-gray-700 dark:bg-gray-100 rounded-lg border border-gray-600 dark:border-gray-300">
+                    <div v-if="filteredAvailableUsers.length === 0"
+                        class="flex flex-col items-center justify-center h-32 text-gray-400 dark:text-gray-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mb-2" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                         </svg>
                         <p>No available members found</p>
                     </div>
                     <ul v-else>
-                        <li v-for="user in filteredAvailableUsers" :key="user.id"
-                            @click="addUser(user)"
+                        <li v-for="user in filteredAvailableUsers" :key="user.id" @click="addUser(user)"
                             class="p-3 hover:bg-gray-600 dark:hover:bg-gray-200 transition-colors cursor-pointer border-b border-gray-600 dark:border-gray-300 last:border-0">
                             <div class="flex items-center gap-3">
-                                <div class="w-8 h-8 rounded-full bg-gray-500 flex items-center justify-center text-white font-bold">
+                                <div
+                                    class="w-8 h-8 rounded-full bg-gray-500 flex items-center justify-center text-white font-bold">
                                     {{ user.name.charAt(0).toUpperCase() }}
                                 </div>
                                 <div>
@@ -491,15 +542,19 @@ const formatProjectStatus = (status) => {
                 <div class="flex flex-col sm:flex-row gap-3">
                     <button @click.stop="closeAddMemberModal"
                         class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-3 rounded-lg transition duration-300 flex-1 flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12" />
                         </svg>
                         Cancel
                     </button>
                     <button @click.stop="addMembers(selectedUsers)"
                         class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg transition duration-300 flex-1 flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                         </svg>
                         Add Selected Members
                     </button>
@@ -514,27 +569,34 @@ const formatProjectStatus = (status) => {
                 @click.stop>
                 <div class="flex items-center justify-center mb-6">
                     <div class="bg-red-100 dark:bg-red-50 p-3 rounded-full">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7a4 4 0 11-8 0 4 4 0 018 0zM9 14a6 6 0 00-6 6v1h12v-1a6 6 0 00-6-6zM21 12h-6" />
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-red-600" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M13 7a4 4 0 11-8 0 4 4 0 018 0zM9 14a6 6 0 00-6 6v1h12v-1a6 6 0 00-6-6zM21 12h-6" />
                         </svg>
                     </div>
                 </div>
                 <h2 class="text-xl font-bold text-white dark:text-gray-800 text-center mb-2">Remove Member</h2>
                 <p class="mb-6 text-gray-300 dark:text-gray-600 text-center">
-                    Are you sure you want to remove <span class="font-bold text-white dark:text-gray-800">{{ userToKick?.name }}</span> from this department?
+                    Are you sure you want to remove <span class="font-bold text-white dark:text-gray-800">{{
+                        userToKick?.name }}</span> from this department?
                 </p>
                 <div class="flex flex-col sm:flex-row gap-3">
                     <button @click="modalKickMember = false"
                         class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-3 rounded-lg transition duration-300 flex-1 flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12" />
                         </svg>
                         Cancel
                     </button>
                     <button @click="confirmKickMember"
                         class="bg-red-600 hover:bg-red-700 text-white px-4 py-3 rounded-lg transition duration-300 flex-1 flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7a4 4 0 11-8 0 4 4 0 018 0zM9 14a6 6 0 00-6 6v1h12v-1a6 6 0 00-6-6zM21 12h-6" />
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M13 7a4 4 0 11-8 0 4 4 0 018 0zM9 14a6 6 0 00-6 6v1h12v-1a6 6 0 00-6-6zM21 12h-6" />
                         </svg>
                         Remove Member
                     </button>
@@ -542,6 +604,15 @@ const formatProjectStatus = (status) => {
             </div>
         </div>
     </Layout>
+
+    <EditDepartmentModal 
+        :is-open="isEditDepartmentModalOpen" 
+        :departmentHead="department_managers" 
+        :department="department" 
+        :users="filteredUsers" 
+        @close="closeEditDepartmentModal" 
+    />
+
 </template>
 
 <style>
