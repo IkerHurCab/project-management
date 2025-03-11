@@ -10,8 +10,11 @@
     isOpen: Boolean,
     task: Object,
     project: Object,
+    employees: Array,
   });
   
+  const errors = ref({});
+
   const emit = defineEmits(['close', 'update', 'delete']);
   
   const form = useForm({
@@ -22,7 +25,7 @@
     priority: props.task?.priority || '1',
     start_date: props.task?.start_date || '',
     end_date: props.task?.end_date || '',
-    user_id: props.task?.user_id || '',
+    user_id: props.task?.user.id || '',
   });
   
   const priorities = [
@@ -44,10 +47,12 @@
   const submitForm = () => {
   router.post(`/projects/${props.project.id}/task/${props.task.id}`, form, {
     onSuccess: () => {
-      console.log('Task updated successfully');
       toast.success('Task updated successfully');
-      emit('update');
-      emit('close');
+      closeModal();
+    },
+    onError: (err) => {
+      errors.value = err;
+
     }
   });
 };
@@ -64,6 +69,11 @@
   const deleteTask = () => {
     router.delete(`/projects/${props.project.id}/task/${props.task.id}`)
     closeDeleteModal();
+    closeModal();
+  };
+
+  const closeModal = () => {
+    errors.value = {};
     emit('close');
   };
   </script>
@@ -78,8 +88,8 @@
             <button @click="openDeleteModal" class="text-red-500 cursor-pointer hover:text-red-400 transition-colors">
               <box-icon name="trash" type="solid" color="currentColor"></box-icon>
             </button>
-            <button @click="emit('close')" class="text-gray-400 dark:text-gray-700 dark:hover:text-black cursor-pointer hover:text-white transition-colors">
-              <box-icon name="x" color="currentColor"></box-icon>
+            <button @click="closeModal" class="text-gray-400 dark:text-gray-700 dark:hover:text-black cursor-pointer hover:text-white transition-colors">
+              <box-icon name='x' color='currentColor'></box-icon>
             </button>
           </div>
         </div>
@@ -88,7 +98,9 @@
           <div class="space-y-4">
             <div>
               <label for="name" class="block text-sm font-medium text-gray-300 dark:text-gray-700 mb-1">Task Name</label>
-              <InputWithIcon v-model="form.name" id="name" type="text" icon="task" placeholder="Enter task name" class="bg-gray-950 dark:bg-gray-100 dark:text-black border-gray-700 text-white w-full" />
+              <InputWithIcon v-model="form.name" id="name" type="text" icon="task" placeholder="Enter task name" class="bg-gray-950 dark:bg-gray-100 dark:text-black border-gray-700 text-white" />
+              <p v-if="errors.name" class="text-red-500 text-sm mt-1">{{ errors.name }}</p>
+         
             </div>
             <div>
               <label for="description" class="block text-sm font-medium text-gray-300 dark:text-gray-700 mb-1">Description</label>
@@ -103,27 +115,40 @@
             <div>
               <label for="estimated_hours" class="block text-sm font-medium text-gray-300 dark:text-gray-700 mb-1">Estimated Hours</label>
               <InputWithIcon v-model="form.estimated_hours" id="estimated_hours" type="number" icon="time" placeholder="Enter estimated hours" class="border-gray-700 w-full text-white" />
+              <p v-if="errors.estimated_hours" class="text-red-500 text-sm mt-1">{{ errors.estimated_hours }}</p>
             </div>
             <div>
               <label for="status" class="block text-sm font-medium text-gray-300 dark:text-gray-700 mb-1">Status</label>
               <SelectWithIcon v-model="form.status" icon="check-square" placeholder="Select status" class="w-full" :options="statuses" />
+              <p v-if="errors.status" class="text-red-500 text-sm mt-1">{{ errors.status }}</p>
             </div>
             <div>
               <label for="priority" class="block text-sm font-medium text-gray-300 dark:text-gray-700 mb-2">Priority</label>
               <SelectWithIcon v-model="form.priority" icon="flag" placeholder="Select priority" class="w-full" :options="priorities" />
+              <p v-if="errors.priority" class="text-red-500 text-sm mt-1">{{ errors.priority }}</p>
+            </div>
+            <div>
+              <label for="user_id" class="block text-sm font-medium text-gray-300 dark:text-gray-700 mb-1">Assign To</label>
+              <SelectWithIcon v-model="form.user_id" icon="user" placeholder="Select employee" class="w-full" :options="[
+                { label: 'Assign the employee', value: '' },
+                ...employees.map(employee => ({ label: employee['name'], value: employee['id'] }))
+              ]" />
+              <p v-if="errors.user_id" class="text-red-500 text-sm mt-1">{{ errors.user_id }}</p>
             </div>
             <div>
               <label for="start_date" class="block text-sm font-medium text-gray-300 dark:text-gray-700 mb-1">Start Date</label>
               <InputWithIcon v-model="form.start_date" id="start_date" type="date" icon="calendar" class="border-gray-700 w-full text-white" />
+              <p v-if="errors.start_date" class="text-red-500 text-sm mt-1">{{ errors.start_date }}</p>
             </div>
             <div>
               <label for="end_date" class="block text-sm font-medium text-gray-300 dark:text-gray-700 mb-1">End Date</label>
               <InputWithIcon v-model="form.end_date" id="end_date" type="date" icon="calendar" class="w-full border-gray-700 text-white" />
+              <p v-if="errors.end_date" class="text-red-500 text-sm mt-1">{{ errors.end_date }}</p>
             </div>
           </div>
   
           <div class="flex justify-end space-x-3 mt-6">
-            <StandardButton type="button" @click="emit('close')" class="bg-gray-600 hover:bg-gray-500 dark:bg-gray-600 dark:hover:bg-gray-500 transition-colors">Cancel</StandardButton>
+            <StandardButton type="button" @click="closeModal()" class="bg-gray-600 hover:bg-gray-500 dark:bg-gray-600 dark:hover:bg-gray-500 transition-colors">Cancel</StandardButton>
             <StandardButton type="submit" class="bg-blue-600 hover:bg-blue-500 transition-colors">Update Task</StandardButton>
           </div>
         </form>

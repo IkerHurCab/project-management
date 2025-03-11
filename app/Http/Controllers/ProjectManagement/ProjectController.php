@@ -198,7 +198,6 @@ class ProjectController extends Controller
     ->get(['id', 'name']);
 
 
-
     return Inertia::render('ProjectManagement/Project/SingleProject', [
         'project' => $project,
         'user' => $user,
@@ -237,7 +236,7 @@ class ProjectController extends Controller
         ->where('organization_id', request()->user()->currentOrganization()->first()->id)
         ->get(['id', 'name']);
 
-        
+ 
 
         return Inertia::render('ProjectManagement/Project/CreateProject', [
             'users' => $users,
@@ -250,20 +249,35 @@ class ProjectController extends Controller
 
     public function store(Request $request)
     {
-        // Validación de los datos del formulario
+    
         $request->validate([
             'name' => 'required|string|max:255',
             'project_leader_id' => 'required|exists:users,id',
             'start_date' => 'required|date',
-            'end_date' => 'nullable|date|after_or_equal:start_date',
-            'assigned_hours' => 'nullable|numeric',
+            'end_date' => 'required|date|after_or_equal:start_date',
+            'assigned_hours' => 'required|numeric|min:0',
             'status' => 'required|string',
             'is_public' => 'required|boolean',
             'priority' => 'required|integer',
             'description' => 'nullable|string',
             'attachments' => 'nullable|array',
-      
-        ]);
+            'department_ids' => 'required|array',
+        ], [
+            'name.required' => 'The project name is required',
+            'project_leader_id.required' => 'The project leader is required',
+            'start_date.required' => 'The start date is required',
+            'end_date.required' => 'The end date is required',
+            'status.required' => 'The status is required',
+            'is_public.required' => 'The public status is required',
+            'priority.required' => 'The priority is required',
+            'project_leader_id.exists' => 'The project leader does not exist',
+            'start_date.date' => 'The start date must be a valid date',
+            'end_date.date' => 'The end date must be a valid date',
+            'end_date.after_or_equal' => 'The end date must be after or equal to the start date',
+            'assigned_hours.numeric' => 'The assigned hours must be a number',
+            'attachments.array' => 'The attachments must be an array',
+            'department_ids.required' => 'You have to select at least one department',
+        ]);	
       
         $project = Project::create([
             'name' => $request->name,
@@ -321,13 +335,39 @@ class ProjectController extends Controller
 
     public function update(Request $request, $projectId){
 
+        $validatedData = $request->validate([
+            'projectName' => 'required|string|max:255',
+            'company' => 'nullable|string|max:255',
+            'projectLeader' => 'required|exists:users,id',
+            'startDate' => 'required|date',
+            'endDate' => 'nullable|date|after_or_equal:startDate',
+            'assignedHours' => 'nullable|numeric',
+            'priority' => 'required|integer',
+            'description' => 'nullable|string',
+            'attachments' => 'nullable|array',
+            'isPublic' => 'required|boolean',
+            'department_ids' => 'required|array',
+        ], [
+            'name.required' => 'The project name is required',
+            'project_leader_id.required' => 'The project leader is required',
+            'start_date.required' => 'The start date is required',
+            'end_date.required' => 'The end date is required',
+            'department_ids.required' => 'You have to select at least one department',
+            'project_leader_id.exists' => 'The project leader does not exist',
+            'start_date.date' => 'The start date must be a valid date',
+            'end_date.date' => 'The end date must be a valid date',
+            'end_date.after_or_equal' => 'The end date must be after or equal to the start date',
+            'assigned_hours.numeric' => 'The assigned hours must be a number',
+            ]);
+
+
         $project = Project::find($projectId);
         
         if (!$project) {
             return response()->json(['error' => 'Proyecto no encontrado'], 404);
         }  
         
- 
+   
 
         $project->update([
             'name' => $request['projectName'],
@@ -340,6 +380,7 @@ class ProjectController extends Controller
             'description' => $request['description'],
             'attachments' => $request['attachments'],
             'is_public' => $request['isPublic'],
+            'status' => $request['status'],
         ]);
   
         $project->departments()->sync($request->department_ids);

@@ -10,6 +10,8 @@ import { router } from '@inertiajs/vue3';
 const isDarkMode = ref(false);
 const isMobile = ref(false);
 
+const errors = ref({});
+
 function checkDarkMode() {
     isDarkMode.value = document.documentElement.classList.contains('dark');
     return isDarkMode.value;
@@ -53,6 +55,9 @@ function createDepartment() {
             modalCreateDepartment.value = false;
             newDepartmentName.value = '';
             newDepartmentDescription.value = '';
+        },
+        onError: (err) => {
+            errors.value = err;
         }
     });
 }
@@ -98,11 +103,20 @@ function requestAccess() {
 }
 
 const isPopupVisible = ref(false);
+
+const closeCreateDepartmentModal = () => {
+    modalCreateDepartment.value = false;
+    newDepartmentName.value = '';
+    newDepartmentDescription.value = '';
+    departmentHead.value = '';
+    errors.value = {};
+}
+
 </script>
 
 <template>
     <Layout pageTitle="Departments">
-        <div class="p-4 md:p-6 max-w-7xl mx-auto">
+        <div class="p-4 md:p-6  mx-auto">
             <!-- Your Departments Section -->
             <div class="bg-gray-950 dark:bg-white rounded-xl shadow-lg border border-gray-800 dark:border-none dark:shadow-xl overflow-hidden mb-8">
                 <div class="bg-gray-900 dark:bg-white p-4 md:p-6 border-b border-gray-800 dark:border-gray-200">
@@ -354,6 +368,7 @@ const isPopupVisible = ref(false);
                             placeholder="Enter department name" 
                             class="w-full p-3 bg-gray-700 dark:bg-gray-100 border border-gray-600 dark:border-gray-300 rounded-lg text-white dark:text-gray-800 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200" 
                         />
+                        <p v-if="errors.name" class="text-red-500 text-sm mt-1">{{ errors.name }}</p>
                     </div>
                     <div>
                         <label for="description" class="block text-sm font-medium text-gray-300 dark:text-gray-700 mb-1">Description</label>
@@ -375,6 +390,7 @@ const isPopupVisible = ref(false);
                             <option disabled value="">Select a department head</option>
                             <option v-for="user in users" :key="user.id" :value="user.id">{{ user.name }}</option>
                         </select>
+                        <p v-if="errors.department_head" class="text-red-500 text-sm mt-1">{{ errors.department_head }}</p>
                     </div>
                     <div class="flex flex-col sm:flex-row gap-3 pt-4">
                         <button @click.stop="modalCreateDepartment = false"
