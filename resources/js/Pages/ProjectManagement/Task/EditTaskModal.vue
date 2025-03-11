@@ -79,34 +79,39 @@
   </script>
   
   <template>
-    <div v-if="isOpen" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
-      <div class="bg-gray-950 dark:bg-white rounded-lg w-full max-w-5xl h-auto border border-gray-700 shadow-lg">
+    <div v-if="isOpen" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+      <div class="bg-gray-950 dark:bg-white rounded-lg w-full max-w-5xl h-auto border border-gray-700 shadow-lg 
+                  max-h-[90vh] overflow-y-auto sm:max-w-md md:max-w-lg lg:max-w-4xl">
         <div class="border-b border-gray-700 dark:bg-gray-100 px-6 py-4 flex justify-between items-center bg-gray-950 rounded-t-lg">
-          <h2 class="text-2xl font-semibold text-white dark:text-black">Edit Task</h2>
+          <h2 class="text-xl sm:text-lg md:text-xl font-semibold text-white dark:text-black">Edit Task</h2>
           <div class="flex items-center space-x-4">
             <button @click="openDeleteModal" class="text-red-500 cursor-pointer hover:text-red-400 transition-colors">
-              <box-icon name='trash' type='solid' color='currentColor'></box-icon>
+              <box-icon name="trash" type="solid" color="currentColor"></box-icon>
             </button>
             <button @click="closeModal" class="text-gray-400 dark:text-gray-700 dark:hover:text-black cursor-pointer hover:text-white transition-colors">
               <box-icon name='x' color='currentColor'></box-icon>
             </button>
           </div>
         </div>
+  
         <form @submit.prevent="submitForm" class="p-6 space-y-6">
           <div class="space-y-4">
             <div>
               <label for="name" class="block text-sm font-medium text-gray-300 dark:text-gray-700 mb-1">Task Name</label>
               <InputWithIcon v-model="form.name" id="name" type="text" icon="task" placeholder="Enter task name" class="bg-gray-950 dark:bg-gray-100 dark:text-black border-gray-700 text-white" />
               <p v-if="errors.name" class="text-red-500 text-sm mt-1">{{ errors.name }}</p>
+         
             </div>
             <div>
-              <label for="description" class="block text-sm font-medium text-gray-300 dark:text-gray-700 mb-1 ">Description</label>
-              <textarea v-model="form.description" id="description" rows="4" 
+              <label for="description" class="block text-sm font-medium text-gray-300 dark:text-gray-700 mb-1">Description</label>
+              <textarea v-model="form.description" id="description" rows="4"
                         class="w-full bg-gray-800 border dark:bg-gray-100 dark:text-black border-gray-700 rounded-md text-white px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"
                         placeholder="Enter task description"></textarea>
             </div>
           </div>
-          <div class="grid grid-cols-3 gap-6">
+  
+          <!-- Responsive Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div>
               <label for="estimated_hours" class="block text-sm font-medium text-gray-300 dark:text-gray-700 mb-1">Estimated Hours</label>
               <InputWithIcon v-model="form.estimated_hours" id="estimated_hours" type="number" icon="time" placeholder="Enter estimated hours" class="border-gray-700 w-full text-white" />
@@ -141,6 +146,7 @@
               <p v-if="errors.end_date" class="text-red-500 text-sm mt-1">{{ errors.end_date }}</p>
             </div>
           </div>
+  
           <div class="flex justify-end space-x-3 mt-6">
             <StandardButton type="button" @click="closeModal()" class="bg-gray-600 hover:bg-gray-500 dark:bg-gray-600 dark:hover:bg-gray-500 transition-colors">Cancel</StandardButton>
             <StandardButton type="submit" class="bg-blue-600 hover:bg-blue-500 transition-colors">Update Task</StandardButton>
@@ -150,7 +156,7 @@
     </div>
   
     <!-- Delete Confirmation Modal -->
-    <div v-if="showDeleteModal" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+    <div v-if="showDeleteModal" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
       <div class="bg-gray-950 dark:bg-white rounded-lg w-full max-w-md p-6 border border-gray-700 shadow-lg">
         <h3 class="text-xl font-semibold text-white mb-4 dark:text-black">Are you sure you want to delete this task?</h3>
         <p class="text-gray-400 mb-6 dark:text-gray-700">This action cannot be undone.</p>
@@ -165,3 +171,4 @@
       </div>
     </div>
   </template>
+  

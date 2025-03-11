@@ -1,11 +1,22 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { usePage, router } from '@inertiajs/vue3';
 import axios from 'axios';
 import Layout from '@/Layouts/Layout.vue';
 import InputWithIcon from '../Components/InputWithIcon.vue';
 
 const user = computed(() => usePage().props.auth?.user);
+const isMobile = ref(false);
+
+// Check if device is mobile
+const checkMobile = () => {
+  isMobile.value = window.innerWidth < 768;
+};
+
+onMounted(() => {
+  checkMobile();
+  window.addEventListener('resize', checkMobile);
+});
 
 const currentPassword = ref('');
 const newPassword = ref('');
@@ -128,12 +139,12 @@ const updatePassword = async () => {
 
 <template>
   <Layout pageTitle="Change Password">
-    <div class="bg-gray-950 dark:bg-gray-200 rounded-lg h-full border border-gray-500">
+    <div class="bg-gray-950 dark:bg-gray-200 rounded-lg h-fit border border-gray-500 mx-2 md:mx-6">
       <h1 class="border-b border-gray-500 p-2 rounded-t-lg dark:text-gray-500">CHANGE PASSWORD</h1>
       <p class="px-4 mt-4">Update your password to keep your account secure.</p>
       
       <form @submit.prevent="updatePassword" class="p-4">
-        <div class="max-w-md space-y-6">
+        <div class="w-full max-w-md space-y-6">
           <div v-if="successMessage" class="bg-green-100 dark:bg-green-200 border border-green-400 text-green-700 px-4 py-3 rounded relative">
             {{ successMessage }}
           </div>
@@ -208,7 +219,7 @@ const updatePassword = async () => {
             <button 
               type="submit" 
               :disabled="isSubmitting"
-              class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg cursor-pointer transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              class="w-full sm:w-auto bg-blue-500 hover:bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg cursor-pointer transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {{ isSubmitting ? 'Updating...' : 'Update Password' }}
             </button>

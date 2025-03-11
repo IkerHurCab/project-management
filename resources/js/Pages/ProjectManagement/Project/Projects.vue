@@ -171,7 +171,7 @@ const isUserInProject = (project) => {
 
           <!-- Projects table -->
           <!-- Projects table -->
-          <div class="bg-gray-900 dark:bg-gray-200 dark:shadow-xl rounded-lg overflow-hidden">
+          <div class="bg-gray-900 dark:bg-gray-200 dark:shadow-xl rounded-lg overflow-x-auto">
             <table class="w-full">
               <thead>
                 <tr class="bg-gray-800 dark:bg-gray-200 text-left">

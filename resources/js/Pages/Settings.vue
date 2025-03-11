@@ -20,6 +20,13 @@ const isUpdating = ref(false);
 const updateErrors = ref({});
 const updateSuccess = ref(false);
 
+const isMobile = ref(false);
+
+// Check if device is mobile
+const checkMobile = () => {
+  isMobile.value = window.innerWidth < 768;
+};
+
 const toggleDarkMode = () => {
     if (isDarkMode.value) {
         localStorage.setItem('theme', 'dark');
@@ -28,7 +35,6 @@ const toggleDarkMode = () => {
         localStorage.setItem('theme', 'light');
         document.documentElement.classList.remove('dark');
     }
-
 };
 
 onMounted(() => {
@@ -40,6 +46,9 @@ onMounted(() => {
     } else {
         document.documentElement.classList.remove('dark');
     }
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
 });
 
 const getQRCode = async () => {
@@ -123,7 +132,6 @@ const updateUserInfo = async () => {
 const qrModal = ref(false);
 const disableConfirmModal = ref(false);
 
-
 const confirmCountdown = ref(10);
 const confirmButtonEnabled = ref(false);
 const countdownTimer = ref(null);
@@ -166,7 +174,7 @@ const handle2FAButtonClick = () => {
 
 <template>
     <Layout pageTitle="Settings" class="transition duration-200">
-        <div class="bg-gray-950 dark:bg-gray-200 rounded-lg h-full border border-gray-500 ml-6 transition duration-200">
+        <div class="bg-gray-950 dark:bg-gray-200 rounded-lg h-fit border border-gray-500 mx-2 md:ml-6 transition duration-200">
 
             <h1 class="border-b border-gray-500 p-2 rounded-t-lg dark:text-gray-500">ACCOUNT</h1>
             <p class="px-4 mt-4">Manage your account information.</p>
@@ -181,7 +189,7 @@ const handle2FAButtonClick = () => {
                 {{ updateErrors.general }}
             </div>
             
-            <div class="p-4 grid grid-cols-2 gap-4">
+            <div class="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                     <label for="username">Username</label>
                     <InputWithIcon icon="user" :placeholder="user.name" class="w-full" type="text"
@@ -193,7 +201,7 @@ const handle2FAButtonClick = () => {
                     <InputWithIcon icon="envelope" :placeholder="user.email" v-model="email" class="w-full" type="email" required />
                     <p v-if="updateErrors.email" class="text-red-500 text-sm mt-1">{{ updateErrors.email }}</p>
                 </div>
-                <div class="grid grid-cols-2 gap-2 ">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     <button 
                         @click="updateUserInfo" 
                         :disabled="isUpdating"
@@ -235,8 +243,8 @@ const handle2FAButtonClick = () => {
 
             <h1 class="border-y border-gray-500 p-2 dark:text-gray-500">SECURITY</h1>
             <p class="px-4 mt-4 dark:text-gray-700">Add an extra layer of security to your account.</p>
-            <div class="p-4 grid grid-cols-2 gap-4">
-                <div class="bg-gray-900 dark:bg-gray-50 p-6 rounded-lg dark:text-gray-700 shadow-lg">
+            <div class="p-4">
+                <div class="bg-gray-900 dark:bg-gray-50 p-4 md:p-6 rounded-lg dark:text-gray-700 shadow-lg">
                     <p class="text-xl font-bold">Two-Factor Authentication (2FA)</p>
                     <p class="mt-2 text-justify">
                         Two-Factor Authentication adds an extra layer of security to your account.
@@ -248,7 +256,8 @@ const handle2FAButtonClick = () => {
                         you log in. You can use an authenticator app to complete this process.
                     </p>
                     <button @click="handle2FAButtonClick()" :class="[
-                        'w-1/2',
+                        'w-full',
+                        'sm:w-1/2',
                         'text-white',
                         'font-semibold',
                         'p-3',
@@ -267,24 +276,24 @@ const handle2FAButtonClick = () => {
         </div>
 
         <!-- QR Code Modal -->
-        <div v-if="qrCode && qrModal" class="fixed inset-0 flex items-center justify-center bg-black/50">
-            <div class="bg-gray-900 dark:bg-white p-6 rounded-lg shadow-lg w-96 text-center">
+        <div v-if="qrCode && qrModal" class="fixed inset-0 flex items-center justify-center bg-black/50 p-4 z-50">
+            <div class="bg-gray-900 dark:bg-white p-4 md:p-6 rounded-lg shadow-lg w-full max-w-sm text-center">
                 <h2 class="text-lg font-semibold mb-4">Scan this QR Code</h2>
                 <div v-html="qrCode" class="p-4 bg-gray-100 dark:border rounded-lg inline-block"></div>
                 <p class="text text-gray-300 mt-2 dark:text-gray-500">Use your authenticator app to scan the code and
                     enable 2FA</p>
-                <div class="flex gap-2">
+                <div class="flex flex-col sm:flex-row gap-2 justify-center">
                     <button @click="disable2FA()"
-                        class="mt-4 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 cursor-pointer transition duration-300">Cancel</button>
+                        class="mt-4 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 cursor-pointer transition duration-300 w-full">Cancel</button>
                     <button @click="qrModal = false"
-                        class="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 cursor-pointer transition duration-300">Confirm</button>
+                        class="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 cursor-pointer transition duration-300 w-full">Confirm</button>
                 </div>
             </div>
         </div>
 
         <!-- Disable 2FA Confirmation Modal -->
-        <div v-if="disableConfirmModal" class="fixed inset-0 flex items-center justify-center bg-black/50">
-            <div class="bg-gray-900 dark:bg-white p-6 rounded-lg shadow-lg w-96 text-center">
+        <div v-if="disableConfirmModal" class="fixed inset-0 flex items-center justify-center bg-black/50 p-4 z-50">
+            <div class="bg-gray-900 dark:bg-white p-4 md:p-6 rounded-lg shadow-lg w-full max-w-sm text-center">
                 <h2 class="text-xl font-bold text-red-500 mb-4">WARNING: Disabling 2FA</h2>
                 <div class="p-4 bg-red-100 dark:bg-red-50 rounded-lg mb-4">
                     <p class="text-red-800 font-semibold">This action is not recommended</p>
@@ -296,7 +305,7 @@ const handle2FAButtonClick = () => {
                 <p class="text-gray-300 dark:text-gray-700 text-justify mb-4">
                     We strongly recommend keeping 2FA enabled to protect your personal information and data.
                 </p>
-                <div class="flex justify-between gap-2">
+                <div class="flex flex-col sm:flex-row justify-between gap-2">
                     <button @click="closeDisableConfirmation()"
                         class="mt-4 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 cursor-pointer transition duration-300 flex-1">
                         Cancel

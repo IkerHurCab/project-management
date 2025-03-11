@@ -66,7 +66,7 @@
     
     <template>
       <div v-if="isOpen" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
-        <div class="bg-gray-950 dark:bg-white dark:border-none dark:shadow-xl rounded-lg w-full max-w-md h-auto border border-gray-700 shadow-lg">
+        <div class="bg-gray-950 max-h-[90vh] overflow-y-auto dark:bg-white dark:border-none dark:shadow-xl rounded-lg w-full max-w-md h-auto border border-gray-700 shadow-lg">
           <div class="border-b border-gray-700 dark:bg-gray-100 px-6 py-4 flex justify-between items-center bg-gray-950 rounded-t-lg">
             <h2 class="text-2xl font-semibold text-white dark:text-black">Add Members</h2>
             <button @click="emit('close')" class="text-gray-400 dark:text-black dark:hover:text-gray-700 cursor-pointer hover:text-white transition-colors">
@@ -105,7 +105,7 @@
             </div>
            
             
-            <div class="overflow-y-auto max-h-60 scrollbar">
+            <div class="overflow-y-auto max-h-60 scrollbar ">
                 <template v-if="filteredAllUsers.length > 0">
                   <div 
                     v-for="user in filteredAllUsers" 

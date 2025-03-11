@@ -141,6 +141,7 @@ class DepartmentController extends Controller
             'filteredAvailableUsers' => $filteredAvailableUsers,
         ]);
     }
+    
 
     public function addUser(Request $request, $id) {
         $department = Department::findOrFail($id);
@@ -171,5 +172,28 @@ class DepartmentController extends Controller
             'filteredAvailableUsers' => $filteredAvailableUsers,
         ]);
     }
+
+    public function kickMember(Request $request, Department $department)
+{
+    // Validate the request
+    $validated = $request->validate([
+        'user_id' => 'required|exists:users,id',
+    ]);
+
+    try {
+        // Check if the user is in the department
+        $userInDepartment = $department->users()->where('user_id', $validated['user_id'])->exists();
+        
+        if (!$userInDepartment) {
+            return response()->json(['message' => 'User is not a member of this department'], 404);
+        }
+
+        // Remove the user from the department
+        $department->users()->detach($validated['user_id']);
+        return $this->showSingle($department->id);
+    } catch (\Exception $e) {
+        return response()->json(['message' => 'Failed to remove user from department', 'error' => $e->getMessage()], 500);
+    }
+}
     
 }
